@@ -6,10 +6,12 @@
 }
 
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Inter', sans-serif;
     background: #f4f6fa;
     color: #222;
-    line-height: 1.6;
+    line-height: 1.7;
+    font-size: 15px;
+    -webkit-font-smoothing: antialiased;
 }
 
 header {
@@ -98,4 +100,17 @@ footer {
 .category-card small {
     color: #2563eb;
     font-weight: bold;
+}
+
+h1, h2, h3 {
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+
+p {
+    font-weight: 400;
+}
+
+.category-card h3 {
+    font-weight: 600;
 }
