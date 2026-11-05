@@ -1,57 +1,87 @@
 const categories = [
     {
+        id: "qa",
+        name: "What is QA?",
+        description: "Manual testing fundamentals",
+        icon: "🧪"
+    },
+    {
         id: "selenium",
         name: "Selenium",
-        icon: "🌐",
-        description: "Web browser automation"
+        description: "Web browser automation",
+        icon: "🌐"
     },
     {
         id: "java",
         name: "Java",
-        icon: "☕",
-        description: "Core Java programming"
+        description: "Core Java programming",
+        icon: "☕"
     },
     {
         id: "playwright",
         name: "Playwright",
-        icon: "🎭",
-        description: "Modern browser automation"
-    },
-    {
-        id: "qa",
-        name: "What is QA?",
-        icon: "🧪",
-        description: "Manual testing fundamentals"
+        description: "Modern browser automation",
+        icon: "🎭"
     }
 ];
 
-const categoryContainer = document.getElementById("category-container");
+const homePage = document.getElementById("home-page");
+const dashboardPage = document.getElementById("dashboard-page");
+
+const startButton = document.getElementById("start-button");
+const homeButton = document.getElementById("home-button");
+
+const topicList = document.getElementById("topic-list");
+const selectedTopic = document.getElementById("selected-topic");
+const topicDescription = document.getElementById("topic-description");
 const questionContainer = document.getElementById("question-container");
 
-function displayCategories() {
-    categoryContainer.innerHTML = "";
+
+startButton.addEventListener("click", () => {
+    homePage.classList.add("hidden");
+    dashboardPage.classList.remove("hidden");
+
+    displayTopics();
+    loadQuestions(categories[0]);
+});
+
+homeButton.addEventListener("click", () => {
+    dashboardPage.classList.add("hidden");
+    homePage.classList.remove("hidden");
+});
+
+
+function displayTopics() {
+    topicList.innerHTML = "";
 
     categories.forEach(category => {
-        const card = document.createElement("div");
-        card.className = "category-card";
+        const button = document.createElement("button");
 
-        card.innerHTML = `
-            <h2>${category.icon}</h2>
-            <h3>${category.name}</h3>
-            <p>${category.description}</p>
-            <small>Explore Questions →</small>
-        `;
+        button.className = "topic-button";
+        button.textContent = `${category.icon}  ${category.name}`;
 
-        card.addEventListener("click", () => {
-            loadCategoryQuestions(category);
+        button.addEventListener("click", () => {
+            loadQuestions(category);
         });
 
-        categoryContainer.appendChild(card);
+        topicList.appendChild(button);
     });
 }
 
-async function loadCategoryQuestions(category) {
-    questionContainer.innerHTML = "<p>Loading questions...</p>";
+
+async function loadQuestions(category) {
+
+    selectedTopic.textContent = category.name;
+    topicDescription.textContent = category.description;
+
+    document.querySelectorAll(".topic-button").forEach(button => {
+        button.classList.toggle(
+            "active",
+            button.textContent.includes(category.name)
+        );
+    });
+
+    questionContainer.textContent = "Loading questions...";
 
     try {
         const response = await fetch(`./data/${category.id}.json`);
@@ -62,44 +92,60 @@ async function loadCategoryQuestions(category) {
 
         const data = await response.json();
 
-        displayQuestions(category, data.questions);
+        displayQuestions(data.questions);
 
     } catch (error) {
-        questionContainer.textContent = "Unable to load questions. Please try again.";
+        questionContainer.textContent =
+            "Unable to load questions. Please try again.";
+
         console.error(error);
     }
 }
 
-function displayQuestions(category, questions) {
+
+function displayQuestions(questions) {
+
     questionContainer.innerHTML = "";
 
-    const heading = document.createElement("h3");
-    heading.textContent = `${category.name} – ${questions.length} Questions`;
-    questionContainer.appendChild(heading);
+    if (!questions || questions.length === 0) {
+        questionContainer.textContent = "No questions added yet.";
+        return;
+    }
 
-    questions.forEach(item => {
+    questions.forEach((item, index) => {
+
         const card = document.createElement("details");
         card.className = "question-card";
 
-        const question = document.createElement("summary");
-        question.textContent = item.question;
+        const summary = document.createElement("summary");
+
+        const questionText = document.createElement("span");
+        questionText.textContent = `${index + 1}. ${item.question}`;
+
+        const difficulty = document.createElement("small");
+        difficulty.textContent = item.difficulty || "General";
+
+        summary.append(questionText, difficulty);
+
+        const answerSection = document.createElement("div");
+        answerSection.className = "answer-section";
 
         const answer = document.createElement("p");
         answer.textContent = item.answer;
 
-        card.append(question, answer);
+        answerSection.appendChild(answer);
 
         if (item.example) {
             const code = document.createElement("pre");
             const codeText = document.createElement("code");
 
             codeText.textContent = item.example;
+
             code.appendChild(codeText);
-            card.appendChild(code);
+            answerSection.appendChild(code);
         }
 
+        card.append(summary, answerSection);
         questionContainer.appendChild(card);
     });
 }
-
-displayCategories();

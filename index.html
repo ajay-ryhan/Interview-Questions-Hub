@@ -1,41 +1,84 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>QA Interview Hub</title>
-    <meta name="description" content="Your personal QA interview preparation hub.">
+    <meta name="description" content="Your QA interview preparation hub.">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-<header>
-    <h1>QA Interview Hub</h1>
-    <p>Learn. Practise. Prepare. Succeed.</p>
-</header>
+<!-- Home Page -->
+<section id="home-page" class="home-page">
+    <div class="home-content">
+        <span class="brand-label">QA INTERVIEW HUB</span>
 
-<main>
-    <section id="categories">
-        <h2>Explore Interview Topics</h2>
-        <div id="category-container"></div>
-    </section>
+        <h1>Prepare. Practise. Succeed.</h1>
 
-    <section id="questions">
-        <h2>Interview Questions</h2>
-        <div id="question-container">
-            <p>Select a category to explore questions.</p>
+        <p>
+            Your space to learn, explore and prepare
+            for your next QA interview.
+        </p>
+
+        <button id="start-button" class="start-button">
+            Start Exploring Interview Questions →
+        </button>
+    </div>
+
+    <footer>Built with passion by Ajay Ryhan</footer>
+</section>
+
+
+<!-- Dashboard -->
+<section id="dashboard-page" class="dashboard-page hidden">
+
+    <header class="dashboard-header">
+        <div>
+            <h1>QA Interview Hub</h1>
+            <p>Learn. Practise. Prepare. Succeed.</p>
         </div>
-    </section>
-</main>
 
-<footer>
-    <p>Built with passion by Ajay Ryhan</p>
-</footer>
+        <button id="home-button" class="home-button">
+            ← Home
+        </button>
+    </header>
+
+    <div class="dashboard-layout">
+
+        <aside class="sidebar">
+            <h3>EXPLORE TOPICS</h3>
+            <nav id="topic-list"></nav>
+        </aside>
+
+        <main class="dashboard-content">
+
+            <div class="content-heading">
+                <span>YOUR LEARNING SPACE</span>
+                <h2 id="selected-topic">Select a topic</h2>
+                <p id="topic-description">
+                    Choose a topic from the sidebar to explore questions.
+                </p>
+            </div>
+
+            <div id="question-container">
+            </div>
+
+        </main>
+
+    </div>
+
+    <footer>Built with passion by Ajay Ryhan</footer>
+
+</section>
 
 <script src="js/app.js"></script>
+
 </body>
 </html>
