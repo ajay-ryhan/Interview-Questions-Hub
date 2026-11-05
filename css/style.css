@@ -78,3 +78,24 @@ footer {
         font-size: 25px;
     }
 }
+
+
+.category-card h2 {
+    font-size: 35px;
+    margin-bottom: 10px;
+}
+
+.category-card h3 {
+    color: #172554;
+    margin-bottom: 8px;
+}
+
+.category-card p {
+    color: #64748b;
+    margin-bottom: 12px;
+}
+
+.category-card small {
+    color: #2563eb;
+    font-weight: bold;
+}
