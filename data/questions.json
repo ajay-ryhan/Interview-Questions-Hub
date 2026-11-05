@@ -1,0 +1,69 @@
+
+{
+  "categories": [
+    {
+      "id": "selenium",
+      "name": "Selenium",
+      "questions": [
+        {
+          "id": 1,
+          "topic": "WebDriver",
+          "difficulty": "Beginner",
+          "question": "What is Selenium WebDriver?",
+          "answer": "Selenium WebDriver is a browser automation tool that allows testers to automate web applications and interact with browser elements.",
+          "example": "WebDriver driver = new ChromeDriver();"
+        },
+        {
+          "id": 2,
+          "topic": "WebDriver",
+          "difficulty": "Beginner",
+          "question": "What is the difference between WebDriver and ChromeDriver?",
+          "answer": "WebDriver is an interface provided by Selenium. ChromeDriver is a class that implements WebDriver to control the Chrome browser.",
+          "example": "WebDriver driver = new ChromeDriver();"
+        }
+      ]
+    },
+    {
+      "id": "java",
+      "name": "Java",
+      "questions": [
+        {
+          "id": 1,
+          "topic": "Basics",
+          "difficulty": "Beginner",
+          "question": "What is Java?",
+          "answer": "Java is an object-oriented, class-based programming language designed to be platform independent.",
+          "example": "System.out.println(\"Hello World\");"
+        }
+      ]
+    },
+    {
+      "id": "playwright",
+      "name": "Playwright",
+      "questions": [
+        {
+          "id": 1,
+          "topic": "Basics",
+          "difficulty": "Beginner",
+          "question": "What is Playwright?",
+          "answer": "Playwright is an automation framework used for testing web applications across different browsers.",
+          "example": "await page.goto('https://example.com');"
+        }
+      ]
+    },
+    {
+      "id": "qa",
+      "name": "What is QA?",
+      "questions": [
+        {
+          "id": 1,
+          "topic": "Testing Fundamentals",
+          "difficulty": "Beginner",
+          "question": "What is Quality Assurance?",
+          "answer": "Quality Assurance is a process-focused approach that aims to prevent defects and improve software development processes.",
+          "example": ""
+        }
+      ]
+    }
+  ]
+}
