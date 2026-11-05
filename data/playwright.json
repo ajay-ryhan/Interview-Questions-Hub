@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "id": 1,
+      "topic": "Basics",
+      "difficulty": "Beginner",
+      "question": "What is Playwright?",
+      "answer": "Playwright is an automation framework used for testing web applications across different browsers.",
+      "example": "await page.goto('https://example.com');"
+    }
+  ]
+}

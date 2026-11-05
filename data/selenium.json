@@ -1,0 +1,20 @@
+{
+  "questions": [
+    {
+      "id": 1,
+      "topic": "WebDriver",
+      "difficulty": "Beginner",
+      "question": "What is Selenium WebDriver?",
+      "answer": "Selenium WebDriver is a browser automation tool used to automate web applications.",
+      "example": "WebDriver driver = new ChromeDriver();"
+    },
+    {
+      "id": 2,
+      "topic": "WebDriver",
+      "difficulty": "Beginner",
+      "question": "What is the difference between WebDriver and ChromeDriver?",
+      "answer": "WebDriver is an interface provided by Selenium. ChromeDriver is a class that implements WebDriver to control Chrome.",
+      "example": "WebDriver driver = new ChromeDriver();"
+    }
+  ]
+}

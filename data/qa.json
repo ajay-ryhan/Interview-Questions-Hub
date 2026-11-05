@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "id": 1,
+      "topic": "Testing Fundamentals",
+      "difficulty": "Beginner",
+      "question": "What is Quality Assurance?",
+      "answer": "Quality Assurance is a process-focused approach that aims to prevent defects and improve software development processes.",
+      "example": ""
+    }
+  ]
+}

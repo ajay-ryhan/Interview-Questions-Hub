@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "id": 1,
+      "topic": "Basics",
+      "difficulty": "Beginner",
+      "question": "What is Java?",
+      "answer": "Java is an object-oriented, class-based programming language.",
+      "example": "System.out.println(\"Hello World\");"
+    }
+  ]
+}
