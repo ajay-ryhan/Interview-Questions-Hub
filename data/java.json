@@ -7,6 +7,9 @@
       "question": "Write a Java program to find whether a number is Even or Odd.",
       "answer": "An even number has remainder 0 when divided by 2. Otherwise, it is odd. The modulus operator (%) gives the remainder.",
       "example": "int number = 15;\nSystem.out.println(number % 2 == 0 ? \"Even\" : \"Odd\");",
+      "javaCode": "public class Main {\n    public static void main(String[] args) {\n        int number = 15;\n        System.out.println(number % 2 == 0 ? \"Even\" : \"Odd\");\n    }\n}",
+      "expectedOutput": "Odd",
+      "runnable": true,
       "tags": [
         "java",
         "operators",
@@ -20,6 +23,9 @@
       "question": "Write a Java program to check whether a number is Prime.",
       "answer": "A prime number is greater than 1 and has exactly two positive factors: 1 and itself. Checking divisors up to the square root is sufficient.",
       "example": "int n = 17;\nboolean prime = n > 1;\nfor (int i = 2; i <= n / i && prime; i++) {\n    if (n % i == 0) prime = false;\n}\nSystem.out.println(prime ? \"Prime\" : \"Not prime\");",
+      "javaCode": "public class Main {\n    public static void main(String[] args) {\n        int n = 17;\n        boolean prime = n > 1;\n\n        for (int i = 2; i <= n / i && prime; i++) {\n            if (n % i == 0) {\n                prime = false;\n            }\n        }\n\n        System.out.println(prime ? \"Prime\" : \"Not Prime\");\n    }\n}",
+      "expectedOutput": "Prime",
+      "runnable": true,
       "tags": [
         "java",
         "loops",
@@ -33,6 +39,9 @@
       "question": "Write a Java program to generate the Fibonacci series.",
       "answer": "In the Fibonacci series, each term is the sum of the previous two terms. This example prints the first 10 terms.",
       "example": "int a = 0, b = 1;\nfor (int i = 0; i < 10; i++) {\n    System.out.print(a + \" \");\n    int next = a + b;\n    a = b;\n    b = next;\n}",
+      "javaCode": "public class Main {\n    public static void main(String[] args) {\n        int a = 0;\n        int b = 1;\n\n        for (int i = 0; i < 10; i++) {\n            System.out.print(a + \" \");\n            int next = a + b;\n            a = b;\n            b = next;\n        }\n    }\n}",
+      "expectedOutput": "0 1 1 2 3 5 8 13 21 34",
+      "runnable": true,
       "tags": [
         "java",
         "loops",
@@ -46,6 +55,9 @@
       "question": "Write a Java program to swap two numbers without using a third variable.",
       "answer": "Arithmetic operations can swap two integers without a temporary variable. This approach can overflow for large values, so a temporary variable is usually safer in production code.",
       "example": "int a = 10, b = 20;\na = a + b;\nb = a - b;\na = a - b;\nSystem.out.println(a + \" \" + b);",
+      "javaCode": "public class Main {\n    public static void main(String[] args) {\n        int a = 10;\n        int b = 20;\n\n        a = a + b;\n        b = a - b;\n        a = a - b;\n\n        System.out.println(\"a=\" + a);\n        System.out.println(\"b=\" + b);\n    }\n}",
+      "expectedOutput": "a=20\nb=10",
+      "runnable": true,
       "tags": [
         "java",
         "operators",
@@ -59,6 +71,9 @@
       "question": "Write a Java program to calculate the Factorial of a number.",
       "answer": "Factorial is the product of all positive integers from 1 to n. By definition, 0! is 1. A long stores factorials up to 20! without overflow.",
       "example": "int n = 5;\nlong factorial = 1;\nfor (int i = 1; i <= n; i++) factorial *= i;\nSystem.out.println(factorial);",
+      "javaCode": "public class Main {\n    public static void main(String[] args) {\n        int n = 5;\n        long factorial = 1;\n\n        for (int i = 1; i <= n; i++) {\n            factorial *= i;\n        }\n\n        System.out.println(factorial);\n    }\n}",
+      "expectedOutput": "120",
+      "runnable": true,
       "tags": [
         "java",
         "loops",
