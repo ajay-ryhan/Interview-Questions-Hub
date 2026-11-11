@@ -2,11 +2,791 @@
   "questions": [
     {
       "id": 1,
-      "topic": "Basics",
+      "topic": "Basic Java",
       "difficulty": "Beginner",
-      "question": "What is Java?",
-      "answer": "Java is an object-oriented, class-based programming language.",
-      "example": "System.out.println(\"Hello World\");"
+      "question": "Write a Java program to find whether a number is Even or Odd.",
+      "answer": "An even number has remainder 0 when divided by 2. Otherwise, it is odd. The modulus operator (%) gives the remainder.",
+      "example": "int number = 15;\nSystem.out.println(number % 2 == 0 ? \"Even\" : \"Odd\");",
+      "tags": [
+        "java",
+        "operators",
+        "conditional-statements"
+      ]
+    },
+    {
+      "id": 2,
+      "topic": "Basic Java",
+      "difficulty": "Beginner",
+      "question": "Write a Java program to check whether a number is Prime.",
+      "answer": "A prime number is greater than 1 and has exactly two positive factors: 1 and itself. Checking divisors up to the square root is sufficient.",
+      "example": "int n = 17;\nboolean prime = n > 1;\nfor (int i = 2; i <= n / i && prime; i++) {\n    if (n % i == 0) prime = false;\n}\nSystem.out.println(prime ? \"Prime\" : \"Not prime\");",
+      "tags": [
+        "java",
+        "loops",
+        "prime-number"
+      ]
+    },
+    {
+      "id": 3,
+      "topic": "Basic Java",
+      "difficulty": "Beginner",
+      "question": "Write a Java program to generate the Fibonacci series.",
+      "answer": "In the Fibonacci series, each term is the sum of the previous two terms. This example prints the first 10 terms.",
+      "example": "int a = 0, b = 1;\nfor (int i = 0; i < 10; i++) {\n    System.out.print(a + \" \");\n    int next = a + b;\n    a = b;\n    b = next;\n}",
+      "tags": [
+        "java",
+        "loops",
+        "fibonacci"
+      ]
+    },
+    {
+      "id": 4,
+      "topic": "Basic Java",
+      "difficulty": "Beginner",
+      "question": "Write a Java program to swap two numbers without using a third variable.",
+      "answer": "Arithmetic operations can swap two integers without a temporary variable. This approach can overflow for large values, so a temporary variable is usually safer in production code.",
+      "example": "int a = 10, b = 20;\na = a + b;\nb = a - b;\na = a - b;\nSystem.out.println(a + \" \" + b);",
+      "tags": [
+        "java",
+        "operators",
+        "swapping"
+      ]
+    },
+    {
+      "id": 5,
+      "topic": "Mathematical Programs",
+      "difficulty": "Beginner",
+      "question": "Write a Java program to calculate the Factorial of a number.",
+      "answer": "Factorial is the product of all positive integers from 1 to n. By definition, 0! is 1. A long stores factorials up to 20! without overflow.",
+      "example": "int n = 5;\nlong factorial = 1;\nfor (int i = 1; i <= n; i++) factorial *= i;\nSystem.out.println(factorial);",
+      "tags": [
+        "java",
+        "loops",
+        "factorial"
+      ]
+    },
+    {
+      "id": 6,
+      "topic": "Mathematical Programs",
+      "difficulty": "Beginner",
+      "question": "Write a Java program to reverse a number.",
+      "answer": "Repeatedly take the last digit with % 10, append it to the reversed value, and remove it using integer division by 10. Check for overflow if handling arbitrary int values.",
+      "example": "int n = 12345, reverse = 0;\nwhile (n != 0) {\n    int digit = n % 10;\n    reverse = reverse * 10 + digit;\n    n /= 10;\n}\nSystem.out.println(reverse);",
+      "tags": [
+        "java",
+        "loops",
+        "number-reversal"
+      ]
+    },
+    {
+      "id": 7,
+      "topic": "Mathematical Programs",
+      "difficulty": "Beginner",
+      "question": "Write a Java program to check whether a number is an Armstrong number.",
+      "answer": "An Armstrong number equals the sum of each digit raised to the power of the number of digits. For example, 153 = 1³ + 5³ + 3³.",
+      "example": "int n = 153, original = n, sum = 0;\nint digits = String.valueOf(n).length();\nwhile (n > 0) {\n    int digit = n % 10;\n    sum += (int) Math.pow(digit, digits);\n    n /= 10;\n}\nSystem.out.println(sum == original ? \"Armstrong\" : \"Not Armstrong\");",
+      "tags": [
+        "java",
+        "loops",
+        "armstrong-number"
+      ]
+    },
+    {
+      "id": 8,
+      "topic": "Mathematical Programs",
+      "difficulty": "Beginner",
+      "question": "Write a Java program to check whether a number is a Palindrome.",
+      "answer": "A palindrome number reads the same forward and backward. Reverse the number and compare it with the original value. This example assumes a non-negative input.",
+      "example": "int n = 121, original = n, reverse = 0;\nwhile (n > 0) {\n    reverse = reverse * 10 + n % 10;\n    n /= 10;\n}\nSystem.out.println(original == reverse ? \"Palindrome\" : \"Not palindrome\");",
+      "tags": [
+        "java",
+        "loops",
+        "palindrome"
+      ]
+    },
+    {
+      "id": 9,
+      "topic": "Strings",
+      "difficulty": "Beginner",
+      "question": "Write a Java program to reverse a String.",
+      "answer": "Iterate from the last character to the first and append each character to a StringBuilder. StringBuilder is more efficient than repeated String concatenation.",
+      "example": "String str = \"Selenium\";\nStringBuilder result = new StringBuilder();\nfor (int i = str.length() - 1; i >= 0; i--) {\n    result.append(str.charAt(i));\n}\nSystem.out.println(result);",
+      "tags": [
+        "java",
+        "string",
+        "stringbuilder"
+      ]
+    },
+    {
+      "id": 10,
+      "topic": "Strings",
+      "difficulty": "Intermediate",
+      "question": "Write a Java program to find duplicate characters in a String.",
+      "answer": "Count each character using a Map. Characters with a count greater than one are duplicates. HashMap does not guarantee output order.",
+      "example": "String str = \"programming\";\nMap<Character, Integer> counts = new HashMap<>();\nfor (char ch : str.toCharArray()) {\n    counts.put(ch, counts.getOrDefault(ch, 0) + 1);\n}\ncounts.forEach((ch, count) -> {\n    if (count > 1) System.out.println(ch + \" = \" + count);\n});",
+      "tags": [
+        "java",
+        "string",
+        "hashmap",
+        "frequency-count"
+      ]
+    },
+    {
+      "id": 11,
+      "topic": "Strings",
+      "difficulty": "Beginner",
+      "question": "Write a Java program to count vowels and consonants in a String.",
+      "answer": "Convert the text to lowercase and inspect each English alphabet character. Count a, e, i, o and u as vowels; count other letters as consonants. Ignore spaces, digits and punctuation.",
+      "example": "String str = \"Selenium Testing\".toLowerCase();\nint vowels = 0, consonants = 0;\nfor (char ch : str.toCharArray()) {\n    if (ch >= 'a' && ch <= 'z') {\n        if (\"aeiou\".indexOf(ch) >= 0) vowels++;\n        else consonants++;\n    }\n}\nSystem.out.println(\"Vowels=\" + vowels + \", Consonants=\" + consonants);",
+      "tags": [
+        "java",
+        "string",
+        "loops"
+      ]
+    },
+    {
+      "id": 12,
+      "topic": "Strings",
+      "difficulty": "Beginner",
+      "question": "Write a Java program to remove spaces from a String.",
+      "answer": "Use replaceAll with the regular-expression pattern \\\\s+ to remove one or more whitespace characters, including spaces and tabs.",
+      "example": "String str = \"Java Selenium Automation\";\nString result = str.replaceAll(\"\\\\s+\", \"\");\nSystem.out.println(result);",
+      "tags": [
+        "java",
+        "string",
+        "regex"
+      ]
+    },
+    {
+      "id": 13,
+      "topic": "Strings",
+      "difficulty": "Intermediate",
+      "question": "Write a Java program to find Anagrams.",
+      "answer": "Two strings are anagrams when they contain the same characters with the same frequencies. Normalize case and whitespace, sort both character arrays, and compare them.",
+      "example": "String a = \"listen\".replaceAll(\"\\\\s+\", \"\").toLowerCase();\nString b = \"silent\".replaceAll(\"\\\\s+\", \"\").toLowerCase();\nchar[] x = a.toCharArray(), y = b.toCharArray();\nArrays.sort(x);\nArrays.sort(y);\nSystem.out.println(Arrays.equals(x, y));",
+      "tags": [
+        "java",
+        "string",
+        "arrays",
+        "anagram"
+      ]
+    },
+    {
+      "id": 14,
+      "topic": "Strings",
+      "difficulty": "Intermediate",
+      "question": "Explain String immutability and memory usage.",
+      "answer": "String is immutable: its contents cannot be changed after creation. Operations such as concat return a new String. String literals can be shared through the String Pool, and immutability supports safe sharing and stable hashing.",
+      "example": "String s1 = \"Java\";\nString s2 = s1.concat(\" Selenium\");\nSystem.out.println(s1); // Java\nSystem.out.println(s2); // Java Selenium",
+      "tags": [
+        "java",
+        "string",
+        "immutability",
+        "string-pool"
+      ]
+    },
+    {
+      "id": 15,
+      "topic": "Strings",
+      "difficulty": "Beginner",
+      "question": "Explain the String methods length(), charAt(), substring(), replace() and split().",
+      "answer": "length() returns the number of UTF-16 code units; charAt(index) returns a character; substring(begin, end) extracts a range with an exclusive end index; replace() replaces literal characters or sequences; split(regex) splits using a regular expression.",
+      "example": "String s = \"Java Selenium\";\nSystem.out.println(s.length());\nSystem.out.println(s.charAt(0));\nSystem.out.println(s.substring(5));\nSystem.out.println(s.replace(\"Java\", \"Python\"));\nSystem.out.println(Arrays.toString(s.split(\" \")));",
+      "tags": [
+        "java",
+        "string",
+        "methods"
+      ]
+    },
+    {
+      "id": 16,
+      "topic": "Strings",
+      "difficulty": "Intermediate",
+      "question": "What is the difference between StringBuilder and StringBuffer? Explain their performance impact.",
+      "answer": "Both are mutable character sequences. StringBuilder is not synchronized and is generally faster for single-threaded use. StringBuffer synchronizes its methods and is useful when a buffer is shared between threads, although synchronization alone does not make a multi-step workflow atomic.",
+      "example": "StringBuilder builder = new StringBuilder(\"Java\");\nbuilder.append(\" Selenium\");\nSystem.out.println(builder);\n\nStringBuffer buffer = new StringBuffer(\"Java\");\nbuffer.append(\" Testing\");\nSystem.out.println(buffer);",
+      "tags": [
+        "java",
+        "stringbuilder",
+        "stringbuffer",
+        "thread-safety"
+      ]
+    },
+    {
+      "id": 17,
+      "topic": "Strings",
+      "difficulty": "Beginner",
+      "question": "What is the difference between == and .equals() when comparing Strings?",
+      "answer": "For objects, == checks whether references identify the same object. String.equals() compares character content. Use equals() when comparing String values.",
+      "example": "String a = new String(\"Java\");\nString b = new String(\"Java\");\nSystem.out.println(a == b);      // false\nSystem.out.println(a.equals(b)); // true",
+      "tags": [
+        "java",
+        "string",
+        "comparison"
+      ]
+    },
+    {
+      "id": 18,
+      "topic": "Strings",
+      "difficulty": "Intermediate",
+      "question": "How do you use Regular Expressions (Regex) for pattern matching?",
+      "answer": "Regex defines a text pattern for validation, searching, extraction or replacement. In Java string literals, backslashes must be escaped, so a digit pattern is written as \\\\d.",
+      "example": "String mobile = \"9876543210\";\nSystem.out.println(mobile.matches(\"[0-9]{10}\"));\n\nPattern p = Pattern.compile(\"\\\\d+\");\nMatcher m = p.matcher(\"Order123 Price450\");\nwhile (m.find()) System.out.println(m.group());",
+      "tags": [
+        "java",
+        "regex",
+        "pattern-matching"
+      ]
+    },
+    {
+      "id": 19,
+      "topic": "Strings",
+      "difficulty": "Beginner",
+      "question": "Write a Java program to count words and characters in a String.",
+      "answer": "String.length() counts UTF-16 code units, including spaces. Splitting trimmed text on one or more whitespace characters counts words for ordinary whitespace-separated text.",
+      "example": "String text = \"Java Selenium Automation\";\nint characters = text.length();\nString trimmed = text.trim();\nint words = trimmed.isEmpty() ? 0 : trimmed.split(\"\\\\s+\").length;\nSystem.out.println(\"Characters: \" + characters);\nSystem.out.println(\"Words: \" + words);",
+      "tags": [
+        "java",
+        "string",
+        "counting"
+      ]
+    },
+    {
+      "id": 20,
+      "topic": "Strings",
+      "difficulty": "Advanced",
+      "question": "Write a Java program to implement String permutations.",
+      "answer": "A permutation is an arrangement of all characters in a different order. Recursively select one character, append it to the result, and permute the remaining characters. Repeated input characters can produce duplicate output.",
+      "example": "static void permute(String remaining, String result) {\n    if (remaining.isEmpty()) {\n        System.out.println(result);\n        return;\n    }\n    for (int i = 0; i < remaining.length(); i++) {\n        char ch = remaining.charAt(i);\n        String rest = remaining.substring(0, i) + remaining.substring(i + 1);\n        permute(rest, result + ch);\n    }\n}\n// Call: permute(\"ABC\", \"\");",
+      "tags": [
+        "java",
+        "string",
+        "recursion",
+        "permutations"
+      ]
+    },
+    {
+      "id": 21,
+      "topic": "Arrays",
+      "difficulty": "Intermediate",
+      "question": "Write a Java program to find common elements between two arrays.",
+      "answer": "Compare elements from both arrays and print matches. This nested-loop version is easy to understand but takes O(n × m) time. Add a Set if unique results are required.",
+      "example": "int[] a = {1, 2, 3, 4, 5};\nint[] b = {3, 4, 5, 6, 7};\nfor (int x : a) {\n    for (int y : b) {\n        if (x == y) {\n            System.out.println(x);\n            break;\n        }\n    }\n}",
+      "tags": [
+        "java",
+        "arrays",
+        "searching"
+      ]
+    },
+    {
+      "id": 22,
+      "topic": "Arrays",
+      "difficulty": "Intermediate",
+      "question": "Write a Java program to sort an array without using built-in methods.",
+      "answer": "Bubble Sort repeatedly compares adjacent elements and swaps them when they are out of order. The basic implementation takes O(n²) time and O(1) extra space.",
+      "example": "int[] arr = {5, 2, 8, 1, 3};\nfor (int i = 0; i < arr.length - 1; i++) {\n    for (int j = 0; j < arr.length - 1 - i; j++) {\n        if (arr[j] > arr[j + 1]) {\n            int temp = arr[j];\n            arr[j] = arr[j + 1];\n            arr[j + 1] = temp;\n        }\n    }\n}\nSystem.out.println(Arrays.toString(arr));",
+      "tags": [
+        "java",
+        "arrays",
+        "sorting",
+        "bubble-sort"
+      ]
+    },
+    {
+      "id": 23,
+      "topic": "Arrays",
+      "difficulty": "Intermediate",
+      "question": "Write a Java program to remove duplicate elements from an array.",
+      "answer": "A Set stores unique values. LinkedHashSet additionally preserves insertion order. This approach uses a collection and extra memory; an in-place approach is different and may require sorting first.",
+      "example": "int[] arr = {1, 2, 3, 2, 4, 1, 5};\nSet<Integer> unique = new LinkedHashSet<>();\nfor (int value : arr) unique.add(value);\nSystem.out.println(unique);",
+      "tags": [
+        "java",
+        "arrays",
+        "set",
+        "duplicates"
+      ]
+    },
+    {
+      "id": 24,
+      "topic": "Arrays",
+      "difficulty": "Intermediate",
+      "question": "Write a Java program to find missing numbers in an array.",
+      "answer": "For values from 1 through n with exactly one missing value and no duplicates, subtract the actual sum from n(n+1)/2. Use a wider numeric type if the range may overflow int.",
+      "example": "int[] arr = {1, 2, 4, 5};\nint n = 5;\nint expected = n * (n + 1) / 2;\nint actual = 0;\nfor (int value : arr) actual += value;\nSystem.out.println(\"Missing: \" + (expected - actual));",
+      "tags": [
+        "java",
+        "arrays",
+        "missing-number",
+        "math"
+      ]
+    },
+    {
+      "id": 25,
+      "topic": "Arrays",
+      "difficulty": "Beginner",
+      "question": "Write a Java program to find the largest and smallest elements in an array.",
+      "answer": "Initialize minimum and maximum from the first element, then scan the remaining elements once and update them. The array must contain at least one element.",
+      "example": "int[] arr = {10, 5, 30, 2, 45, 8};\nint min = arr[0], max = arr[0];\nfor (int i = 1; i < arr.length; i++) {\n    if (arr[i] < min) min = arr[i];\n    if (arr[i] > max) max = arr[i];\n}\nSystem.out.println(\"Min=\" + min + \", Max=\" + max);",
+      "tags": [
+        "java",
+        "arrays",
+        "min-max"
+      ]
+    },
+    {
+      "id": 26,
+      "topic": "Arrays",
+      "difficulty": "Intermediate",
+      "question": "Write a Java program to find non-repeated elements in an array.",
+      "answer": "Count the frequency of each value using LinkedHashMap. Values with frequency exactly one are non-repeated. LinkedHashMap preserves first-seen key order.",
+      "example": "int[] arr = {1, 2, 3, 2, 4, 1, 5};\nMap<Integer, Integer> counts = new LinkedHashMap<>();\nfor (int value : arr) {\n    counts.put(value, counts.getOrDefault(value, 0) + 1);\n}\ncounts.forEach((value, count) -> {\n    if (count == 1) System.out.println(value);\n});",
+      "tags": [
+        "java",
+        "arrays",
+        "hashmap",
+        "frequency-count"
+      ]
+    },
+    {
+      "id": 27,
+      "topic": "Arrays",
+      "difficulty": "Beginner",
+      "question": "Explain array declaration and initialization.",
+      "answer": "An array stores a fixed number of elements of one component type. Indexing starts at zero. Its length is available through the length field.",
+      "example": "int[] values;             // declaration\nvalues = new int[3];       // allocation\nint[] numbers = {10, 20, 30};\nSystem.out.println(numbers[0]);\nSystem.out.println(numbers.length);",
+      "tags": [
+        "java",
+        "arrays",
+        "fundamentals"
+      ]
+    },
+    {
+      "id": 28,
+      "topic": "Arrays",
+      "difficulty": "Beginner",
+      "question": "What is the difference between one-dimensional and multi-dimensional arrays?",
+      "answer": "A one-dimensional array is a sequence accessed with one index. A multidimensional array is an array whose elements are themselves arrays, commonly used for rows and columns. Java also supports jagged arrays.",
+      "example": "int[] oneD = {10, 20, 30};\nint[][] twoD = {{1, 2, 3}, {4, 5, 6}};\nSystem.out.println(oneD[1]);\nSystem.out.println(twoD[0][1]);",
+      "tags": [
+        "java",
+        "arrays",
+        "multidimensional-arrays"
+      ]
+    },
+    {
+      "id": 29,
+      "topic": "Arrays",
+      "difficulty": "Intermediate",
+      "question": "Explain searching and sorting techniques.",
+      "answer": "Searching locates an element; sorting arranges elements in an order. Linear search works on unsorted data in O(n). Binary search requires sorted data and runs in O(log n). Common sorts include Bubble, Selection, Insertion, Merge and Quick Sort.",
+      "example": "int[] sorted = {10, 20, 30, 40, 50};\nint index = Arrays.binarySearch(sorted, 30);\nSystem.out.println(index); // 2",
+      "tags": [
+        "java",
+        "arrays",
+        "searching",
+        "sorting",
+        "algorithms"
+      ]
+    },
+    {
+      "id": 30,
+      "topic": "Arrays",
+      "difficulty": "Beginner",
+      "question": "How do you iterate through arrays efficiently?",
+      "answer": "Use a traditional for loop when the index is needed, an enhanced for loop when only values are needed, or Arrays.stream() for Stream processing. Choose based on the operation rather than assuming one is always faster.",
+      "example": "int[] values = {10, 20, 30};\nfor (int i = 0; i < values.length; i++) {\n    System.out.println(i + \": \" + values[i]);\n}\nfor (int value : values) {\n    System.out.println(value);\n}",
+      "tags": [
+        "java",
+        "arrays",
+        "loops",
+        "iteration"
+      ]
+    },
+    {
+      "id": 31,
+      "topic": "Arrays",
+      "difficulty": "Beginner",
+      "question": "What is the difference between Arrays and Lists?",
+      "answer": "Arrays have a fixed length and can store primitives directly. Lists are collection types with dynamic-size implementations such as ArrayList; they store objects, so primitives use wrapper types such as Integer.",
+      "example": "int[] array = {10, 20, 30};\nList<Integer> list = new ArrayList<>();\nlist.add(10);\nlist.add(20);\nSystem.out.println(array.length);\nSystem.out.println(list.size());",
+      "tags": [
+        "java",
+        "arrays",
+        "collections",
+        "list"
+      ]
+    },
+    {
+      "id": 32,
+      "topic": "Lists",
+      "difficulty": "Intermediate",
+      "question": "What is the difference between ArrayList and LinkedList? When should you use each?",
+      "answer": "ArrayList uses a resizable array and provides fast indexed access. LinkedList uses a doubly linked list; insertion or removal at a known iterator position is efficient, but locating an index takes linear time. ArrayList is usually the default choice.",
+      "example": "List<String> arrayList = new ArrayList<>();\narrayList.add(\"Java\");\narrayList.add(\"Selenium\");\n\nLinkedList<String> linkedList = new LinkedList<>();\nlinkedList.add(\"Java\");\nlinkedList.addFirst(\"Automation\");",
+      "tags": [
+        "java",
+        "collections",
+        "arraylist",
+        "linkedlist"
+      ]
+    },
+    {
+      "id": 33,
+      "topic": "Lists",
+      "difficulty": "Beginner",
+      "question": "Explain common List operations: adding, removing and searching elements.",
+      "answer": "List provides methods such as add(), get(), remove(), contains(), size() and clear(). ArrayList is a common List implementation for resizable collections.",
+      "example": "List<String> tools = new ArrayList<>();\ntools.add(\"Java\");\ntools.add(\"Selenium\");\nSystem.out.println(tools.get(0));\nSystem.out.println(tools.contains(\"Java\"));\ntools.remove(\"Selenium\");\nSystem.out.println(tools);",
+      "tags": [
+        "java",
+        "collections",
+        "list-operations"
+      ]
+    },
+    {
+      "id": 34,
+      "topic": "Lists",
+      "difficulty": "Intermediate",
+      "question": "How do you sort Lists using Comparator and Comparable?",
+      "answer": "Comparable defines a class's natural ordering through compareTo(). Comparator defines an external or alternative ordering through compare(). Use Integer.compare rather than subtraction to avoid overflow.",
+      "example": "List<Integer> values = new ArrayList<>(Arrays.asList(30, 10, 20));\nCollections.sort(values, new Comparator<Integer>() {\n    public int compare(Integer a, Integer b) {\n        return Integer.compare(b, a); // descending\n    }\n});\nSystem.out.println(values);",
+      "tags": [
+        "java",
+        "collections",
+        "comparable",
+        "comparator",
+        "sorting"
+      ]
+    },
+    {
+      "id": 35,
+      "topic": "Lists",
+      "difficulty": "Beginner",
+      "question": "How do you convert between Arrays and Lists?",
+      "answer": "Arrays.asList() creates a fixed-size list backed by the supplied array. Wrap it in new ArrayList<>(...) when a resizable list is needed. Use toArray() to convert a List to an array.",
+      "example": "String[] array = {\"Java\", \"Selenium\"};\nList<String> list = new ArrayList<>(Arrays.asList(array));\nString[] converted = list.toArray(new String[0]);\nSystem.out.println(list);\nSystem.out.println(Arrays.toString(converted));",
+      "tags": [
+        "java",
+        "arrays",
+        "collections",
+        "conversion"
+      ]
+    },
+    {
+      "id": 36,
+      "topic": "Lists",
+      "difficulty": "Beginner",
+      "question": "What are the efficient ways to iterate through Lists?",
+      "answer": "Use enhanced for or forEach for simple traversal, an indexed loop when indexes are needed, and Iterator when removing elements safely during iteration. Avoid repeated indexed get() calls on LinkedList.",
+      "example": "List<String> tools = Arrays.asList(\"Java\", \"Selenium\", \"TestNG\");\nfor (String tool : tools) System.out.println(tool);\ntools.forEach(System.out::println);",
+      "tags": [
+        "java",
+        "collections",
+        "list",
+        "iteration"
+      ]
+    },
+    {
+      "id": 37,
+      "topic": "Maps",
+      "difficulty": "Intermediate",
+      "question": "What is the difference between HashMap, LinkedHashMap and TreeMap?",
+      "answer": "HashMap provides no iteration-order guarantee and average constant-time lookup. LinkedHashMap maintains encounter order by default. TreeMap sorts keys and generally provides O(log n) lookup, insertion and removal.",
+      "example": "Map<Integer, String> hash = new HashMap<>();\nMap<Integer, String> linked = new LinkedHashMap<>();\nMap<Integer, String> tree = new TreeMap<>();\nhash.put(2, \"Selenium\");\nlinked.put(2, \"Selenium\");\ntree.put(2, \"Selenium\");",
+      "tags": [
+        "java",
+        "collections",
+        "map",
+        "hashmap",
+        "treemap"
+      ]
+    },
+    {
+      "id": 38,
+      "topic": "Maps",
+      "difficulty": "Beginner",
+      "question": "How do you perform key-value operations in Maps?",
+      "answer": "Map stores key-value associations. Common operations include put(), get(), remove(), containsKey(), containsValue(), keySet(), values() and entrySet(). Keys are unique; adding an existing key replaces its value.",
+      "example": "Map<Integer, String> map = new HashMap<>();\nmap.put(1, \"Java\");\nmap.put(2, \"Selenium\");\nSystem.out.println(map.get(1));\nSystem.out.println(map.containsKey(2));\nmap.put(1, \"Python\");\nmap.remove(2);",
+      "tags": [
+        "java",
+        "collections",
+        "map"
+      ]
+    },
+    {
+      "id": 39,
+      "topic": "Maps",
+      "difficulty": "Beginner",
+      "question": "What are the different ways to iterate over Maps?",
+      "answer": "Use entrySet() when both keys and values are needed, keySet() for keys, values() for values, or forEach() with a key-value lambda. entrySet() avoids a separate lookup for each value.",
+      "example": "for (Map.Entry<Integer, String> entry : map.entrySet()) {\n    System.out.println(entry.getKey() + \" : \" + entry.getValue());\n}\nmap.forEach((key, value) ->\n    System.out.println(key + \" : \" + value)\n);",
+      "tags": [
+        "java",
+        "collections",
+        "map",
+        "iteration"
+      ]
+    },
+    {
+      "id": 40,
+      "topic": "Maps",
+      "difficulty": "Intermediate",
+      "question": "How do you handle null keys and values in Maps?",
+      "answer": "HashMap and LinkedHashMap allow one null key and multiple null values. ConcurrentHashMap allows neither. TreeMap using natural ordering does not accept null keys; behavior with custom comparators depends on the comparator.",
+      "example": "Map<Integer, String> map = new HashMap<>();\nmap.put(null, \"value for null key\");\nmap.put(1, null);\nSystem.out.println(map.get(null));\nSystem.out.println(map.containsKey(1));",
+      "tags": [
+        "java",
+        "collections",
+        "map",
+        "null-handling"
+      ]
+    },
+    {
+      "id": 41,
+      "topic": "Maps",
+      "difficulty": "Advanced",
+      "question": "How does hashing work internally in HashMap?",
+      "answer": "HashMap uses a key's hashCode() to determine a bucket, then uses equals() to identify the matching key among entries in that bucket. Different keys can have the same hash or bucket (a collision). In Java 8+, heavily populated buckets may be treeified under implementation-specific conditions.",
+      "example": "Map<Integer, String> map = new HashMap<>();\nmap.put(101, \"Java\");\nmap.put(102, \"Selenium\");\nSystem.out.println(map.get(101));\n// For custom keys, implement equals() and hashCode() consistently.",
+      "tags": [
+        "java",
+        "collections",
+        "hashmap",
+        "hashcode",
+        "equals"
+      ]
+    },
+    {
+      "id": 42,
+      "topic": "OOPS",
+      "difficulty": "Beginner",
+      "question": "Explain the four pillars of OOPS: Encapsulation, Inheritance, Polymorphism and Abstraction.",
+      "answer": "Encapsulation bundles data and methods and controls access. Inheritance derives a class from another. Polymorphism allows one interface or method call to have different implementations. Abstraction exposes essential behavior while hiding implementation details.",
+      "example": "class Account {\n    private double balance;\n    public void deposit(double amount) { balance += amount; }\n    public double getBalance() { return balance; }\n}\n// Encapsulation example",
+      "tags": [
+        "java",
+        "oops",
+        "encapsulation",
+        "inheritance",
+        "polymorphism",
+        "abstraction"
+      ]
+    },
+    {
+      "id": 43,
+      "topic": "OOPS",
+      "difficulty": "Beginner",
+      "question": "What is the difference between a Class and an Object?",
+      "answer": "A class defines fields and methods as a blueprint. An object is an instance of a class with its own instance state.",
+      "example": "class Car {\n    String brand;\n    void start() { System.out.println(\"Started\"); }\n}\nCar car = new Car();\ncar.brand = \"Toyota\";\ncar.start();",
+      "tags": [
+        "java",
+        "oops",
+        "class",
+        "object"
+      ]
+    },
+    {
+      "id": 44,
+      "topic": "OOPS",
+      "difficulty": "Intermediate",
+      "question": "What is the difference between Method Overloading and Method Overriding?",
+      "answer": "Overloading uses the same method name with different parameter lists and is resolved at compile time. Overriding provides a compatible implementation of an inherited instance method and uses runtime dispatch. Return type alone cannot distinguish overloads.",
+      "example": "class Calculator {\n    int add(int a, int b) { return a + b; }\n    int add(int a, int b, int c) { return a + b + c; }\n}\nclass Parent { void show() { System.out.println(\"Parent\"); } }\nclass Child extends Parent {\n    @Override void show() { System.out.println(\"Child\"); }\n}",
+      "tags": [
+        "java",
+        "oops",
+        "overloading",
+        "overriding"
+      ]
+    },
+    {
+      "id": 45,
+      "topic": "OOPS",
+      "difficulty": "Intermediate",
+      "question": "What is the difference between Interfaces and Abstract Classes?",
+      "answer": "An interface defines a contract and a class can implement multiple interfaces. An abstract class can hold instance state, constructors and both abstract and concrete methods; a class can extend only one class. Interfaces can also contain default, static and (since Java 9) private methods.",
+      "example": "interface Browser {\n    void open();\n}\nabstract class Vehicle {\n    abstract void start();\n    void stop() { System.out.println(\"Stopped\"); }\n}\nclass Chrome implements Browser {\n    public void open() { System.out.println(\"Chrome opened\"); }\n}",
+      "tags": [
+        "java",
+        "oops",
+        "interface",
+        "abstract-class"
+      ]
+    },
+    {
+      "id": 46,
+      "topic": "OOPS",
+      "difficulty": "Beginner",
+      "question": "What is the difference between Static and Instance methods and variables?",
+      "answer": "Static members belong to the class and are shared at class level. Instance members belong to individual objects. A static method cannot directly access instance members or use this/super.",
+      "example": "class Employee {\n    static String company = \"ABC\";\n    String name;\n    Employee(String name) { this.name = name; }\n    static void showCompany() { System.out.println(company); }\n    void showName() { System.out.println(name); }\n}",
+      "tags": [
+        "java",
+        "oops",
+        "static",
+        "instance"
+      ]
+    },
+    {
+      "id": 47,
+      "topic": "OOPS",
+      "difficulty": "Advanced",
+      "question": "Explain design patterns such as Singleton and Factory.",
+      "answer": "Singleton provides a controlled single instance of a class. Factory centralizes object creation and returns an appropriate implementation without exposing creation details to callers. Choose patterns based on the actual design need.",
+      "example": "interface Browser { void open(); }\nclass Chrome implements Browser {\n    public void open() { System.out.println(\"Chrome opened\"); }\n}\nclass BrowserFactory {\n    static Browser create(String name) {\n        if (\"chrome\".equalsIgnoreCase(name)) return new Chrome();\n        throw new IllegalArgumentException(\"Unsupported browser\");\n    }\n}\n// Usage: Browser b = BrowserFactory.create(\"chrome\");",
+      "tags": [
+        "java",
+        "design-patterns",
+        "singleton",
+        "factory"
+      ]
+    },
+    {
+      "id": 48,
+      "topic": "OOPS",
+      "difficulty": "Intermediate",
+      "question": "Can we override static methods?",
+      "answer": "No. Static methods are hidden, not overridden. Static method selection is based on the reference or class type, not runtime object type. Runtime polymorphism applies to overridable instance methods.",
+      "example": "class Parent { static void show() { System.out.println(\"Parent\"); } }\nclass Child extends Parent { static void show() { System.out.println(\"Child\"); } }\nParent ref = new Child();\nref.show(); // Parent",
+      "tags": [
+        "java",
+        "oops",
+        "static-method",
+        "method-hiding"
+      ]
+    },
+    {
+      "id": 49,
+      "topic": "OOPS",
+      "difficulty": "Beginner",
+      "question": "Can we override final methods?",
+      "answer": "No. A final instance method cannot be overridden by a subclass. A final class cannot be extended, and a final variable cannot be reassigned after initialization.",
+      "example": "class Parent {\n    final void display() {\n        System.out.println(\"Cannot be overridden\");\n    }\n}\nclass Child extends Parent {\n    // Defining display() here would cause a compile-time error.\n}",
+      "tags": [
+        "java",
+        "oops",
+        "final",
+        "overriding"
+      ]
+    },
+    {
+      "id": 50,
+      "topic": "OOPS",
+      "difficulty": "Advanced",
+      "question": "If Parent and Child classes have a common method, and a Parent reference refers to a Child object, which method is called? What happens with constructors?",
+      "answer": "For an overridden instance method, the Child implementation runs because method dispatch uses the actual object type. During construction, the Parent constructor runs before the Child constructor. Constructors are not overridden.",
+      "example": "class Parent {\n    Parent() { System.out.println(\"Parent constructor\"); }\n    void show() { System.out.println(\"Parent method\"); }\n}\nclass Child extends Parent {\n    Child() { System.out.println(\"Child constructor\"); }\n    @Override void show() { System.out.println(\"Child method\"); }\n}\nParent ref = new Child();\nref.show();",
+      "tags": [
+        "java",
+        "oops",
+        "inheritance",
+        "runtime-polymorphism",
+        "constructors"
+      ]
+    },
+    {
+      "id": 51,
+      "topic": "Java 8 Streams and Lambda",
+      "difficulty": "Intermediate",
+      "question": "On which Java Stream interfaces can we use Lambda Expressions? What is the type of interface used in Streams?",
+      "answer": "Lambda expressions implement functional interfaces (interfaces with one abstract method). Stream operations commonly accept Predicate, Function, Consumer, Supplier and related functional interfaces from java.util.function. Stream<T> itself is not a functional interface.",
+      "example": "List<Integer> nums = Arrays.asList(10, 20, 30, 40);\nList<Integer> result = nums.stream()\n    .filter(n -> n > 20) // Predicate<Integer>\n    .collect(Collectors.toList());\nSystem.out.println(result);",
+      "tags": [
+        "java",
+        "java-8",
+        "streams",
+        "lambda",
+        "functional-interface"
+      ]
+    },
+    {
+      "id": 52,
+      "topic": "Java 8 Streams and Lambda",
+      "difficulty": "Intermediate",
+      "question": "What is the type of interface used in Streams?",
+      "answer": "The main object Stream API type is java.util.stream.Stream<T>. Java also provides IntStream, LongStream and DoubleStream for primitive values. These are stream interfaces, not functional interfaces.",
+      "example": "int sum = IntStream.of(10, 20, 30, 40).sum();\nSystem.out.println(sum); // 100",
+      "tags": [
+        "java",
+        "java-8",
+        "streams",
+        "intstream"
+      ]
+    },
+    {
+      "id": 53,
+      "topic": "Java + Selenium Automation",
+      "difficulty": "Intermediate",
+      "question": "Write Java code to extract username and password from a .properties file.",
+      "answer": "Use java.util.Properties to load key-value configuration. FileInputStream reads the file; getProperty() retrieves values. In real projects, keep secrets out of source control and use environment variables or a secrets manager.",
+      "example": "// config.properties: username=testuser\\npassword=test123\nProperties prop = new Properties();\ntry (FileInputStream input = new FileInputStream(\"config.properties\")) {\n    prop.load(input);\n    String username = prop.getProperty(\"username\");\n    String password = prop.getProperty(\"password\");\n    System.out.println(username);\n    // Do not print real passwords in logs.\n}",
+      "tags": [
+        "java",
+        "selenium",
+        "properties-file",
+        "configuration"
+      ]
+    },
+    {
+      "id": 54,
+      "topic": "Java + Selenium Automation",
+      "difficulty": "Intermediate",
+      "question": "Given int arr[] = {2,5,8,7,1,3,6,4,5,9}, shift all even numbers to the left and odd numbers to the right. Can it be optimized?",
+      "answer": "Use two pointers: move the left pointer past even values and the right pointer past odd values, then swap misplaced values. This is O(n) time and O(1) extra space, but it does not preserve the original relative order.",
+      "example": "int[] arr = {2, 5, 8, 7, 1, 3, 6, 4, 5, 9};\nint left = 0, right = arr.length - 1;\nwhile (left < right) {\n    while (left < right && arr[left] % 2 == 0) left++;\n    while (left < right && arr[right] % 2 != 0) right--;\n    if (left < right) {\n        int temp = arr[left];\n        arr[left++] = arr[right];\n        arr[right--] = temp;\n    }\n}\nSystem.out.println(Arrays.toString(arr));",
+      "tags": [
+        "java",
+        "arrays",
+        "two-pointers",
+        "optimization"
+      ]
+    },
+    {
+      "id": 55,
+      "topic": "Automation Framework",
+      "difficulty": "Intermediate",
+      "question": "Explain your automation framework in detail.",
+      "answer": "Describe only the tools and responsibilities you have actually used. A typical Selenium-Java-TestNG-Maven framework may include page objects, test classes, configuration, reusable utilities, listeners, reporting, logging, version control and CI execution. Explain the test execution flow from setup through assertions and reporting.",
+      "example": "// Example Page Object method\npublic class LoginPage {\n    private WebDriver driver;\n    private By username = By.id(\"username\");\n    private By password = By.id(\"password\");\n    private By loginButton = By.id(\"login\");\n\n    public LoginPage(WebDriver driver) { this.driver = driver; }\n    public void login(String user, String pass) {\n        driver.findElement(username).sendKeys(user);\n        driver.findElement(password).sendKeys(pass);\n        driver.findElement(loginButton).click();\n    }\n}",
+      "tags": [
+        "qa",
+        "selenium",
+        "java",
+        "testng",
+        "maven",
+        "pom",
+        "framework"
+      ]
+    },
+    {
+      "id": 56,
+      "topic": "API Testing - Rest Assured",
+      "difficulty": "Beginner",
+      "question": "What is the difference between HTTP status codes 500 and 503?",
+      "answer": "500 Internal Server Error indicates an unexpected server-side condition prevented the request from completing. 503 Service Unavailable indicates the server is temporarily unable to handle the request, often due to maintenance or overload. A Retry-After header may be supplied with 503.",
+      "example": "given()\n.when()\n    .get(\"https://api.example.com/users\")\n.then()\n    .statusCode(200); // Example: assert the expected status for this test",
+      "tags": [
+        "api-testing",
+        "http",
+        "status-codes",
+        "rest-assured"
+      ]
+    },
+    {
+      "id": 57,
+      "topic": "API Testing - Rest Assured",
+      "difficulty": "Intermediate",
+      "question": "What is the use of Request Specification and Response Specification in Rest Assured?",
+      "answer": "RequestSpecification centralizes reusable request settings such as base URI, headers, authentication, parameters and content type. ResponseSpecification centralizes reusable response expectations such as status code and content type. They reduce duplicated setup and assertions.",
+      "example": "RequestSpecification requestSpec = new RequestSpecBuilder()\n    .setBaseUri(\"https://api.example.com\")\n    .setContentType(ContentType.JSON)\n    .build();\n\nResponseSpecification responseSpec = new ResponseSpecBuilder()\n    .expectStatusCode(200)\n    .expectContentType(ContentType.JSON)\n    .build();\n\ngiven().spec(requestSpec)\n.when().get(\"/users\")\n.then().spec(responseSpec);",
+      "tags": [
+        "api-testing",
+        "rest-assured",
+        "request-specification",
+        "response-specification"
+      ]
     }
   ]
 }
