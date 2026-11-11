@@ -1,8 +1,7 @@
-
 const categories = [
     {
         id: "qa",
-        name: "What is QA?",
+        name: "QA Fundamentals",
         description: "Manual testing fundamentals",
         icon: "🧪"
     },
@@ -26,257 +25,671 @@ const categories = [
     }
 ];
 
+let currentQuestions = [];
+
 const homePage = document.getElementById("home-page");
 const dashboardPage = document.getElementById("dashboard-page");
 
-const startButton = document.getElementById("start-button");
+const startButtons = document.querySelectorAll(
+    "#start-button, #start-learning"
+);
+
 const homeButton = document.getElementById("home-button");
 
 const topicList = document.getElementById("topic-list");
-const selectedTopic = document.getElementById("selected-topic");
-const topicDescription = document.getElementById("topic-description");
-const questionContainer = document.getElementById("question-container");
 
-// Start dashboard
-startButton.addEventListener("click", () => {
+const selectedTopic =
+    document.getElementById("selected-topic");
+
+const topicDescription =
+    document.getElementById("topic-description");
+
+const questionContainer =
+    document.getElementById("question-container");
+
+const searchInput =
+    document.getElementById("search-input");
+
+const difficultyFilter =
+    document.getElementById("difficulty-filter");
+
+const questionStats =
+    document.getElementById("question-stats");
+
+/* ==========================
+   Navigation
+========================== */
+
+function openDashboard() {
     homePage.classList.add("hidden");
     dashboardPage.classList.remove("hidden");
 
     displayTopics();
-    loadQuestions(categories[0]);
-});
 
-// Return home
-homeButton.addEventListener("click", () => {
+    if (categories.length > 0) {
+        loadQuestions(categories[0]);
+    }
+}
+
+function goHome() {
     dashboardPage.classList.add("hidden");
     homePage.classList.remove("hidden");
+}
+
+startButtons.forEach(button => {
+    button.addEventListener(
+        "click",
+        openDashboard
+    );
 });
 
-// Display sidebar topics
+homeButton.addEventListener(
+    "click",
+    goHome
+);
+
+/* ==========================
+   Sidebar
+========================== */
+
 function displayTopics() {
+
     topicList.innerHTML = "";
 
     categories.forEach(category => {
-        const button = document.createElement("button");
 
-        button.className = "topic-button";
-        button.textContent = `${category.icon} ${category.name}`;
+        const button =
+            document.createElement("button");
 
-        button.addEventListener("click", () => {
-            loadQuestions(category);
-        });
+        button.className =
+            "topic-button";
+
+        button.textContent =
+            `${category.icon} ${category.name}`;
+
+        button.addEventListener(
+            "click",
+            () => loadQuestions(category)
+        );
 
         topicList.appendChild(button);
     });
 }
 
-// Load questions
+/* ==========================
+   Load Questions
+========================== */
+
 async function loadQuestions(category) {
 
-    selectedTopic.textContent = category.name;
-    topicDescription.textContent = category.description;
+    selectedTopic.textContent =
+        category.name;
 
-    document.querySelectorAll(".topic-button").forEach(button => {
-        button.classList.toggle(
-            "active",
-            button.textContent.includes(category.name)
-        );
-    });
+    topicDescription.textContent =
+        category.description;
 
-    questionContainer.textContent = "Loading questions...";
+    document
+        .querySelectorAll(".topic-button")
+        .forEach(button => {
+
+            button.classList.toggle(
+                "active",
+                button.textContent.includes(
+                    category.name
+                )
+            );
+
+        });
+
+    questionContainer.innerHTML =
+        "<p>Loading questions...</p>";
 
     try {
-        const response = await fetch(`./data/${category.id}.json`);
+
+        const response =
+            await fetch(
+                `./data/${category.id}.json`
+            );
 
         if (!response.ok) {
-            throw new Error("Unable to load questions.");
+            throw new Error(
+                "Unable to load questions."
+            );
         }
 
-        const data = await response.json();
+        const data =
+            await response.json();
 
-        displayQuestions(data.questions);
+        currentQuestions =
+            data.questions || [];
+
+        if (searchInput) {
+            searchInput.value = "";
+        }
+
+        if (difficultyFilter) {
+            difficultyFilter.value = "all";
+        }
+
+        applyFilters();
 
     } catch (error) {
-        questionContainer.textContent =
-            "Unable to load questions. Please try again.";
 
         console.error(error);
+
+        questionContainer.innerHTML =
+            "<p>Unable to load questions.</p>";
     }
 }
 
-// Helper to create text sections safely
-function createSection(title, content) {
+/* ==========================
+   Search + Filters
+========================== */
+
+function applyFilters() {
+
+    let filteredQuestions =
+        [...currentQuestions];
+
+    const searchText =
+        searchInput?.value
+            .toLowerCase()
+            .trim() || "";
+
+    const difficulty =
+        difficultyFilter?.value ||
+        "all";
+
+    /* Search */
+
+    if (searchText) {
+
+        filteredQuestions =
+            filteredQuestions.filter(q => {
+
+                const searchableText = [
+
+                    q.question || "",
+
+                    q.answer || "",
+
+                    q.explanation || "",
+
+                    ...(q.tags || [])
+
+                ]
+                    .join(" ")
+                    .toLowerCase();
+
+                return searchableText.includes(
+                    searchText
+                );
+            });
+    }
+
+    /* Difficulty */
+
+    if (
+        difficulty &&
+        difficulty !== "all"
+    ) {
+
+        filteredQuestions =
+            filteredQuestions.filter(q => {
+
+                const level =
+                    q.difficulty ||
+                    q.level ||
+                    "";
+
+                return (
+                    level.toLowerCase() ===
+                    difficulty.toLowerCase()
+                );
+            });
+    }
+
+    updateStats(filteredQuestions);
+
+    displayQuestions(
+        filteredQuestions
+    );
+}
+
+function updateStats(questions) {
+
+    const beginner =
+        questions.filter(q =>
+            (q.difficulty ||
+                q.level ||
+                "")
+                .toLowerCase()
+                .includes("beginner")
+        ).length;
+
+    const intermediate =
+        questions.filter(q =>
+            (q.difficulty ||
+                q.level ||
+                "")
+                .toLowerCase()
+                .includes(
+                    "intermediate"
+                )
+        ).length;
+
+    const advanced =
+        questions.filter(q =>
+            (q.difficulty ||
+                q.level ||
+                "")
+                .toLowerCase()
+                .includes("advanced")
+        ).length;
+
+    questionStats.innerHTML = `
+        <strong>${questions.length}</strong> Questions |
+        Beginner: ${beginner} |
+        Intermediate: ${intermediate} |
+        Advanced: ${advanced}
+    `;
+}
+
+/* ==========================
+   Reusable Sections
+========================== */
+
+function createSection(
+    title,
+    content
+) {
 
     if (!content) return null;
 
-    const section = document.createElement("div");
-    section.className = "detail-section";
+    const section =
+        document.createElement("div");
 
-    const heading = document.createElement("h4");
+    section.className =
+        "detail-section";
+
+    const heading =
+        document.createElement("h4");
+
     heading.textContent = title;
 
-    const paragraph = document.createElement("p");
+    const paragraph =
+        document.createElement("p");
+
     paragraph.textContent = content;
 
-    section.append(heading, paragraph);
+    section.append(
+        heading,
+        paragraph
+    );
 
     return section;
 }
 
-// Display tags
+/* ==========================
+   Tags
+========================== */
+
 function createTags(tags) {
 
-    if (!Array.isArray(tags) || tags.length === 0) return null;
+    if (
+        !Array.isArray(tags) ||
+        tags.length === 0
+    ) {
+        return null;
+    }
 
-    const section = document.createElement("div");
-    section.className = "detail-section";
+    const section =
+        document.createElement("div");
 
-    const heading = document.createElement("h4");
+    section.className =
+        "detail-section";
+
+    const heading =
+        document.createElement("h4");
+
     heading.textContent = "Tags";
 
-    const tagContainer = document.createElement("div");
-    tagContainer.className = "tag-container";
+    const container =
+        document.createElement("div");
+
+    container.className =
+        "tag-container";
 
     tags.forEach(tag => {
-        const badge = document.createElement("span");
-        badge.className = "tag-badge";
+
+        const badge =
+            document.createElement(
+                "span"
+            );
+
+        badge.className =
+            "tag-badge";
+
         badge.textContent = tag;
 
-        tagContainer.appendChild(badge);
+        container.appendChild(
+            badge
+        );
     });
 
-    section.append(heading, tagContainer);
+    section.append(
+        heading,
+        container
+    );
 
     return section;
 }
 
-// Display follow-up questions
-function createFollowUps(questions) {
+/* ==========================
+   Follow-up Questions
+========================== */
 
-    if (!Array.isArray(questions) || questions.length === 0) return null;
+function createFollowUps(
+    questions
+) {
 
-    const section = document.createElement("div");
-    section.className = "detail-section";
+    if (
+        !Array.isArray(questions) ||
+        questions.length === 0
+    ) {
+        return null;
+    }
 
-    const heading = document.createElement("h4");
-    heading.textContent = "Follow-up Questions";
+    const section =
+        document.createElement("div");
 
-    const list = document.createElement("ol");
-    list.className = "followup-list";
+    section.className =
+        "detail-section";
+
+    const heading =
+        document.createElement("h4");
+
+    heading.textContent =
+        "Follow-up Questions";
+
+    const list =
+        document.createElement("ol");
+
+    list.className =
+        "followup-list";
 
     questions.forEach(question => {
-        const item = document.createElement("li");
-        item.textContent = question;
+
+        const item =
+            document.createElement("li");
+
+        item.textContent =
+            question;
+
         list.appendChild(item);
     });
 
-    section.append(heading, list);
+    section.append(
+        heading,
+        list
+    );
 
     return section;
 }
 
-// Display source links
-function createSources(sources) {
+/* ==========================
+   Sources
+========================== */
 
-    if (!Array.isArray(sources) || sources.length === 0) return null;
+function createSources(
+    sources
+) {
 
-    const section = document.createElement("div");
-    section.className = "detail-section";
+    if (
+        !Array.isArray(sources) ||
+        sources.length === 0
+    ) {
+        return null;
+    }
 
-    const heading = document.createElement("h4");
-    heading.textContent = "Reference Sources";
+    const section =
+        document.createElement("div");
 
-    const list = document.createElement("ul");
-    list.className = "source-list";
+    section.className =
+        "detail-section";
+
+    const heading =
+        document.createElement("h4");
+
+    heading.textContent =
+        "Reference Sources";
+
+    const list =
+        document.createElement("ul");
+
+    list.className =
+        "source-list";
 
     sources.forEach(source => {
 
-        if (!source.name || !source.url) return;
+        if (
+            !source.name ||
+            !source.url
+        ) {
+            return;
+        }
 
         let url;
 
         try {
-            url = new URL(source.url);
+            url = new URL(
+                source.url
+            );
         } catch {
             return;
         }
 
-        if (!["http:", "https:"].includes(url.protocol)) return;
+        const item =
+            document.createElement("li");
 
-        const item = document.createElement("li");
-        const link = document.createElement("a");
+        const link =
+            document.createElement("a");
 
-        link.textContent = source.name;
         link.href = url.href;
         link.target = "_blank";
-        link.rel = "noopener noreferrer";
+
+        link.rel =
+            "noopener noreferrer";
+
+        link.textContent =
+            source.name;
 
         item.appendChild(link);
+
         list.appendChild(item);
     });
 
-    if (list.children.length === 0) return null;
+    if (
+        list.children.length === 0
+    ) {
+        return null;
+    }
 
-    section.append(heading, list);
+    section.append(
+        heading,
+        list
+    );
 
     return section;
 }
 
-// Display all questions
-function displayQuestions(questions) {
+/* ==========================
+   Render Questions
+========================== */
 
-    questionContainer.innerHTML = "";
+function displayQuestions(
+    questions
+) {
 
-    if (!questions || questions.length === 0) {
-        questionContainer.textContent = "No questions added yet.";
+    questionContainer.innerHTML =
+        "";
+
+    if (
+        !questions ||
+        questions.length === 0
+    ) {
+
+        questionContainer.innerHTML =
+            `
+            <p>
+                No matching questions found.
+            </p>
+        `;
+
         return;
     }
 
-    questions.forEach((item, index) => {
+    questions.forEach(
+        (item, index) => {
 
-        const card = document.createElement("details");
-        card.className = "question-card";
+            const card =
+                document.createElement(
+                    "details"
+                );
 
-        // Question heading
-        const summary = document.createElement("summary");
+            card.className =
+                "question-card";
 
-        const questionText = document.createElement("span");
-        questionText.className = "question-text";
+            const summary =
+                document.createElement(
+                    "summary"
+                );
 
-        questionText.textContent =
-            `${item.id || index + 1}. ${item.question}`;
+            const questionText =
+                document.createElement(
+                    "span"
+                );
 
-        const difficulty = document.createElement("small");
-        difficulty.className = "difficulty-badge";
-        difficulty.textContent = item.level || item.difficulty || "General";
+            questionText.className =
+                "question-text";
 
-        summary.append(questionText, difficulty);
+            questionText.textContent =
+                `${item.id || index + 1}. ${item.question}`;
 
-        // Expanded answer content
-        const answerSection = document.createElement("div");
-        answerSection.className = "answer-section";
+            const difficulty =
+                document.createElement(
+                    "small"
+                );
 
-        const answer = createSection("Answer", item.answer);
-        const explanation = createSection("Explanation", item.explanation);
-        const example = createSection(
-            "Real-Time Example",
-            item.realTimeExample || item.example
-        );
+            difficulty.className =
+                "difficulty-badge";
 
-        if (answer) answerSection.appendChild(answer);
-        if (explanation) answerSection.appendChild(explanation);
-        if (example) answerSection.appendChild(example);
+            difficulty.textContent =
+                item.difficulty ||
+                item.level ||
+                "General";
 
-        const tags = createTags(item.tags);
-        const followUps = createFollowUps(item.followUpQuestions);
-        const sources = createSources(item.sources);
+            summary.append(
+                questionText,
+                difficulty
+            );
 
-        if (tags) answerSection.appendChild(tags);
-        if (followUps) answerSection.appendChild(followUps);
-        if (sources) answerSection.appendChild(sources);
+            const answerSection =
+                document.createElement(
+                    "div"
+                );
 
-        card.append(summary, answerSection);
+            answerSection.className =
+                "answer-section";
 
-        questionContainer.appendChild(card);
-    });
+            const answer =
+                createSection(
+                    "Answer",
+                    item.answer
+                );
+
+            const explanation =
+                createSection(
+                    "Explanation",
+                    item.explanation
+                );
+
+            const example =
+                createSection(
+                    "Real-Time Example",
+                    item.realTimeExample ||
+                    item.example
+                );
+
+            if (answer)
+                answerSection.appendChild(
+                    answer
+                );
+
+            if (explanation)
+                answerSection.appendChild(
+                    explanation
+                );
+
+            if (example)
+                answerSection.appendChild(
+                    example
+                );
+
+            const tags =
+                createTags(item.tags);
+
+            const followUps =
+                createFollowUps(
+                    item.followUpQuestions
+                );
+
+            const sources =
+                createSources(
+                    item.sources
+                );
+
+            if (tags)
+                answerSection.appendChild(
+                    tags
+                );
+
+            if (followUps)
+                answerSection.appendChild(
+                    followUps
+                );
+
+            if (sources)
+                answerSection.appendChild(
+                    sources
+                );
+
+            card.append(
+                summary,
+                answerSection
+            );
+
+            questionContainer.appendChild(
+                card
+            );
+        }
+    );
+}
+
+/* ==========================
+   Events
+========================== */
+
+if (searchInput) {
+    searchInput.addEventListener(
+        "input",
+        applyFilters
+    );
+}
+
+if (difficultyFilter) {
+    difficultyFilter.addEventListener(
+        "change",
+        applyFilters
+    );
 }
