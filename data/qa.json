@@ -47,7 +47,7 @@
     },
     {
       "id": 4,
-      "level": "Intermediate",
+      "level": "Expert",
       "question": "What is White Box Testing?",
       "answer": "White Box Testing is a software testing technique in which the internal structure, design, code, and execution paths of an application are examined. The tester has access to the source code and verifies internal logic, conditions, loops, and data flows. It helps identify logical errors, security vulnerabilities, and coding issues. White Box Testing is also known as Clear Box Testing, Open Box Testing, Transparent Box Testing, Code-Based Testing, and Glass Box Testing.",
       "realTimeExample": "Consider a login application containing the following Java condition: if (username.equals(\"admin\") && password.equals(\"1234\")). In White Box Testing, the tester examines the source code and verifies whether both conditions work correctly. They also check what happens when the username is incorrect, the password is incorrect, or both are incorrect. The tester examines the internal decision paths rather than only checking the login page's output.",
