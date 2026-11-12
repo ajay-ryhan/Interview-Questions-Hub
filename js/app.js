@@ -186,75 +186,51 @@ async function loadQuestions(category) {
    Search + Filters
 ========================== */
 
+
 function applyFilters() {
 
-    let filteredQuestions =
-        [...currentQuestions];
+    let filteredQuestions = [...currentQuestions];
 
     const searchText =
-        searchInput?.value
-            .toLowerCase()
-            .trim() || "";
+        searchInput?.value.toLowerCase().trim() || "";
 
     const difficulty =
-        difficultyFilter?.value ||
-        "all";
+        (difficultyFilter?.value || "all").toLowerCase().trim();
 
     /* Search */
-
     if (searchText) {
 
-        filteredQuestions =
-            filteredQuestions.filter(q => {
+        filteredQuestions = filteredQuestions.filter(q => {
 
-                const searchableText = [
+            const searchableText = [
+                q.question || "",
+                q.answer || "",
+                q.explanation || "",
+                ...(q.tags || [])
+            ]
+                .join(" ")
+                .toLowerCase();
 
-                    q.question || "",
-
-                    q.answer || "",
-
-                    q.explanation || "",
-
-                    ...(q.tags || [])
-
-                ]
-                    .join(" ")
-                    .toLowerCase();
-
-                return searchableText.includes(
-                    searchText
-                );
-            });
+            return searchableText.includes(searchText);
+        });
     }
 
     /* Difficulty */
+    if (difficulty !== "all") {
 
-    if (
-        difficulty &&
-        difficulty !== "all"
-    ) {
+        filteredQuestions = filteredQuestions.filter(q => {
 
-        filteredQuestions =
-            filteredQuestions.filter(q => {
+            const level = (q.level || "").toLowerCase().trim();
 
-                const level =
-                    q.difficulty ||
-                    q.level ||
-                    "";
-
-                return (
-                    level.toLowerCase() ===
-                    difficulty.toLowerCase()
-                );
-            });
+            return level === difficulty;
+        });
     }
 
     updateStats(filteredQuestions);
 
-    displayQuestions(
-        filteredQuestions
-    );
+    displayQuestions(filteredQuestions);
 }
+
 
 
 function updateStats(questions) {
@@ -285,7 +261,6 @@ function updateStats(questions) {
     });
 
 }
-
 
 /* ==========================
    Reusable Sections
