@@ -94,10 +94,7 @@
       ],
       "label": "Beginner"
     },
-
     {
-      "questions": [
-        {
           "id": 7,
           "level": "Beginner",
           "label": "Beginner",
@@ -251,7 +248,5 @@
             "External Services"
           ]
         }
-      ]
-    }
   ]
 }
