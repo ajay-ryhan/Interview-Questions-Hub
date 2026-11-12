@@ -592,18 +592,38 @@ function displayQuestions(
             questionText.textContent =
                 `${item.id || index + 1}. ${item.question}`;
 
-            const difficulty =
-                document.createElement(
-                    "small"
-                );
 
-            difficulty.className =
-                "difficulty-badge";
+            const difficulty =
+                document.createElement("small");
+
+            difficulty.className = "difficulty-badge";
+
+            const difficultyLevel = (
+                item.difficulty ||
+                item.label ||
+                item.level ||
+                "General"
+            ).toLowerCase();
+
+            if (difficultyLevel === "beginner") {
+                difficulty.classList.add("beginner");
+            }
+            else if (difficultyLevel === "intermediate") {
+                difficulty.classList.add("intermediate");
+            }
+            else if (
+                difficultyLevel === "experienced" ||
+                difficultyLevel === "expert"
+            ) {
+                difficulty.classList.add("experienced");
+            }
 
             difficulty.textContent =
                 item.difficulty ||
+                item.label ||
                 item.level ||
                 "General";
+
 
             summary.append(
                 questionText,

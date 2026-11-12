@@ -93,6 +93,165 @@
         "User Perspective"
       ],
       "label": "Beginner"
+    },
+
+    {
+      "questions": [
+        {
+          "id": 7,
+          "level": "Beginner",
+          "label": "Beginner",
+          "topic": "Functional Testing",
+          "question": "What is Functional Testing?",
+          "answer": "Functional Testing is a type of software testing that validates whether an application works according to its functional requirements and specifications. It checks individual features by providing inputs and verifying whether the actual outputs match the expected results.",
+          "realTimeExample": "Consider an online shopping application. When a user adds a product to the cart and clicks Checkout, Functional Testing verifies whether the product is added correctly, the price is calculated correctly, and the checkout process works as expected.",
+          "buzzWords": [
+            "Functional Requirements",
+            "Specifications",
+            "Input",
+            "Expected Output",
+            "Actual Output",
+            "Feature Validation"
+          ]
+        },
+        {
+          "id": 8,
+          "level": "Beginner",
+          "label": "Beginner",
+          "topic": "UAT",
+          "question": "What is UAT (User Acceptance Testing)?",
+          "answer": "User Acceptance Testing (UAT) is a type of testing performed by end users or clients to verify whether the software meets their business requirements and is ready for production. It is generally performed in the final phase of testing after functional, integration, and system testing.",
+          "realTimeExample": "A banking application is developed with a fund transfer feature. Before releasing it to customers, bank employees test the application using real business scenarios to confirm that money transfers, transaction history, and confirmations work according to their expectations.",
+          "buzzWords": [
+            "User Acceptance Testing",
+            "End User",
+            "Client",
+            "Business Requirements",
+            "Production Environment",
+            "Final Testing Phase"
+          ]
+        },
+        {
+          "id": 9,
+          "level": "Intermediate",
+          "label": "Intermediate",
+          "topic": "Exploratory Testing",
+          "question": "What is Exploratory Testing?",
+          "answer": "Exploratory Testing is a testing approach in which testers learn about the application while simultaneously exploring and testing it. It involves experimentation, observation, questioning, investigation, and identifying unexpected defects without strictly following predefined test cases.",
+          "realTimeExample": "While testing a login page, instead of following only predefined test cases, a tester tries different combinations such as entering spaces, using special characters, refreshing the page, opening multiple tabs, and submitting the form repeatedly to discover unexpected issues.",
+          "buzzWords": [
+            "Exploration",
+            "Experimentation",
+            "Observation",
+            "Investigation",
+            "Unscripted Testing",
+            "Unexpected Defects"
+          ]
+        },
+        {
+          "id": 10,
+          "level": "Beginner",
+          "label": "Beginner",
+          "topic": "Sanity Testing",
+          "question": "What is Sanity Testing?",
+          "answer": "Sanity Testing is a type of software testing performed after receiving a build containing minor changes or bug fixes. Its purpose is to verify that the specific changes are working as expected and that they have not introduced obvious issues. If sanity testing fails, the build may be rejected without proceeding to extensive testing.",
+          "realTimeExample": "Suppose a developer fixes a bug in the password reset feature. The tester performs sanity testing by checking whether the password reset functionality now works correctly and whether the related changes are behaving as expected.",
+          "buzzWords": [
+            "Minor Changes",
+            "Bug Fixes",
+            "Build Verification",
+            "Focused Testing",
+            "Quick Validation",
+            "Build Rejection"
+          ]
+        },
+        {
+          "id": 11,
+          "level": "Beginner",
+          "label": "Beginner",
+          "topic": "Regression Testing",
+          "question": "What is Regression Testing?",
+          "answer": "Regression Testing is a type of software testing performed to ensure that recent code changes, enhancements, or bug fixes have not negatively affected existing functionality. Previously executed test cases are re-executed to verify that existing features continue to work correctly.",
+          "realTimeExample": "Suppose a shopping application introduces a new discount feature. Regression testing verifies that existing features such as login, product search, adding items to the cart, payment, and order history continue to work correctly after the new feature is implemented.",
+          "buzzWords": [
+            "Code Changes",
+            "Existing Functionality",
+            "Re-execution",
+            "Bug Fixes",
+            "Impact Analysis",
+            "Backward Compatibility"
+          ]
+        },
+        {
+          "id": 12,
+          "level": "Beginner",
+          "label": "Beginner",
+          "topic": "Smoke Testing",
+          "question": "What is Smoke Testing?",
+          "answer": "Smoke Testing is a preliminary testing process performed on a new software build to verify whether its critical functionalities are working and whether the build is stable enough for further testing. It consists of a minimal set of important test cases.",
+          "realTimeExample": "After receiving a new build of an e-commerce application, the tester checks whether the application launches, users can log in, products are displayed, items can be added to the cart, and the checkout page opens. If these basic features fail, the build is rejected for further testing.",
+          "buzzWords": [
+            "Build Verification",
+            "Build Stability",
+            "Critical Functionalities",
+            "Basic Test Cases",
+            "Preliminary Testing",
+            "Build Acceptance"
+          ]
+        },
+        {
+          "id": 13,
+          "level": "Beginner",
+          "label": "Beginner",
+          "topic": "Unit Testing",
+          "question": "What is Unit Testing?",
+          "answer": "Unit Testing is a software testing technique in which individual components, such as functions, methods, or modules, are tested independently to verify their correctness. It is generally performed by developers during the development process and is often automated.",
+          "realTimeExample": "Consider a Java application with a method that calculates the total price of products. A developer writes unit tests to verify whether the method returns the correct total for different input values, without testing the entire application.",
+          "buzzWords": [
+            "Individual Components",
+            "Functions",
+            "Methods",
+            "Independent Testing",
+            "Developers",
+            "Automated Tests"
+          ]
+        },
+        {
+          "id": 14,
+          "level": "Intermediate",
+          "label": "Intermediate",
+          "topic": "Integration Testing",
+          "question": "What is Integration Testing?",
+          "answer": "Integration Testing is a type of testing in which two or more software modules are combined and tested as a group. Its main objective is to identify defects in the interaction and communication between integrated modules, including data exchange between them.",
+          "realTimeExample": "In an online shopping application, the Login module, Cart module, Payment module, and Order module may work individually. Integration Testing verifies whether these modules communicate correctly, such as whether the selected cart items and total amount are correctly passed to the payment module.",
+          "buzzWords": [
+            "Module Integration",
+            "Data Communication",
+            "Module Interaction",
+            "Interface Testing",
+            "Combined Modules",
+            "Data Exchange"
+          ]
+        },
+        {
+          "id": 15,
+          "level": "Intermediate",
+          "label": "Intermediate",
+          "topic": "Mocking",
+          "question": "What is Mocking in Testing?",
+          "answer": "Mocking is a testing technique in which real dependencies, such as databases, APIs, or external services, are replaced with simulated objects that imitate their behavior. It helps testers isolate the component being tested and verify its interactions with dependencies without relying on actual external systems.",
+          "realTimeExample": "Suppose a login application communicates with an external authentication API. During testing, instead of calling the real API, a mock object returns predefined responses such as successful login or invalid credentials. This allows the login functionality to be tested independently.",
+          "buzzWords": [
+            "Mock Objects",
+            "Simulated Dependencies",
+            "API",
+            "Database",
+            "Test Isolation",
+            "Predefined Responses",
+            "External Services"
+          ]
+        }
+      ]
     }
   ]
 }

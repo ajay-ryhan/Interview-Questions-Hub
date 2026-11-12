@@ -718,3 +718,30 @@ footer {
 
     white-space: pre-wrap;
 }
+
+/* Difficulty Badge Colors */
+
+.difficulty-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    margin-left: 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.difficulty-badge.beginner {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.difficulty-badge.intermediate {
+    background: #ffedd5;
+    color: #9a3412;
+}
+
+.difficulty-badge.experienced {
+    background: #ede9fe;
+    color: #6b21a8;
+}
+
