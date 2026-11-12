@@ -383,6 +383,54 @@ function createTags(tags) {
     );
 
     return section;
+
+    /* ==========================
+   Buzz Words
+========================== */
+
+    function createBuzzWords(buzzWords) {
+
+        if (
+            !Array.isArray(buzzWords) ||
+            buzzWords.length === 0
+        ) {
+            return null;
+        }
+
+        const section =
+            document.createElement("div");
+
+        section.className = "detail-section";
+
+        const heading =
+            document.createElement("h4");
+
+        heading.textContent = "🧠 Remember These Keywords";
+
+        const container =
+            document.createElement("div");
+
+        container.className = "tag-container";
+
+        buzzWords.forEach(word => {
+
+            const badge =
+                document.createElement("span");
+
+            badge.className = "tag-badge";
+
+            badge.textContent = word;
+
+            container.appendChild(badge);
+        });
+
+        section.append(
+            heading,
+            container
+        );
+
+        return section;
+    }
 }
 
 /* ==========================
@@ -664,6 +712,15 @@ function displayQuestions(
                     tags
                 );
 
+            // Display Buzz Words
+            const buzzWords =
+                createBuzzWords(item.buzzWords);
+
+            if (buzzWords)
+                answerSection.appendChild(
+                    buzzWords
+                );
+
             if (followUps)
                 answerSection.appendChild(
                     followUps
@@ -751,6 +808,7 @@ if (difficultyFilter) {
         applyFilters
     );
 }
+
 async function runJavaCode(event) {
 
     const questionId =
@@ -798,7 +856,7 @@ async function runJavaCode(event) {
             result.stderr ||
             "No Output";
 
-    } catch(error) {
+    } catch (error) {
 
         outputPanel.textContent =
             "Execution Failed";
