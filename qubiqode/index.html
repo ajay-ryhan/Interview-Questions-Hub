@@ -11,9 +11,6 @@
           content="Qubiqode is your online coding workspace. Write, test and execute code.">
 
     <link rel="stylesheet" href="css/qubiqode.css">
-
-    <!-- Monaco Editor Loader -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.52.2/min/vs/loader.min.js"></script>
 </head>
 
 <body>
@@ -37,123 +34,38 @@
                 QA Interview Hub
             </a>
 
-            <span class="connection-status" id="connection-status">
-                    <span class="status-dot"></span>
-                    Execution service offline
-                </span>
+            <span class="connection-status">
+                <span class="status-dot"></span>
+                Online Compiler
+            </span>
         </div>
 
     </header>
 
-
     <!-- Main Workspace -->
     <main class="workspace">
 
-        <!-- Toolbar -->
-        <section class="editor-toolbar">
-
-            <div class="toolbar-left">
-
-                <label for="language-select">
-                    Language
-                </label>
-
-                <select id="language-select">
-                    <option value="java">Java</option>
-                    <option value="python">Python</option>
-                    <option value="javascript">JavaScript</option>
-                    <option value="cpp">C++</option>
-                </select>
-
-            </div>
-
-            <div class="toolbar-right">
-
-                <button id="reset-button" class="secondary-button">
-                    ↺ Reset
-                </button>
-
-                <button id="run-button" class="run-button" disabled>
-                    ▶ Run Code
-                </button>
-
-            </div>
-
-        </section>
-
-
-        <!-- Editor -->
         <section class="editor-panel">
 
             <div class="panel-heading">
-                <span>CODE EDITOR</span>
-                <span id="editor-language-label">JAVA</span>
+                <span>QUBIQODE CODE EDITOR</span>
+                <span>POWERED BY ONECOMPILER</span>
             </div>
 
-            <div id="code-editor">
-                <div class="editor-loading">
-                    Loading code editor...
-                </div>
-            </div>
-
-        </section>
-
-
-        <!-- Input and Output -->
-        <section class="console-grid">
-
-            <!-- Input -->
-            <div class="console-panel">
-
-                <div class="panel-heading">
-                    <span>INPUT (STDIN)</span>
-                    <button id="clear-input-button" class="text-button">
-                        Clear
-                    </button>
-                </div>
-
-                <textarea
-                        id="stdin-input"
-                        placeholder="Enter program input here..."
-                        spellcheck="false"
-                ></textarea>
-
-            </div>
-
-
-            <!-- Output -->
-            <div class="console-panel">
-
-                <div class="panel-heading">
-                    <span>OUTPUT CONSOLE</span>
-                    <button id="clear-output-button" class="text-button">
-                        Clear
-                    </button>
-                </div>
-
-                <pre id="output-console">Your program output will appear here.</pre>
-
+            <div class="compiler-container">
+                <iframe
+                        id="onecompiler-editor"
+                        src="https://onecompiler.org/embed/?theme=dark"
+                        title="Qubiqode Online Code Editor"
+                        width="100%"
+                        height="750"
+                        allowfullscreen>
+                </iframe>
             </div>
 
         </section>
-
-
-        <!-- Execution Information -->
-        <footer class="execution-footer">
-
-                <span id="execution-status">
-                    Ready to code
-                </span>
-
-            <div class="execution-details">
-                <span id="execution-time">Time: --</span>
-                <span id="execution-memory">Memory: --</span>
-            </div>
-
-        </footer>
 
     </main>
-
 
     <!-- Footer -->
     <footer class="site-footer">
@@ -161,9 +73,6 @@
     </footer>
 
 </div>
-
-
-<script src="js/qubiqode.js"></script>
 
 </body>
 </html>
