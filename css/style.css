@@ -1593,3 +1593,10 @@ body[data-theme="light"] #dashboard-page footer {
         flex-direction: column;
     }
 }
+.qubiqode-frame {
+    width: 100%;
+    height: 850px;
+    border: none;
+    border-radius: 12px;
+    background: #0f172a;
+}

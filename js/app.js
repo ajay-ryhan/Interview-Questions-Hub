@@ -179,9 +179,7 @@ function displayTopics() {
     qubiqodeButton.className = "topic-button";
     qubiqodeButton.textContent = "💻 Qubiqode";
 
-    qubiqodeButton.addEventListener("click", () => {
-        window.location.href = "./qubiqode/index.html";
-    });
+    qubiqodeButton.addEventListener("click", showQubiqode);
 
     topicList.appendChild(qubiqodeButton);
 }
@@ -258,6 +256,35 @@ async function showDocuments() {
             "Unable to load documents. Please try again.";
     }
 }
+
+
+function showQubiqode() {
+
+    selectedTopic.textContent = "Qubiqode";
+
+    topicDescription.textContent =
+        "Write, run and test code in multiple programming languages.";
+
+    document.querySelectorAll(".topic-button")
+        .forEach(button => {
+            button.classList.toggle(
+                "active",
+                button.textContent.includes("Qubiqode")
+            );
+        });
+
+    document.querySelector(".question-tools").style.display = "none";
+    questionStats.style.display = "none";
+
+    questionContainer.innerHTML = `
+        <iframe
+            src="./qubiqode/index.html"
+            title="Qubiqode Online Code Editor"
+            class="qubiqode-frame">
+        </iframe>
+    `;
+}
+
 
 /* ==========================
    Load Questions
