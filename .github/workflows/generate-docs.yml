@@ -1,0 +1,56 @@
+
+name: Generate Downloadable Documents List
+
+on:
+  push:
+    paths:
+      - 'docs/**'
+      - '.github/workflows/generate-docs.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Generate docs.json
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          docs_folder = Path("docs")
+          supported = {
+              ".pdf", ".txt", ".doc", ".docx",
+              ".xls", ".xlsx", ".ppt", ".pptx"
+          }
+
+          documents = []
+
+          for file in sorted(docs_folder.rglob("*")):
+              if file.is_file() and file.suffix.lower() in supported:
+                  documents.append({
+                      "name": file.stem.replace("-", " ").replace("_", " "),
+                      "file": file.relative_to(docs_folder).as_posix(),
+                      "type": file.suffix[1:].upper(),
+                      "description": "Download " + file.stem.replace("-", " ").replace("_", " ")
+                  })
+
+          with open("docs.json", "w", encoding="utf-8") as output:
+              json.dump({"documents": documents}, output, indent=2)
+
+          print(f"Generated {len(documents)} document entries.")
+          PY
+
+      - name: Commit generated list
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs.json
+          git diff --cached --quiet || git commit -m "Update downloadable documents list"
+          git push

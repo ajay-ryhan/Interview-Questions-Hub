@@ -169,6 +169,160 @@ function displayTopics() {
 
         topicList.appendChild(button);
     });
+
+    // Downloadable Docs button
+
+    const docsButton = document.createElement("button");
+
+    docsButton.className = "topic-button";
+    docsButton.textContent = "📁 Downloadable Docs";
+
+    docsButton.addEventListener("click", showDocuments);
+
+    topicList.appendChild(docsButton);
+}
+
+/* ==========================
+   Downloadable Documents
+========================== */
+
+
+async function showDocuments() {
+
+    selectedTopic.textContent = "Downloadable Docs";
+
+    topicDescription.textContent =
+        "Access and download useful learning materials.";
+
+    document.querySelectorAll(".topic-button")
+        .forEach(button => {
+            button.classList.toggle(
+                "active",
+                button.textContent.includes("Downloadable Docs")
+            );
+        });
+
+    document.querySelector(".question-tools").style.display = "none";
+    questionStats.style.display = "none";
+
+    questionContainer.innerHTML = "<p>Loading documents...</p>";
+
+    try {
+
+        const response = await fetch("./docs.json");
+
+        if (!response.ok) {
+            throw new Error("Unable to load documents");
+        }
+
+        const data = await response.json();
+
+        questionContainer.innerHTML = "";
+
+        if (!data.documents.length) {
+            questionContainer.innerHTML =
+                "<p>No documents available yet.</p>";
+            return;
+        }
+
+        data.documents.forEach(doc => {
+
+            const card = document.createElement("div");
+
+            card.className = "download-doc-card";
+
+            const info = document.createElement("div");
+            info.className = "doc-info";
+
+            const icon = document.createElement("span");
+            icon.className = "doc-icon";
+            icon.textContent = "📄";
+
+            const details = document.createElement("div");
+
+            const heading = document.createElement("h3");
+            heading.textContent = doc.name;
+
+            const description = document.createElement("p");
+            description.textContent = doc.description;
+
+            const type = document.createElement("span");
+            type.className = "doc-type";
+            type.textContent = doc.type;
+
+            details.append(heading, description, type);
+            info.append(icon, details);
+
+            const link = document.createElement("a");
+            link.className = "download-btn";
+            link.href = "./docs/" + doc.file
+                .split("/")
+                .map(encodeURIComponent)
+                .join("/");
+            link.download = doc.file.split("/").pop();
+            link.textContent = "↓ Download";
+
+            card.append(info, link);
+
+            questionContainer.appendChild(card);
+        });
+
+    } catch (error) {
+
+        console.error(error);
+
+        questionContainer.innerHTML =
+            "<p>Unable to load documents. Please try again later.</p>";
+    }
+}
+
+function showDocuments() {
+
+    selectedTopic.textContent = "Downloadable Docs";
+
+    topicDescription.textContent =
+        "Access and download useful QA learning materials.";
+
+    document.querySelectorAll(".topic-button")
+        .forEach(button => {
+            button.classList.toggle(
+                "active",
+                button.textContent.includes("Downloadable Docs")
+            );
+        });
+
+    document.querySelector(".question-tools").style.display = "none";
+    questionStats.style.display = "none";
+
+    questionContainer.innerHTML = "";
+
+    downloadableDocs.forEach(doc => {
+
+        const card = document.createElement("div");
+
+        card.className = "download-doc-card";
+
+        card.innerHTML = `
+            <div class="doc-info">
+                <span class="doc-icon">📄</span>
+
+                <div>
+                    <h3>${doc.name}</h3>
+                    <p>${doc.description}</p>
+                    <span class="doc-type">${doc.type}</span>
+                </div>
+            </div>
+
+            <a
+                href="./docs/${encodeURIComponent(doc.file)}"
+                download
+                class="download-btn">
+                ↓ Download
+            </a>
+        `;
+
+        questionContainer.appendChild(card);
+    });
 }
 
 /* ==========================
@@ -179,6 +333,9 @@ async function loadQuestions(category) {
 
     selectedTopic.textContent =
         category.name;
+
+    document.querySelector(".question-tools").style.display = "flex";
+    questionStats.style.display = "";
 
     topicDescription.textContent =
         category.description;
