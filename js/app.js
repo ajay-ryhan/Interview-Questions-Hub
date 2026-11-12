@@ -267,7 +267,7 @@ function updateStats(questions) {
 
         const level = (
             item.level || ""
-        ).toLowerCase();
+        ).toLowerCase().trim();
 
         if (level === "beginner") {
             beginner++;
@@ -275,7 +275,10 @@ function updateStats(questions) {
         else if (level === "intermediate") {
             intermediate++;
         }
-        else if (level === "expert") {
+        else if (
+            level === "expert" ||
+            level === "experienced"
+        ) {
             expert++;
         }
 
