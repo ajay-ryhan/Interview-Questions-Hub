@@ -797,42 +797,6 @@ function displayQuestions(
                     sources
                 );
 
-
-            /* ==========================
-               Java Compiler Section
-            ========================== */
-
-            if (item.runnable && item.javaCode) {
-
-                const codeSection =
-                    document.createElement("div");
-
-                codeSection.className = "code-section";
-
-                codeSection.innerHTML = `
-        <h4>Executable Java Example</h4>
-
-        <pre class="code-block">
-${escapeHtml(item.javaCode)}
-        </pre>
-
-        <button
-            class="run-code-btn"
-            data-question-id="${item.id}">
-            ▶ Execute Code
-        </button>
-
-        <div
-            id="output-${item.id}"
-            class="output-panel">
-            Click Execute Code
-        </div>
-    `;
-
-                answerSection.appendChild(codeSection);
-            }
-
-
             card.append(
                 summary,
                 answerSection
@@ -843,17 +807,6 @@ ${escapeHtml(item.javaCode)}
             );
         }
     );
-
-    document
-        .querySelectorAll(".run-code-btn")
-        .forEach(button => {
-
-            button.addEventListener(
-                "click",
-                runJavaCode
-            );
-
-        });
 }
 
 /* ==========================
@@ -872,60 +825,4 @@ if (difficultyFilter) {
         "change",
         applyFilters
     );
-}
-
-async function runJavaCode(event) {
-
-    const questionId =
-        event.target.dataset.questionId;
-
-    const question =
-        currentQuestions.find(
-            q => String(q.id) === String(questionId)
-        );
-
-    const outputPanel =
-        document.getElementById(
-            `output-${questionId}`
-        );
-
-    outputPanel.textContent =
-        "Executing...";
-
-    try {
-
-        const response =
-            await fetch(
-                "/api/run-java",
-                {
-                    method: "POST",
-
-                    headers: {
-                        "Content-Type":
-                            "application/json"
-                    },
-
-                    body: JSON.stringify({
-                        code:
-                        question.javaCode
-                    })
-                }
-            );
-
-        const result =
-            await response.json();
-
-        outputPanel.textContent =
-            result.output ||
-            result.stdout ||
-            result.stderr ||
-            "No Output";
-
-    } catch (error) {
-
-        outputPanel.textContent =
-            "Execution Failed";
-
-        console.error(error);
-    }
 }
