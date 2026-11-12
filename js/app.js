@@ -173,6 +173,13 @@ function displayTopics() {
     docsButton.addEventListener("click", showDocuments);
 
     topicList.appendChild(docsButton);
+
+    const qubiqodeButton = document.createElement("button");
+    qubiqodeButton.textContent = "💻 Qubiqode";
+    qubiqodeButton.addEventListener("click", () => {
+        window.location.href = "./qubiqode/index.html";
+    });
+    topicList.appendChild(qubiqodeButton);
 }
 
 /* ==========================
