@@ -269,7 +269,7 @@
     {
       "id": 20,
       "topic": "Strings",
-      "difficulty": "Experienced",
+      "difficulty": "Expert",
       "question": "Write a Java program to implement String permutations.",
       "answer": "A permutation is an arrangement of all characters in a different order. Recursively select one character, append it to the result, and permute the remaining characters. Repeated input characters can produce duplicate output.",
       "example": "static void permute(String remaining, String result) {\n    if (remaining.isEmpty()) {\n        System.out.println(result);\n        return;\n    }\n    for (int i = 0; i < remaining.length(); i++) {\n        char ch = remaining.charAt(i);\n        String rest = remaining.substring(0, i) + remaining.substring(i + 1);\n        permute(rest, result + ch);\n    }\n}\n// Call: permute(\"ABC\", \"\");",
@@ -560,7 +560,7 @@
     {
       "id": 41,
       "topic": "Maps",
-      "difficulty": "Experienced",
+      "difficulty": "Expert",
       "question": "How does hashing work internally in HashMap?",
       "answer": "HashMap uses a key's hashCode() to determine a bucket, then uses equals() to identify the matching key among entries in that bucket. Different keys can have the same hash or bucket (a collision). In Java 8+, heavily populated buckets may be treeified under implementation-specific conditions.",
       "example": "Map<Integer, String> map = new HashMap<>();\nmap.put(101, \"Java\");\nmap.put(102, \"Selenium\");\nSystem.out.println(map.get(101));\n// For custom keys, implement equals() and hashCode() consistently.",
@@ -647,7 +647,7 @@
     {
       "id": 47,
       "topic": "OOPS",
-      "difficulty": "Experienced",
+      "difficulty": "Expert",
       "question": "Explain design patterns such as Singleton and Factory.",
       "answer": "Singleton provides a controlled single instance of a class. Factory centralizes object creation and returns an appropriate implementation without exposing creation details to callers. Choose patterns based on the actual design need.",
       "example": "interface Browser { void open(); }\nclass Chrome implements Browser {\n    public void open() { System.out.println(\"Chrome opened\"); }\n}\nclass BrowserFactory {\n    static Browser create(String name) {\n        if (\"chrome\".equalsIgnoreCase(name)) return new Chrome();\n        throw new IllegalArgumentException(\"Unsupported browser\");\n    }\n}\n// Usage: Browser b = BrowserFactory.create(\"chrome\");",
@@ -689,7 +689,7 @@
     {
       "id": 50,
       "topic": "OOPS",
-      "difficulty": "Experienced",
+      "difficulty": "Expert",
       "question": "If Parent and Child classes have a common method, and a Parent reference refers to a Child object, which method is called? What happens with constructors?",
       "answer": "For an overridden instance method, the Child implementation runs because method dispatch uses the actual object type. During construction, the Parent constructor runs before the Child constructor. Constructors are not overridden.",
       "example": "class Parent {\n    Parent() { System.out.println(\"Parent constructor\"); }\n    void show() { System.out.println(\"Parent method\"); }\n}\nclass Child extends Parent {\n    Child() { System.out.println(\"Child constructor\"); }\n    @Override void show() { System.out.println(\"Child method\"); }\n}\nParent ref = new Child();\nref.show();",

@@ -256,44 +256,33 @@ function applyFilters() {
     );
 }
 
+
 function updateStats(questions) {
 
-    const beginner =
-        questions.filter(q =>
-            (q.difficulty ||
-                q.level ||
-                "")
-                .toLowerCase()
-                .includes("beginner")
-        ).length;
+    let beginner = 0;
+    let intermediate = 0;
+    let expert = 0;
 
-    const intermediate =
-        questions.filter(q =>
-            (q.difficulty ||
-                q.level ||
-                "")
-                .toLowerCase()
-                .includes(
-                    "intermediate"
-                )
-        ).length;
+    questions.forEach(item => {
 
-    const Experienced =
-        questions.filter(q =>
-            (q.difficulty ||
-                q.level ||
-                "")
-                .toLowerCase()
-                .includes("Experienced")
-        ).length;
+        const level = (
+            item.level || ""
+        ).toLowerCase();
 
-    questionStats.innerHTML = `
-        <strong>${questions.length}</strong> Questions |
-        Beginner: ${beginner} |
-        Intermediate: ${intermediate} |
-        Experienced: ${experienced}
-    `;
+        if (level === "beginner") {
+            beginner++;
+        }
+        else if (level === "intermediate") {
+            intermediate++;
+        }
+        else if (level === "expert") {
+            expert++;
+        }
+
+    });
+
 }
+
 
 /* ==========================
    Reusable Sections
@@ -612,10 +601,9 @@ function displayQuestions(
                 difficulty.classList.add("intermediate");
             }
             else if (
-                difficultyLevel === "experienced" ||
                 difficultyLevel === "expert"
             ) {
-                difficulty.classList.add("experienced");
+                difficulty.classList.add("expert");
             }
 
             difficulty.textContent =
