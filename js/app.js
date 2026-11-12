@@ -278,20 +278,20 @@ function updateStats(questions) {
                 )
         ).length;
 
-    const advanced =
+    const Experienced =
         questions.filter(q =>
             (q.difficulty ||
                 q.level ||
                 "")
                 .toLowerCase()
-                .includes("advanced")
+                .includes("Experienced")
         ).length;
 
     questionStats.innerHTML = `
         <strong>${questions.length}</strong> Questions |
         Beginner: ${beginner} |
         Intermediate: ${intermediate} |
-        Advanced: ${advanced}
+        Experienced: ${experienced}
     `;
 }
 
