@@ -1,0 +1,405 @@
+
+/* ================================
+   QUBIQODE - GLOBAL STYLES
+================================ */
+
+:root {
+    --bg: #080d1b;
+    --surface: #111a2e;
+    --surface-light: #18243b;
+    --border: #263550;
+    --text: #e5eaf5;
+    --muted: #8996ad;
+    --primary: #6366f1;
+    --secondary: #8b5cf6;
+    --success: #22c55e;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    min-height: 100vh;
+    background:
+            radial-gradient(circle at 15% 0%, #17234a 0, transparent 35%),
+            var(--bg);
+    color: var(--text);
+    font-family: Inter, "Segoe UI", Arial, sans-serif;
+}
+
+button,
+select,
+textarea {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+.app-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+
+/* ================================
+   HEADER
+================================ */
+
+.topbar {
+    min-height: 76px;
+    padding: 14px 5%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    background: rgba(10, 16, 32, 0.92);
+    border-bottom: 1px solid var(--border);
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.brand-icon {
+    width: 43px;
+    height: 43px;
+    display: grid;
+    place-items: center;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: white;
+    font-size: 25px;
+    font-weight: 800;
+}
+
+.brand-text h1 {
+    font-size: 21px;
+    letter-spacing: -0.5px;
+}
+
+.brand-text span {
+    color: var(--muted);
+    font-size: 9px;
+    letter-spacing: 2px;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+}
+
+.hub-link {
+    color: #b7c3ff;
+    text-decoration: none;
+    font-size: 13px;
+}
+
+.hub-link:hover {
+    color: white;
+}
+
+.connection-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #ef4444;
+}
+
+
+/* ================================
+   WORKSPACE
+================================ */
+
+.workspace {
+    width: min(1200px, 92%);
+    margin: 35px auto;
+    flex: 1;
+}
+
+.editor-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.toolbar-left,
+.toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.toolbar-left label {
+    color: var(--muted);
+    font-size: 13px;
+}
+
+#language-select {
+    min-width: 150px;
+    padding: 10px 14px;
+    color: var(--text);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    outline: none;
+}
+
+#language-select:focus {
+    border-color: var(--primary);
+}
+
+
+/* ================================
+   BUTTONS
+================================ */
+
+.run-button,
+.secondary-button {
+    padding: 10px 17px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    transition: 0.2s;
+}
+
+.run-button {
+    color: white;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    border: none;
+}
+
+.run-button:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 5px 18px #6366f144;
+}
+
+.run-button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.secondary-button {
+    color: var(--text);
+    background: var(--surface-light);
+    border: 1px solid var(--border);
+}
+
+.secondary-button:hover {
+    background: #263550;
+}
+
+.text-button {
+    color: #a5b4fc;
+    background: transparent;
+    border: none;
+    font-size: 12px;
+}
+
+
+/* ================================
+   EDITOR PANEL
+================================ */
+
+.editor-panel,
+.console-panel {
+    overflow: hidden;
+    background: #0d1526;
+    border: 1px solid var(--border);
+    border-radius: 11px;
+}
+
+.panel-heading {
+    min-height: 43px;
+    padding: 0 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    color: #aab7ce;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+#editor-language-label {
+    color: #a5b4fc;
+}
+
+#code-editor {
+    width: 100%;
+    height: 440px;
+    position: relative;
+}
+
+.editor-loading {
+    height: 100%;
+    display: grid;
+    place-items: center;
+    color: var(--muted);
+    font-size: 13px;
+}
+
+
+/* ================================
+   INPUT AND OUTPUT
+================================ */
+
+.console-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-top: 17px;
+}
+
+.console-panel {
+    min-width: 0;
+}
+
+#stdin-input,
+#output-console {
+    width: 100%;
+    min-height: 155px;
+    padding: 15px;
+    color: #dbeafe;
+    background: #080f1d;
+    border: none;
+    outline: none;
+    resize: vertical;
+    font-family: Consolas, "Courier New", monospace;
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+#output-console {
+    overflow: auto;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+#stdin-input::placeholder {
+    color: #64748b;
+}
+
+
+/* ================================
+   EXECUTION FOOTER
+================================ */
+
+.execution-footer {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 14px 3px;
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.execution-details {
+    display: flex;
+    gap: 20px;
+}
+
+
+/* ================================
+   SITE FOOTER
+================================ */
+
+.site-footer {
+    padding: 22px;
+    text-align: center;
+    color: #64748b;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+}
+
+
+/* ================================
+   RESPONSIVE DESIGN
+================================ */
+
+@media (max-width: 700px) {
+
+    .topbar {
+        padding: 14px 4%;
+        align-items: flex-start;
+    }
+
+    .header-actions {
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 8px;
+    }
+
+    .connection-status {
+        font-size: 10px;
+    }
+
+    .workspace {
+        width: 94%;
+        margin: 22px auto;
+    }
+
+    .editor-toolbar {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .toolbar-left,
+    .toolbar-right {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    #language-select {
+        flex: 1;
+    }
+
+    .console-grid {
+        grid-template-columns: 1fr;
+    }
+
+    #code-editor {
+        height: 350px;
+    }
+
+    .execution-footer {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 420px) {
+
+    .brand-text h1 {
+        font-size: 18px;
+    }
+
+    .hub-link {
+        font-size: 11px;
+    }
+
+    .run-button,
+    .secondary-button {
+        padding: 9px 12px;
+        font-size: 12px;
+    }
+}
