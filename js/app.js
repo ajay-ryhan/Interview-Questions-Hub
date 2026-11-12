@@ -330,107 +330,65 @@ function createSection(
     return section;
 }
 
+
 /* ==========================
    Tags
 ========================== */
 
 function createTags(tags) {
 
-    if (
-        !Array.isArray(tags) ||
-        tags.length === 0
-    ) {
+    if (!Array.isArray(tags) || tags.length === 0) {
         return null;
     }
 
-    const section =
-        document.createElement("div");
+    const section = document.createElement("div");
+    section.className = "detail-section";
 
-    section.className =
-        "detail-section";
-
-    const heading =
-        document.createElement("h4");
-
+    const heading = document.createElement("h4");
     heading.textContent = "Tags";
 
-    const container =
-        document.createElement("div");
-
-    container.className =
-        "tag-container";
+    const container = document.createElement("div");
+    container.className = "tag-container";
 
     tags.forEach(tag => {
-
-        const badge =
-            document.createElement(
-                "span"
-            );
-
-        badge.className =
-            "tag-badge";
-
+        const badge = document.createElement("span");
+        badge.className = "tag-badge";
         badge.textContent = tag;
-
-        container.appendChild(
-            badge
-        );
+        container.appendChild(badge);
     });
 
-    section.append(
-        heading,
-        container
-    );
-
+    section.append(heading, container);
     return section;
+}
 
-    /* ==========================
+/* ==========================
    Buzz Words
 ========================== */
 
-    function createBuzzWords(buzzWords) {
+function createBuzzWords(buzzWords) {
 
-        if (
-            !Array.isArray(buzzWords) ||
-            buzzWords.length === 0
-        ) {
-            return null;
-        }
-
-        const section =
-            document.createElement("div");
-
-        section.className = "detail-section";
-
-        const heading =
-            document.createElement("h4");
-
-        heading.textContent = "🧠 Remember These Keywords";
-
-        const container =
-            document.createElement("div");
-
-        container.className = "tag-container";
-
-        buzzWords.forEach(word => {
-
-            const badge =
-                document.createElement("span");
-
-            badge.className = "tag-badge";
-
-            badge.textContent = word;
-
-            container.appendChild(badge);
-        });
-
-        section.append(
-            heading,
-            container
-        );
-
-        return section;
+    if (!Array.isArray(buzzWords) || buzzWords.length === 0) {
+        return null;
     }
+
+    const section = document.createElement("div");
+    section.className = "detail-section";
+
+    const heading = document.createElement("h4");
+    heading.textContent = "🧠 Remember These Keywords";
+
+    const container = document.createElement("div");
+    container.className = "tag-container";
+
+    buzzWords.forEach(word => {
+        const badge = document.createElement("span");
+        badge.className = "tag-badge";
+        badge.textContent = word;
+        container.appendChild(badge);
+    });
+
+    section.append(heading, container);
+    return section;
 }
 
 /* ==========================
@@ -731,6 +689,42 @@ function displayQuestions(
                     sources
                 );
 
+
+            /* ==========================
+               Java Compiler Section
+            ========================== */
+
+            if (item.runnable && item.javaCode) {
+
+                const codeSection =
+                    document.createElement("div");
+
+                codeSection.className = "code-section";
+
+                codeSection.innerHTML = `
+        <h4>Executable Java Example</h4>
+
+        <pre class="code-block">
+${escapeHtml(item.javaCode)}
+        </pre>
+
+        <button
+            class="run-code-btn"
+            data-question-id="${item.id}">
+            ▶ Execute Code
+        </button>
+
+        <div
+            id="output-${item.id}"
+            class="output-panel">
+            Click Execute Code
+        </div>
+    `;
+
+                answerSection.appendChild(codeSection);
+            }
+
+
             card.append(
                 summary,
                 answerSection
@@ -752,43 +746,6 @@ function displayQuestions(
             );
 
         });
-}
-
-/* ==========================
-   Java Compiler Section
-========================== */
-
-if (item.runnable && item.javaCode) {
-
-    const codeSection =
-        document.createElement("div");
-
-    codeSection.className =
-        "code-section";
-
-    codeSection.innerHTML = `
-        <h4>Executable Java Example</h4>
-
-        <pre class="code-block">
-${escapeHtml(item.javaCode)}
-        </pre>
-
-        <button
-            class="run-code-btn"
-            data-question-id="${item.id}">
-            ▶ Execute Code
-        </button>
-
-        <div
-            id="output-${item.id}"
-            class="output-panel">
-            Click Execute Code
-        </div>
-    `;
-
-    answerSection.appendChild(
-        codeSection
-    );
 }
 
 /* ==========================
