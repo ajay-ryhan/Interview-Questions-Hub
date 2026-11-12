@@ -3,516 +3,96 @@
     {
       "id": 1,
       "level": "Beginner",
-      "topic": "QA Fundamentals",
       "question": "What is Quality Assurance (QA)?",
-      "answer": "Quality Assurance is a process-oriented approach that focuses on preventing defects by improving the software development process. Its main goal is to ensure that the final product meets quality standards and customer expectations.",
-      "tags": [
-        "QA",
-        "Fundamentals"
-      ]
+      "answer": "Quality Assurance (QA) is a systematic process of ensuring that software products meet defined quality standards before delivery. It involves planning, executing, and evaluating tests to identify defects, verify requirements, and improve development processes. QA is process-oriented and focuses on preventing defects throughout the software development life cycle rather than simply detecting them at the end.",
+      "realTimeExample": "Imagine an online shopping application. Before releasing it, the QA team checks whether users can register, log in, search for products, add items to the cart, make payments, and track orders. They also verify that the development process follows quality standards so that defects can be prevented early.",
+      "buzzWords": [
+        "Quality Standards",
+        "Defect Prevention",
+        "Process Improvement",
+        "Requirement Verification",
+        "SDLC"
+      ],
+      "label": "Beginner"
     },
     {
       "id": 2,
       "level": "Beginner",
-      "topic": "QA Fundamentals",
-      "question": "What is the main objective of QA?",
-      "answer": "The main objective of QA is to prevent defects, improve development processes, ensure software quality and deliver a reliable product that meets customer requirements.",
-      "tags": [
-        "QA",
-        "Fundamentals"
-      ]
+      "question": "What is a QA Mindset?",
+      "answer": "The QA mindset refers to the critical thinking habits and attitudes that make an effective software tester. It involves questioning assumptions, identifying possible failure scenarios, paying attention to details, and thinking from the user's perspective. A strong QA mindset focuses on finding potential risks and prioritizing testing efforts where they provide the greatest value.",
+      "realTimeExample": "Imagine testing a login page. A developer might verify that users can log in with valid credentials. However, a QA tester with a strong QA mindset also checks invalid passwords, empty fields, special characters, account lockout, password visibility, multiple login attempts, and unexpected user behavior.",
+      "buzzWords": [
+        "Critical Thinking",
+        "Question Assumptions",
+        "Think Like a User",
+        "Negative Testing",
+        "Risk-Based Thinking"
+      ],
+      "label": "Beginner"
     },
     {
       "id": 3,
       "level": "Beginner",
-      "topic": "QA Mindset",
-      "question": "What is a QA mindset?",
-      "answer": "A QA mindset means thinking critically about how an application can fail. A QA engineer considers different user behaviours, unexpected inputs, edge cases and possible risks instead of testing only the expected scenarios.",
-      "tags": [
-        "QA Mindset",
-        "Testing"
-      ]
+      "question": "What are the different Testing Approaches?",
+      "answer": "Testing approaches describe the different perspectives from which software testing is performed. The three main approaches are White Box Testing, Black Box Testing, and Gray Box Testing. White Box Testing examines the internal code and logic, Black Box Testing verifies functionality without knowing the internal implementation, and Gray Box Testing combines both approaches using partial knowledge of the internal system.",
+      "realTimeExample": "Consider an online banking application. In Black Box Testing, a tester verifies whether money is transferred correctly without looking at the source code. In White Box Testing, a developer or tester examines the code responsible for processing the transaction. In Gray Box Testing, a tester understands the database structure and partially known internal logic to verify whether the transaction is correctly stored and processed.",
+      "buzzWords": [
+        "White Box - Internal Code",
+        "Black Box - External Functionality",
+        "Gray Box - Partial Knowledge",
+        "Code Visibility",
+        "Testing Perspective"
+      ],
+      "label": "Beginner"
     },
     {
       "id": 4,
-      "level": "Beginner",
-      "topic": "QA Mindset",
-      "question": "What qualities should a good QA engineer have?",
-      "answer": "A good QA engineer should have analytical thinking, attention to detail, curiosity, problem-solving skills, communication skills and the ability to think from an end user's perspective.",
-      "tags": [
-        "QA Mindset",
-        "Skills"
-      ]
+      "level": "Intermediate",
+      "question": "What is White Box Testing?",
+      "answer": "White Box Testing is a software testing technique in which the internal structure, design, code, and execution paths of an application are examined. The tester has access to the source code and verifies internal logic, conditions, loops, and data flows. It helps identify logical errors, security vulnerabilities, and coding issues. White Box Testing is also known as Clear Box Testing, Open Box Testing, Transparent Box Testing, Code-Based Testing, and Glass Box Testing.",
+      "realTimeExample": "Consider a login application containing the following Java condition: if (username.equals(\"admin\") && password.equals(\"1234\")). In White Box Testing, the tester examines the source code and verifies whether both conditions work correctly. They also check what happens when the username is incorrect, the password is incorrect, or both are incorrect. The tester examines the internal decision paths rather than only checking the login page's output.",
+      "buzzWords": [
+        "Source Code",
+        "Internal Logic",
+        "Code Coverage",
+        "Statement Coverage",
+        "Branch Coverage",
+        "Execution Paths",
+        "Glass Box Testing"
+      ],
+      "label": "Experienced"
     },
     {
       "id": 5,
-      "level": "Beginner",
-      "topic": "Testing Approaches",
-      "question": "What are the three main testing approaches?",
-      "answer": "The three main testing approaches are Black Box Testing, White Box Testing and Gray Box Testing. They differ based on how much knowledge the tester has about the internal implementation of the application.",
-      "tags": [
-        "Testing Approaches",
-        "Fundamentals"
-      ]
+      "level": "Intermediate",
+      "question": "What is Gray Box Testing?",
+      "answer": "Gray Box Testing is a software testing technique in which the tester has partial knowledge of the application's internal structure, design, or implementation. It combines elements of White Box and Black Box Testing. The tester uses available internal information, such as database structure, architecture, or API details, to identify defects that may not be visible through external functionality alone.",
+      "realTimeExample": "Consider an online shopping application. A tester knows that customer order details are stored in a database with separate tables for customers, orders, and payments. Without accessing the application's source code, the tester places an order through the UI and checks whether the correct customer ID, order amount, and payment status are stored in the database. This is Gray Box Testing because the tester has partial knowledge of the internal system.",
+      "buzzWords": [
+        "Partial Knowledge",
+        "Internal Structure",
+        "Database Testing",
+        "API Knowledge",
+        "Black Box + White Box",
+        "Architecture Awareness"
+      ],
+      "label": "Intermediate"
     },
     {
       "id": 6,
       "level": "Beginner",
-      "topic": "Testing Approaches",
       "question": "What is Black Box Testing?",
-      "answer": "Black Box Testing is a testing approach where the tester checks application functionality without knowing its internal code or implementation. Testing is performed using inputs and verifying the expected outputs.",
-      "tags": [
-        "Black Box Testing",
-        "Testing Approaches"
-      ]
-    },
-    {
-      "id": 7,
-      "level": "Beginner",
-      "topic": "Testing Approaches",
-      "question": "What is White Box Testing?",
-      "answer": "White Box Testing is a testing approach where the tester has knowledge of the internal code and application structure. It involves checking code paths, conditions, loops and logic.",
-      "tags": [
-        "White Box Testing",
-        "Testing Approaches"
-      ]
-    },
-    {
-      "id": 8,
-      "level": "Beginner",
-      "topic": "Testing Approaches",
-      "question": "What is Gray Box Testing?",
-      "answer": "Gray Box Testing is a combination of Black Box and White Box Testing. The tester has partial knowledge of the internal application structure and uses that knowledge to design and execute tests.",
-      "tags": [
-        "Gray Box Testing",
-        "Testing Approaches"
-      ]
-    },
-    {
-      "id": 9,
-      "level": "Beginner",
-      "topic": "Testing Approaches",
-      "question": "What is the difference between Black Box, White Box and Gray Box Testing?",
-      "answer": "Black Box Testing requires no knowledge of internal code. White Box Testing requires detailed knowledge of internal code and logic. Gray Box Testing requires partial knowledge of the internal implementation.",
-      "tags": [
-        "Black Box Testing",
-        "White Box Testing",
-        "Gray Box Testing"
-      ]
-    },
-    {
-      "id": 10,
-      "level": "Beginner",
-      "topic": "Testing Approaches",
-      "question": "Can a manual tester perform White Box Testing?",
-      "answer": "Yes. A manual tester can perform White Box Testing if they have sufficient programming and code knowledge. However, it is more commonly performed by developers or testers with programming experience.",
-      "tags": [
-        "White Box Testing",
-        "Manual Testing"
-      ]
-    },
-    {
-      "id": 11,
-      "level": "Beginner",
-      "topic": "Test Oracles",
-      "question": "What is a Test Oracle?",
-      "answer": "A Test Oracle is a source of information used to determine whether the actual result of a test is correct or incorrect. Examples include requirement documents, business rules, expected results and domain knowledge.",
-      "tags": [
-        "Test Oracle",
-        "Testing Fundamentals"
-      ]
-    },
-    {
-      "id": 12,
-      "level": "Beginner",
-      "topic": "Test Oracles",
-      "question": "Why is a Test Oracle important?",
-      "answer": "A Test Oracle helps testers decide whether an application behaves as expected. Without a reliable oracle, it can be difficult to determine whether an observed result is a defect.",
-      "tags": [
-        "Test Oracle",
-        "Testing Fundamentals"
-      ]
-    },
-    {
-      "id": 13,
-      "level": "Beginner",
-      "topic": "Test Prioritization",
-      "question": "What is Test Prioritization?",
-      "answer": "Test Prioritization is the process of deciding which test cases should be executed first based on factors such as business importance, risk, functionality impact and available testing time.",
-      "tags": [
-        "Test Prioritization",
-        "Test Management"
-      ]
-    },
-    {
-      "id": 14,
-      "level": "Beginner",
-      "topic": "Test Prioritization",
-      "question": "How do you prioritize test cases when time is limited?",
-      "answer": "I prioritize test cases based on business-critical functionality, high-risk areas, frequently used features, recently modified functionality and areas with a history of defects. Critical workflows are tested first.",
-      "tags": [
-        "Test Prioritization",
-        "Risk-Based Testing"
-      ]
-    },
-    {
-      "id": 15,
-      "level": "Beginner",
-      "topic": "Test Prioritization",
-      "question": "What is Risk-Based Testing?",
-      "answer": "Risk-Based Testing is an approach where testing effort is focused on areas with the highest probability of failure and the greatest business impact. High-risk features receive more testing attention than low-risk features.",
-      "tags": [
-        "Risk-Based Testing",
-        "Test Prioritization"
-      ]
-    },
-    {
-      "id": 16,
-      "level": "Beginner",
-      "topic": "Test Case",
-      "question": "What is a test case?",
-      "answer": "A test case is a documented set of preconditions, test data, execution steps, and expected results used to verify that a feature works correctly.",
-      "explanation": "A test case helps testers validate one specific requirement or behavior. It ensures consistent testing and makes it easier to reproduce defects.",
-      "realTimeExample": "Amazon Login Test Case: TC_LOGIN_001 | Preconditions: User account exists | Steps: Open login page, enter valid email and password, click Sign In | Test Data: user@example.com / Password123 | Expected Result: User is redirected to Home page | Actual Result: User logged in successfully | Status: Pass.",
-      "tags": [
-        "Test Case",
-        "Fundamentals",
-        "Manual Testing"
-      ],
-      "followUpQuestions": [
-        "What are the components of a test case?",
-        "What is the difference between a test case and a test scenario?"
-      ],
-      "sources": [
-        {
-          "name": "Guru99 Software Testing Interview Questions",
-          "url": "https://www.guru99.com/testing-interview-questions.html"
-        },
-        {
-          "name": "BugBug QA Interview Questions 2026",
-          "url": "https://bugbug.io/blog/software-testing/qa-interview-questions/"
-        }
-      ]
-    },
-    {
-      "id": 17,
-      "level": "Intermediate",
-      "topic": "Test Case",
-      "question": "How do you write effective test cases?",
-      "answer": "Write test cases from the user's perspective, keep steps clear, include expected results, cover positive and negative flows, and make test cases reusable.",
-      "explanation": "Effective test cases are easy to understand, traceable to requirements, and capable of detecting defects efficiently.",
-      "realTimeExample": "Banking App Fund Transfer: Verify successful transfer, insufficient balance, invalid account number, daily transfer limit exceeded, and network interruption scenarios.",
-      "tags": [
-        "Test Case",
-        "Best Practices"
-      ],
-      "followUpQuestions": [
-        "How do you prioritize test cases?",
-        "What makes a test case reusable?"
-      ],
-      "sources": [
-        {
-          "name": "Guru99 Testing Interview Questions",
-          "url": "https://www.guru99.com/testing-interview-questions.html"
-        }
-      ]
-    },
-    {
-      "id": 18,
-      "level": "Intermediate",
-      "topic": "Test Case",
-      "question": "What is the difference between a positive and a negative test case?",
-      "answer": "A positive test case verifies expected behavior with valid inputs, while a negative test case verifies error handling with invalid or unexpected inputs.",
-      "explanation": "Both are essential because applications must work correctly for valid users and safely reject invalid inputs.",
-      "realTimeExample": "Instagram Login: Positive - valid username and password. Negative - invalid password, blank password, SQL injection string, locked account.",
-      "tags": [
-        "Test Case",
-        "Positive Testing",
-        "Negative Testing"
-      ],
-      "followUpQuestions": [
-        "Why are negative test cases important?"
-      ],
-      "sources": [
-        {
-          "name": "BugBug QA Interview Questions 2026",
-          "url": "https://bugbug.io/blog/software-testing/qa-interview-questions/"
-        }
-      ]
-    },
-    {
-      "id": 19,
-      "level": "Expert",
-      "topic": "Test Case",
-      "question": "How do you create test cases from requirements?",
-      "answer": "Analyze requirements, identify business rules, derive test scenarios, apply test design techniques, prepare test data, and map test cases to requirements.",
-      "explanation": "Requirement-based testing ensures complete coverage and traceability.",
-      "realTimeExample": "Flight Booking Requirement: Users can book tickets up to 90 days in advance. Create tests for 1 day, 90 days, 91 days, leap year dates, and unavailable seats.",
-      "tags": [
-        "Test Case",
-        "Requirements",
-        "Test Design"
-      ],
-      "followUpQuestions": [
-        "How do you ensure requirement coverage?"
-      ],
-      "sources": [
-        {
-          "name": "SoftwareTestingHelp Scenario-Based Interview Questions",
-          "url": "https://www.softwaretestinghelp.com/a-real-software-testing-interview-questions-with-answers/"
-        }
-      ]
-    },
-    {
-      "id": 20,
-      "level": "Intermediate",
-      "topic": "Test Scenario",
-      "question": "What is a test scenario?",
-      "answer": "A test scenario is a high-level description of what needs to be tested without detailed steps.",
-      "explanation": "Test scenarios identify business flows, while test cases provide detailed validation steps.",
-      "realTimeExample": "Amazon: Verify user login functionality. This is a scenario. The detailed login validations are separate test cases.",
-      "tags": [
-        "Test Scenario",
-        "Fundamentals"
-      ],
-      "followUpQuestions": [
-        "How is a test scenario different from a test case?"
-      ],
-      "sources": [
-        {
-          "name": "GeekInterview Test Scenario Questions",
-          "url": "https://www.geekinterview.com/Interview-Questions/Testing/Testing-Scenarios"
-        }
-      ]
-    },
-    {
-      "id": 21,
-      "level": "Intermediate",
-      "topic": "Test Scenario",
-      "question": "How do you identify test scenarios?",
-      "answer": "Review requirements, user stories, workflows, business rules, edge cases, and integrations.",
-      "explanation": "The goal is to capture all major user journeys rather than detailed test steps.",
-      "realTimeExample": "Railway Booking App Scenarios: Search trains, book ticket, cancel ticket, download ticket, process refund, waitlist confirmation.",
-      "tags": [
-        "Test Scenario",
-        "Scenario Identification"
-      ],
-      "followUpQuestions": [
-        "How do you prioritize scenarios?"
-      ],
-      "sources": [
-        {
-          "name": "SoftwareTestingHelp",
-          "url": "https://www.softwaretestinghelp.com/a-real-software-testing-interview-questions-with-answers/"
-        }
-      ]
-    },
-    {
-      "id": 22,
-      "level": "Expert",
-      "topic": "Test Scenario",
-      "question": "Test Scenario vs Test Case?",
-      "answer": "A test scenario is a high-level business flow, while a test case is a detailed document containing steps, data, and expected results.",
-      "explanation": "Scenarios answer 'what to test'; test cases answer 'how to test'.",
-      "realTimeExample": "Scenario: Verify Instagram user registration. Test Cases: valid registration, duplicate email, weak password, OTP expiry, invalid phone number.",
-      "tags": [
-        "Test Scenario",
-        "Test Case",
-        "Comparison"
-      ],
-      "followUpQuestions": [
-        "Can a scenario have multiple test cases?"
-      ],
-      "sources": [
-        {
-          "name": "GeekInterview",
-          "url": "https://www.geekinterview.com/Interview-Questions/Testing/Testing-Scenarios"
-        }
-      ]
-    },
-    {
-      "id": 23,
-      "level": "Beginner",
-      "topic": "Test Suite",
-      "question": "What is a test suite?",
-      "answer": "A test suite is a collection of related test cases grouped together for execution.",
-      "explanation": "Test suites help organize testing around features, releases, or testing types.",
-      "realTimeExample": "Amazon Login Suite: Successful login, invalid password, account lockout, forgot password, MFA verification.",
-      "tags": [
-        "Test Suite",
-        "Fundamentals"
-      ],
-      "followUpQuestions": [
-        "What is a regression test suite?"
-      ],
-      "sources": [
-        {
-          "name": "GeeksforGeeks QA Interview Questions",
-          "url": "https://www.geeksforgeeks.org/software-testing/qa-lead-interview-questions/"
-        }
-      ]
-    },
-    {
-      "id": 24,
-      "level": "Intermediate",
-      "topic": "Test Suite",
-      "question": "What is the difference between a test suite and a test case?",
-      "answer": "A test case validates one condition, while a test suite contains multiple related test cases.",
-      "explanation": "Suites improve execution management and reporting.",
-      "realTimeExample": "Banking Fund Transfer Suite contains tests for balance validation, limits, beneficiaries, scheduled transfers, and transaction history.",
-      "tags": [
-        "Test Suite",
-        "Test Case",
-        "Comparison"
-      ],
-      "followUpQuestions": [
-        "How do you organize large test suites?"
-      ],
-      "sources": [
-        {
-          "name": "GeeksforGeeks QA Interview Questions",
-          "url": "https://www.geeksforgeeks.org/software-testing/qa-lead-interview-questions/"
-        }
-      ]
-    },
-    {
-      "id": 25,
-      "level": "Intermediate",
-      "topic": "Test Suite",
-      "question": "What is the difference between a smoke suite and a regression suite?",
-      "answer": "A smoke suite verifies critical functionalities after a build, while a regression suite validates that existing functionality still works after changes.",
-      "explanation": "Smoke testing is narrow and fast. Regression testing is broader and more comprehensive.",
-      "realTimeExample": "E-commerce Smoke Suite: Login, Search, Add to Cart, Checkout. Regression Suite: Hundreds of tests covering all features.",
-      "tags": [
-        "Smoke Testing",
-        "Regression Testing",
-        "Test Suite"
-      ],
-      "followUpQuestions": [
-        "When should smoke testing be executed?"
-      ],
-      "sources": [
-        {
-          "name": "BugBug QA Interview Questions 2026",
-          "url": "https://bugbug.io/blog/software-testing/qa-interview-questions/"
-        }
-      ]
-    },
-    {
-      "id": 26,
-      "level": "Beginner",
-      "topic": "Test Steps",
-      "question": "What are test steps?",
-      "answer": "Test steps are detailed actions that a tester performs to execute a test case.",
-      "explanation": "They ensure consistency and repeatability during testing.",
-      "realTimeExample": "Login Test Steps: Open login page → Enter username → Enter password → Click Login → Verify dashboard appears.",
-      "tags": [
-        "Test Steps",
-        "Execution"
-      ],
-      "followUpQuestions": [
-        "What is the difference between steps and expected results?"
-      ],
-      "sources": [
-        {
-          "name": "SoftwareTestingHelp",
-          "url": "https://www.softwaretestinghelp.com/a-real-software-testing-interview-questions-with-answers/"
-        }
-      ]
-    },
-    {
-      "id": 27,
-      "level": "Intermediate",
-      "topic": "Test Steps",
-      "question": "How do you write effective test steps?",
-      "answer": "Keep them clear, sequential, independent, and easy for any tester to execute.",
-      "explanation": "Good test steps reduce ambiguity and improve test execution quality.",
-      "realTimeExample": "Registration Flow: Step 1 Navigate to Sign Up. Step 2 Enter valid email. Step 3 Enter password. Step 4 Click Register. Step 5 Verify email confirmation message.",
-      "tags": [
-        "Test Steps",
-        "Best Practices"
-      ],
-      "followUpQuestions": [
-        "How detailed should test steps be?"
-      ],
-      "sources": [
-        {
-          "name": "Guru99 Manual Testing Interview Questions",
-          "url": "https://www.guru99.com/software-testing.interview-questions.html"
-        }
-      ]
-    },
-    {
-      "id": 28,
-      "level": "Beginner",
-      "topic": "Types of Software Testing",
-      "question": "What is the difference between functional and non-functional testing?",
-      "answer": "Functional testing verifies what the system does, while non-functional testing verifies how well it performs.",
-      "explanation": "Functional testing covers features. Non-functional testing covers performance, security, usability, reliability, and compatibility.",
-      "realTimeExample": "Amazon Checkout: Functional - order placement works. Non-functional - checkout completes within acceptable response time under heavy traffic.",
-      "tags": [
+      "answer": "Black Box Testing is a software testing technique in which an application's functionality is tested without knowing its internal code structure, implementation details, or execution paths. It mainly focuses on verifying the application's inputs and outputs based on software requirements and specifications. The tester checks whether the application behaves as expected from the user's perspective. Black Box Testing is also known as Behavioral Testing.",
+      "realTimeExample": "Consider an ATM machine. A tester inserts a valid bank card, enters the correct PIN, and withdraws money. The tester verifies whether the correct amount is dispensed and the account balance is updated. They also test invalid PINs, insufficient balances, and invalid withdrawal amounts. The tester does not need to know how the ATM's internal code works.",
+      "buzzWords": [
+        "No Source Code Knowledge",
+        "Input and Output",
         "Functional Testing",
-        "Non-Functional Testing"
+        "Requirement-Based Testing",
+        "Behavioral Testing",
+        "User Perspective"
       ],
-      "followUpQuestions": [
-        "Give examples of non-functional testing."
-      ],
-      "sources": [
-        {
-          "name": "BugBug QA Interview Questions 2026",
-          "url": "https://bugbug.io/blog/software-testing/qa-interview-questions/"
-        }
-      ]
-    },
-    {
-      "id": 29,
-      "level": "Intermediate",
-      "topic": "Types of Software Testing",
-      "question": "What is the difference between smoke, sanity, and regression testing?",
-      "answer": "Smoke testing checks critical functionality after a build, sanity testing validates a specific change, and regression testing verifies that existing functionality is unaffected by changes.",
-      "explanation": "These testing types differ mainly in scope and objective.",
-      "realTimeExample": "Instagram: Smoke - login and feed load. Sanity - verify story upload fix. Regression - verify messaging, profile, reels, stories, and notifications after release.",
-      "tags": [
-        "Smoke Testing",
-        "Sanity Testing",
-        "Regression Testing"
-      ],
-      "followUpQuestions": [
-        "Which testing would you run before a production release?"
-      ],
-      "sources": [
-        {
-          "name": "Guru99 Software Testing Interview Questions",
-          "url": "https://www.guru99.com/testing-interview-questions.html"
-        }
-      ]
-    },
-    {
-      "id": 30,
-      "level": "Expert",
-      "topic": "Types of Software Testing",
-      "question": "A critical defect is found one hour before release. What would you do?",
-      "answer": "Assess severity, business impact, affected functionality, workaround availability, and release risk. Communicate findings to stakeholders and recommend either fixing before release or postponing the release based on risk.",
-      "explanation": "Interviewers expect risk-based decision making instead of simply saying 'stop the release'.",
-      "realTimeExample": "Banking App: Money transfers are failing for certain customers. Because financial transactions are business-critical, recommend blocking release until the issue is understood or mitigated.",
-      "tags": [
-        "Scenario Based",
-        "Release Testing",
-        "Risk Analysis"
-      ],
-      "followUpQuestions": [
-        "What factors determine release readiness?"
-      ],
-      "sources": [
-        {
-          "name": "testRigor Scenario-Based Interview Questions 2026",
-          "url": "https://testrigor.com/blog/scenario-based-software-testing-interview-questions/"
-        },
-        {
-          "name": "QALadder Scenario-Based QA Questions",
-          "url": "https://qaladder.org/scenario-based-testing-interview-questions.html"
-        }
-      ]
+      "label": "Beginner"
     }
   ]
 }
