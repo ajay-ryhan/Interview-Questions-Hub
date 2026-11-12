@@ -89,6 +89,61 @@ homeButton.addEventListener(
 );
 
 /* ==========================
+   Dark / Light Theme
+========================== */
+
+const themeToggle =
+    document.getElementById("theme-toggle");
+
+function applyTheme(theme) {
+
+    document.body.dataset.theme = theme;
+
+    if (themeToggle) {
+
+        if (theme === "dark") {
+            themeToggle.textContent = "☀️";
+            themeToggle.title = "Switch to light theme";
+            themeToggle.setAttribute(
+                "aria-label",
+                "Switch to light theme"
+            );
+        } else {
+            themeToggle.textContent = "🌙";
+            themeToggle.title = "Switch to dark theme";
+            themeToggle.setAttribute(
+                "aria-label",
+                "Switch to dark theme"
+            );
+        }
+    }
+
+    localStorage.setItem("qa-hub-theme", theme);
+}
+
+// Restore saved theme; default is dark
+
+const savedTheme =
+    localStorage.getItem("qa-hub-theme") || "dark";
+
+applyTheme(savedTheme);
+
+// Switch theme when clicked
+
+if (themeToggle) {
+    themeToggle.addEventListener("click", () => {
+
+        const currentTheme =
+            document.body.dataset.theme || "dark";
+
+        const newTheme =
+            currentTheme === "dark" ? "light" : "dark";
+
+        applyTheme(newTheme);
+    });
+}
+
+/* ==========================
    Sidebar
 ========================== */
 
