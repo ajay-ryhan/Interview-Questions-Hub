@@ -12,8 +12,7 @@
         "Process Improvement",
         "Requirement Verification",
         "SDLC"
-      ],
-      "label": "Beginner"
+      ]
     },
     {
       "id": 2,
@@ -27,8 +26,7 @@
         "Think Like a User",
         "Negative Testing",
         "Risk-Based Thinking"
-      ],
-      "label": "Beginner"
+      ]
     },
     {
       "id": 3,
@@ -42,8 +40,7 @@
         "Gray Box - Partial Knowledge",
         "Code Visibility",
         "Testing Perspective"
-      ],
-      "label": "Beginner"
+      ]
     },
     {
       "id": 4,
@@ -59,8 +56,7 @@
         "Branch Coverage",
         "Execution Paths",
         "Glass Box Testing"
-      ],
-      "label": "Expert"
+      ]
     },
     {
       "id": 5,
@@ -75,8 +71,7 @@
         "API Knowledge",
         "Black Box + White Box",
         "Architecture Awareness"
-      ],
-      "label": "Intermediate"
+      ]
     },
     {
       "id": 6,
@@ -91,8 +86,7 @@
         "Requirement-Based Testing",
         "Behavioral Testing",
         "User Perspective"
-      ],
-      "label": "Beginner"
+      ]
     },
     {
       "id": 7,
@@ -114,7 +108,6 @@
     {
       "id": 8,
       "level": "Beginner",
-      "label": "Beginner",
       "topic": "UAT",
       "question": "What is UAT (User Acceptance Testing)?",
       "answer": "User Acceptance Testing (UAT) is a type of testing performed by end users or clients to verify whether the software meets their business requirements and is ready for production. It is generally performed in the final phase of testing after functional, integration, and system testing.",
@@ -131,7 +124,6 @@
     {
       "id": 9,
       "level": "Intermediate",
-      "label": "Intermediate",
       "topic": "Exploratory Testing",
       "question": "What is Exploratory Testing?",
       "answer": "Exploratory Testing is a testing approach in which testers learn about the application while simultaneously exploring and testing it. It involves experimentation, observation, questioning, investigation, and identifying unexpected defects without strictly following predefined test cases.",
@@ -148,7 +140,6 @@
     {
       "id": 10,
       "level": "Beginner",
-      "label": "Beginner",
       "topic": "Sanity Testing",
       "question": "What is Sanity Testing?",
       "answer": "Sanity Testing is a type of software testing performed after receiving a build containing minor changes or bug fixes. Its purpose is to verify that the specific changes are working as expected and that they have not introduced obvious issues. If sanity testing fails, the build may be rejected without proceeding to extensive testing.",
@@ -165,7 +156,6 @@
     {
       "id": 11,
       "level": "Beginner",
-      "label": "Beginner",
       "topic": "Regression Testing",
       "question": "What is Regression Testing?",
       "answer": "Regression Testing is a type of software testing performed to ensure that recent code changes, enhancements, or bug fixes have not negatively affected existing functionality. Previously executed test cases are re-executed to verify that existing features continue to work correctly.",
@@ -182,7 +172,6 @@
     {
       "id": 12,
       "level": "Beginner",
-      "label": "Beginner",
       "topic": "Smoke Testing",
       "question": "What is Smoke Testing?",
       "answer": "Smoke Testing is a preliminary testing process performed on a new software build to verify whether its critical functionalities are working and whether the build is stable enough for further testing. It consists of a minimal set of important test cases.",
@@ -199,7 +188,6 @@
     {
       "id": 13,
       "level": "Beginner",
-      "label": "Beginner",
       "topic": "Unit Testing",
       "question": "What is Unit Testing?",
       "answer": "Unit Testing is a software testing technique in which individual components, such as functions, methods, or modules, are tested independently to verify their correctness. It is generally performed by developers during the development process and is often automated.",
@@ -216,7 +204,6 @@
     {
       "id": 14,
       "level": "Intermediate",
-      "label": "Intermediate",
       "topic": "Integration Testing",
       "question": "What is Integration Testing?",
       "answer": "Integration Testing is a type of testing in which two or more software modules are combined and tested as a group. Its main objective is to identify defects in the interaction and communication between integrated modules, including data exchange between them.",
@@ -233,7 +220,6 @@
     {
       "id": 15,
       "level": "Intermediate",
-      "label": "Intermediate",
       "topic": "Mocking",
       "question": "What is Mocking in Testing?",
       "answer": "Mocking is a testing technique in which real dependencies, such as databases, APIs, or external services, are replaced with simulated objects that imitate their behavior. It helps testers isolate the component being tested and verify its interactions with dependencies without relying on actual external systems.",
@@ -251,7 +237,6 @@
     {
       "id": 16,
       "level": "Beginner",
-      "label": "Beginner",
       "topic": "Testing Fundamentals",
       "question": "What is a Test Scenario?",
       "answer": "A Test Scenario is a high-level description of a functionality or feature that needs to be tested. It tells the tester WHAT to test without explaining the detailed steps.",
@@ -267,7 +252,6 @@
     {
       "id": 17,
       "level": "Beginner",
-      "label": "Beginner",
       "topic": "Testing Fundamentals",
       "question": "What is a Test Case?",
       "answer": "A Test Case is a set of conditions, inputs, and expected results designed to verify whether a particular functionality of an application works correctly. It explains WHAT to verify and the expected outcome.",
@@ -283,7 +267,6 @@
     {
       "id": 18,
       "level": "Beginner",
-      "label": "Beginner",
       "topic": "Testing Fundamentals",
       "question": "What are Test Steps?",
       "answer": "Test Steps are the individual actions or instructions that a tester follows to execute a test case. They explain HOW to perform the test step by step.",
