@@ -1,14 +1,38 @@
-
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
     <title>Qubiqode - Online Code Editor</title>
 
     <meta name="description"
           content="Qubiqode is your online coding workspace. Write, test and execute code.">
+    <meta name="color-scheme" content="dark light">
+
+    <link rel="icon" type="image/png" sizes="64x64" href="../favicon.png">
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+    <link rel="apple-touch-icon" href="../apple-touch-icon.png">
+
+    <!-- Use the same theme as QA Interview Hub, before the page is painted -->
+    <script>
+        (function () {
+            var theme = "dark";
+            try {
+                if (localStorage.getItem("qa-hub-theme") === "light") {
+                    theme = "light";
+                }
+            } catch (error) {
+                /* storage not available: keep the default */
+            }
+            document.documentElement.setAttribute("data-theme", theme);
+
+            // Inside the hub the page is shown without its own header and footer
+            if (window.self !== window.top) {
+                document.documentElement.className += " embedded";
+            }
+        })();
+    </script>
 
     <link rel="stylesheet" href="css/qubiqode.css">
 </head>
@@ -55,10 +79,7 @@
             <div class="compiler-container">
                 <iframe
                         id="onecompiler-editor"
-                        src="https://onecompiler.org/embed/?theme=dark"
                         title="Qubiqode Online Code Editor"
-                        width="100%"
-                        height="750"
                         allowfullscreen>
                 </iframe>
             </div>
@@ -73,6 +94,53 @@
     </footer>
 
 </div>
+
+<script>
+    (function () {
+        var THEME_KEY = "qa-hub-theme";
+        var EDITOR_URL = "https://onecompiler.org/embed/?theme=";
+        var editor = document.getElementById("onecompiler-editor");
+
+        function savedTheme() {
+            try {
+                return localStorage.getItem(THEME_KEY) === "light" ? "light" : "dark";
+            } catch (error) {
+                return "dark";
+            }
+        }
+
+        function applyTheme(theme) {
+            var value = theme === "light" ? "light" : "dark";
+
+            document.documentElement.setAttribute("data-theme", value);
+
+            // The editor takes its theme from its address,
+            // so it is reloaded only when the theme really changes.
+            if (editor.getAttribute("src") !== EDITOR_URL + value) {
+                editor.setAttribute("src", EDITOR_URL + value);
+            }
+        }
+
+        applyTheme(savedTheme());
+
+        // Theme changed in the hub (another tab or the page that embeds this one)
+        window.addEventListener("storage", function (event) {
+            if (event.key === THEME_KEY) {
+                applyTheme(savedTheme());
+            }
+        });
+
+        window.addEventListener("message", function (event) {
+            if (event.origin !== window.location.origin) {
+                return;
+            }
+
+            if (event.data && event.data.type === "qa-hub-theme") {
+                applyTheme(event.data.theme);
+            }
+        });
+    })();
+</script>
 
 </body>
 </html>

@@ -1,0 +1,408 @@
+{
+  "questions": [
+    {
+      "id": 1,
+      "level": "Beginner",
+      "topic": "TestNG Basics",
+      "question": "What is TestNG, and how is it different from JUnit?",
+      "answer": "TestNG (Test Next Generation) is an open-source testing framework for Java, created by Cedric Beust and inspired by JUnit. Selenium only drives the browser; TestNG supplies everything around the test: annotations that mark tests and setup or teardown methods, assertions, grouping, ordering, data-driven testing, parallel execution, and HTML and XML reports. Differences from JUnit: TestNG has a suite file (testng.xml) that controls what runs, in which groups and with how many threads; it has groups, method and group dependencies (dependsOnMethods, dependsOnGroups), priorities and the @DataProvider and @Factory annotations built in; and it has more configuration levels, with @BeforeSuite and @BeforeTest in addition to class and method level. JUnit 5 is the modern version of JUnit, with @BeforeAll and @BeforeEach, tags instead of groups, @ParameterizedTest for data-driven tests and extensions instead of listeners; it has no test dependencies and no suite XML. JUnit is the usual choice for unit tests written by developers, while TestNG is widely used for functional and end-to-end automation because of its suite-level control.",
+      "realTimeExample": "A regression suite needs login tests tagged as 'smoke', checkout tests that should be skipped when login fails, the same test run for 20 users from a data file, and everything executed on 5 threads. In TestNG each of these is a built-in feature: groups, dependsOnGroups, @DataProvider and the parallel attribute in testng.xml.",
+      "javaCode": "import org.testng.Assert;\nimport org.testng.annotations.Test;\n\npublic class LoginTest {\n\n    @Test(groups = \"smoke\", priority = 1)\n    public void validLogin() {\n        Assert.assertEquals(\"Dashboard\", \"Dashboard\");\n    }\n\n    @Test(groups = \"regression\", dependsOnMethods = \"validLogin\")\n    public void viewProfile() {\n        Assert.assertTrue(true);\n    }\n}",
+      "buzzWords": [
+        "Test Next Generation",
+        "testng.xml Suite Control",
+        "Groups and Dependencies",
+        "@DataProvider",
+        "JUnit 5: @BeforeEach, Tags, Extensions"
+      ]
+    },
+    {
+      "id": 2,
+      "level": "Beginner",
+      "topic": "TestNG Basics",
+      "question": "How do you install TestNG in a Maven project and integrate Selenium with it?",
+      "answer": "In a Maven project nothing is installed by hand. Add the TestNG and selenium-java dependencies to pom.xml and Maven downloads them. Install the TestNG plugin in the IDE (it is bundled with IntelliJ IDEA; Eclipse needs it from the Marketplace) so tests can be run and debugged from the editor. Integration then has four parts. (1) Write test methods annotated with @Test instead of a main() method. (2) Put browser setup in a @BeforeMethod and driver.quit() in an @AfterMethod(alwaysRun = true), usually in a BaseTest class that test classes extend. (3) Use TestNG's Assert class to verify results; Selenium has no assertions of its own. (4) Create a testng.xml file listing the classes or packages to run, and configure the Maven Surefire plugin to use it, so that 'mvn test' runs the suite from the command line or from Jenkins.",
+      "realTimeExample": "A new project is created from the Maven quickstart. After adding the two dependencies and the Surefire plugin, the first test opens the application, asserts the page title and closes the browser, and it can be started either from the IDE's run icon or with 'mvn test' in the pipeline.",
+      "javaCode": "<!-- pom.xml -->\n<dependencies>\n    <dependency>\n        <groupId>org.seleniumhq.selenium</groupId>\n        <artifactId>selenium-java</artifactId>\n        <version>4.27.0</version>\n    </dependency>\n    <dependency>\n        <groupId>org.testng</groupId>\n        <artifactId>testng</artifactId>\n        <version>7.10.2</version>\n        <scope>test</scope>\n    </dependency>\n</dependencies>\n\n// BaseTest.java\npublic class BaseTest {\n    protected WebDriver driver;\n\n    @BeforeMethod\n    public void setUp() {\n        driver = new ChromeDriver();\n        driver.manage().window().maximize();\n    }\n\n    @AfterMethod(alwaysRun = true)\n    public void tearDown() {\n        if (driver != null) driver.quit();\n    }\n}\n\n// HomeTest.java\npublic class HomeTest extends BaseTest {\n    @Test\n    public void titleIsCorrect() {\n        driver.get(\"https://www.saucedemo.com/\");\n        Assert.assertEquals(driver.getTitle(), \"Swag Labs\");\n    }\n}",
+      "buzzWords": [
+        "Maven Dependency",
+        "@Test Instead of main()",
+        "@BeforeMethod / @AfterMethod",
+        "Assert Class",
+        "Surefire + testng.xml"
+      ]
+    },
+    {
+      "id": 3,
+      "level": "Beginner",
+      "topic": "Annotations",
+      "question": "What annotations does TestNG provide, and what is their hierarchy or execution order?",
+      "answer": "Annotations tell TestNG what each method is for. @Test marks a test. The configuration annotations run before or after a certain scope, from the widest to the narrowest: @BeforeSuite runs once before everything in the suite; @BeforeTest runs before each <test> tag in testng.xml; @BeforeClass runs once before the first test method of a class; @BeforeMethod runs before every @Test method. The After annotations mirror them in reverse: @AfterMethod, @AfterClass, @AfterTest, @AfterSuite. @BeforeGroups and @AfterGroups run before the first and after the last method of a given group. The complete order is: BeforeSuite, BeforeTest, BeforeClass, then for each test method BeforeMethod, Test, AfterMethod, then AfterClass, AfterTest, AfterSuite. Other important annotations are @DataProvider (supplies data), @Parameters (reads values from testng.xml), @Factory (creates test class instances), @Listeners (attaches listeners) and @Ignore (skips tests).",
+      "realTimeExample": "In a framework, @BeforeSuite initializes the report and reads configuration, @BeforeMethod opens a fresh browser for each test, @AfterMethod takes a screenshot on failure and quits the browser, and @AfterSuite writes the report file.",
+      "javaCode": "import org.testng.annotations.*;\n\npublic class OrderDemo {\n    @BeforeSuite  public void beforeSuite()  { System.out.println(\"1. BeforeSuite\"); }\n    @BeforeTest   public void beforeTest()   { System.out.println(\"2. BeforeTest\"); }\n    @BeforeClass  public void beforeClass()  { System.out.println(\"3. BeforeClass\"); }\n    @BeforeMethod public void beforeMethod() { System.out.println(\"4. BeforeMethod\"); }\n\n    @Test public void testA() { System.out.println(\"5. Test A\"); }\n    @Test public void testB() { System.out.println(\"5. Test B\"); }\n\n    @AfterMethod  public void afterMethod()  { System.out.println(\"6. AfterMethod\"); }\n    @AfterClass   public void afterClass()   { System.out.println(\"7. AfterClass\"); }\n    @AfterTest    public void afterTest()    { System.out.println(\"8. AfterTest\"); }\n    @AfterSuite   public void afterSuite()   { System.out.println(\"9. AfterSuite\"); }\n}",
+      "expectedOutput": "1. BeforeSuite\n2. BeforeTest\n3. BeforeClass\n4. BeforeMethod\n5. Test A\n6. AfterMethod\n4. BeforeMethod\n5. Test B\n6. AfterMethod\n7. AfterClass\n8. AfterTest\n9. AfterSuite",
+      "buzzWords": [
+        "Suite > Test > Class > Method",
+        "@BeforeMethod Runs per Test",
+        "After Annotations in Reverse",
+        "@BeforeGroups / @AfterGroups",
+        "@Test"
+      ]
+    },
+    {
+      "id": 4,
+      "level": "Beginner",
+      "topic": "Annotations",
+      "question": "What is the difference between @BeforeTest, @BeforeClass and @BeforeMethod?",
+      "answer": "They differ in how often they run. @BeforeMethod runs before every single @Test method, so in a class with five tests it runs five times. Use it for setup that each test needs fresh, such as opening a new browser or logging in. @BeforeClass runs once per class, before that class's first test method. Use it for setup shared by all tests in the class, such as creating test data used by the whole class. @BeforeTest runs once before each <test> tag in testng.xml, and a <test> tag can contain many classes, so it runs before any of those classes start. Use it for setup shared across several classes, such as starting a service or setting the browser for a cross-browser <test> block. The name is misleading: @BeforeTest does not mean 'before each @Test method'; that is @BeforeMethod. For parallel execution and test independence, @BeforeMethod is the safest place to create the browser.",
+      "realTimeExample": "testng.xml has one <test> tag containing LoginTest (3 tests) and CartTest (2 tests). @BeforeTest runs once, @BeforeClass runs twice (once for each class) and @BeforeMethod runs five times (once for each test method).",
+      "javaCode": "public class CartTest {\n\n    @BeforeTest\n    public void beforeTest() {\n        System.out.println(\"Once per <test> tag in testng.xml\");\n    }\n\n    @BeforeClass\n    public void beforeClass() {\n        System.out.println(\"Once per class\");\n    }\n\n    @BeforeMethod\n    public void beforeMethod() {\n        System.out.println(\"Before every @Test method\");\n    }\n\n    @Test public void addItem() { }\n    @Test public void removeItem() { }\n}",
+      "expectedOutput": "Once per <test> tag in testng.xml\nOnce per class\nBefore every @Test method\nBefore every @Test method",
+      "buzzWords": [
+        "@BeforeMethod: Every Test Method",
+        "@BeforeClass: Once per Class",
+        "@BeforeTest: Once per <test> Tag",
+        "Scope of Setup",
+        "Misleading Name"
+      ]
+    },
+    {
+      "id": 5,
+      "level": "Beginner",
+      "topic": "Annotations",
+      "question": "Why do we need @BeforeSuite and @AfterSuite?",
+      "answer": "They are for work that must happen exactly once for the whole run, however many classes and tests the suite contains. @BeforeSuite runs before anything else in the suite, and @AfterSuite runs after everything has finished. Doing this work at method or class level would repeat it needlessly, slow the run and can cause conflicts. Typical uses of @BeforeSuite: load configuration and environment properties, initialize the report, open a database connection or connection pool, start a mock server or other service, check that the environment is reachable, and create global test data. Typical uses of @AfterSuite: write and close the report, close the database connection, stop services, delete temporary test data and files, and send the result summary by email or chat. Do not create the browser in @BeforeSuite when tests run in parallel, because one shared browser cannot serve many threads.",
+      "realTimeExample": "A suite of 300 tests needs test users created through an API and an Extent report. @BeforeSuite creates the users once and initializes the report; @AfterSuite deletes the users and flushes the report. The tests themselves only read that shared setup.",
+      "javaCode": "public class SuiteSetup {\n\n    @BeforeSuite\n    public void beforeSuite() {\n        System.out.println(\"Load config, initialise report, connect to database\");\n    }\n\n    @AfterSuite(alwaysRun = true)\n    public void afterSuite() {\n        System.out.println(\"Flush report, close database connection, clean test data\");\n    }\n}",
+      "buzzWords": [
+        "Once per Suite",
+        "Global Setup and Teardown",
+        "Report Initialisation and Flush",
+        "Database Connection",
+        "Not for Browser Creation in Parallel Runs"
+      ]
+    },
+    {
+      "id": 6,
+      "level": "Intermediate",
+      "topic": "Execution Control",
+      "question": "What is the execution format or flow of tests in TestNG?",
+      "answer": "TestNG runs according to a hierarchy defined in testng.xml: a Suite contains one or more Tests (<test> tags), each Test contains Classes, and each Class contains Methods. Execution follows that structure with the configuration methods wrapped around each level: @BeforeSuite, then for each <test> tag @BeforeTest, then for each class @BeforeClass, then for each test method @BeforeMethod, the @Test method and @AfterMethod, followed by @AfterClass, @AfterTest and finally @AfterSuite. Within a class, the order of @Test methods is decided as follows: methods with dependencies run after the methods they depend on; otherwise lower priority values run first; methods with the same priority, including the default of 0, run in alphabetical order of method name, not in the order written in the file. Classes run in the order listed in testng.xml because preserve-order is true by default. Listeners are notified at each stage, and at the end TestNG writes its reports to the test-output folder (or target/surefire-reports with Maven). Without a testng.xml, the IDE or Surefire generates a default suite for the selected classes.",
+      "realTimeExample": "A class has methods named verifyCart, addItem and login with no priorities. They run as addItem, login, verifyCart, which is alphabetical, and the test fails because nothing is logged in. Adding priorities or dependencies gives the intended order: login, addItem, verifyCart.",
+      "javaCode": "<!-- testng.xml -->\n<suite name=\"Regression Suite\">                 <!-- Suite  -->\n    <test name=\"Login and Cart\">                 <!-- Test   -->\n        <classes>\n            <class name=\"tests.LoginTest\"/>      <!-- Class  -->\n            <class name=\"tests.CartTest\"/>\n        </classes>\n    </test>\n    <test name=\"Checkout\">\n        <classes>\n            <class name=\"tests.CheckoutTest\"/>\n        </classes>\n    </test>\n</suite>\n\n<!-- Flow: BeforeSuite -> BeforeTest -> BeforeClass -> (BeforeMethod -> @Test -> AfterMethod)*\n          -> AfterClass -> AfterTest -> AfterSuite -->",
+      "buzzWords": [
+        "Suite > Test > Class > Method",
+        "testng.xml",
+        "Priority, Then Alphabetical",
+        "preserve-order",
+        "Reports in test-output"
+      ]
+    },
+    {
+      "id": 7,
+      "level": "Beginner",
+      "topic": "Execution Control",
+      "question": "What is priority in TestNG? What is the default, can it be zero or negative, and what happens when no priority or the same priority is set?",
+      "answer": "priority is an attribute of @Test that controls the order in which test methods of a class run. It is an integer, and the lower number runs first. The default is 0. It can be zero and it can be negative: -1 runs before 0, which runs before 1. If no priority is given to any method, all of them have priority 0 and TestNG runs them in alphabetical order of method name. If two methods have the same priority, the same rule applies between them: alphabetical order. A method without a priority has 0, so it runs before a method with priority 1 and after a method with priority -1. Two cautions: dependencies take precedence over priority, so a method with dependsOnMethods waits for its dependency even if its priority number is lower; and priority only orders tests, it does not skip a later test when an earlier one fails, which is what dependsOnMethods does. Relying heavily on order is a sign that tests are not independent, which makes parallel execution difficult.",
+      "realTimeExample": "Methods: createUser (priority 1), login (priority -1), deleteUser (priority 2), and checkHealth with no priority. The execution order is login (-1), checkHealth (0), createUser (1), deleteUser (2).",
+      "javaCode": "public class PriorityDemo {\n\n    @Test(priority = 1)\n    public void createUser() { System.out.println(\"createUser (1)\"); }\n\n    @Test(priority = -1)\n    public void login() { System.out.println(\"login (-1)\"); }\n\n    @Test(priority = 2)\n    public void deleteUser() { System.out.println(\"deleteUser (2)\"); }\n\n    @Test\n    public void checkHealth() { System.out.println(\"checkHealth (default 0)\"); }\n\n    @Test\n    public void audit() { System.out.println(\"audit (default 0)\"); }\n}",
+      "expectedOutput": "login (-1)\naudit (default 0)\ncheckHealth (default 0)\ncreateUser (1)\ndeleteUser (2)",
+      "buzzWords": [
+        "Lower Number Runs First",
+        "Default Priority Is 0",
+        "Negative Allowed",
+        "Same Priority: Alphabetical",
+        "Dependencies Override Priority"
+      ]
+    },
+    {
+      "id": 8,
+      "level": "Intermediate",
+      "topic": "Execution Control",
+      "question": "What attributes can be used with @Test?",
+      "answer": "The @Test annotation accepts attributes that change how a test runs. priority: order of execution, lower first. enabled: false disables the test. description: text shown in reports. groups: one or more group names the test belongs to. dependsOnMethods and dependsOnGroups: the test runs only after the named methods or groups have passed, and is skipped if they fail. alwaysRun: true makes the test run even if what it depends on failed. dataProvider and dataProviderClass: the name of the data provider and the class that contains it. invocationCount: how many times to run the test. threadPoolSize: how many threads share those invocations. timeOut: maximum time in milliseconds; if the test takes longer it fails. invocationTimeOut: maximum total time for all invocations. expectedExceptions: the test passes only if one of these exceptions is thrown, used for negative tests. expectedExceptionsMessageRegExp: the exception message must match this pattern. retryAnalyzer: the class that decides whether a failed test is retried. successPercentage: the percentage of invocations that must pass. @Test can also be placed on a class, which makes every public method of the class a test.",
+      "realTimeExample": "A payment test must finish within 30 seconds, belongs to the smoke and regression groups, runs after login, and is retried once if it fails because of the environment. All of that is expressed in one @Test annotation.",
+      "javaCode": "@Test(\n        priority = 1,\n        description = \"User can pay with a saved card\",\n        groups = {\"smoke\", \"regression\"},\n        dependsOnMethods = \"login\",\n        timeOut = 30000,\n        retryAnalyzer = RetryAnalyzer.class\n)\npublic void payWithSavedCard() { }\n\n@Test(enabled = false)\npublic void notReadyYet() { }\n\n@Test(invocationCount = 5, threadPoolSize = 2)\npublic void repeatedCheck() { }\n\n@Test(expectedExceptions = ArithmeticException.class)\npublic void divideByZero() {\n    int result = 10 / 0;      // passes because the expected exception is thrown\n}\n\n@Test(dataProvider = \"users\", dataProviderClass = TestData.class)\npublic void loginAs(String user, String password) { }",
+      "buzzWords": [
+        "priority / enabled / description",
+        "groups / dependsOnMethods",
+        "dataProvider",
+        "invocationCount / threadPoolSize / timeOut",
+        "expectedExceptions / retryAnalyzer"
+      ]
+    },
+    {
+      "id": 9,
+      "level": "Intermediate",
+      "topic": "Execution Control",
+      "question": "What is dependsOnMethods, and how does it differ from dependsOnGroups?",
+      "answer": "dependsOnMethods makes a test method depend on one or more other methods. TestNG runs the named methods first. If any of them fails or is skipped, the dependent method is not run and is reported as SKIPPED, not failed. This stops a chain of meaningless failures when a prerequisite is broken. dependsOnGroups works the same way but the dependency is on groups: the test runs only after every method in the named groups has run and passed. Use dependsOnMethods for a direct relationship between a few specific methods, and dependsOnGroups when the prerequisite is a set of tests, especially across classes, because you do not have to list each method and new methods added to the group are included automatically. Both are 'hard' dependencies by default. Adding alwaysRun = true makes it a 'soft' dependency: the method still runs after its dependencies, but runs even if they failed. A circular dependency causes TestNG to stop with an error. Keep dependencies few, because dependent tests cannot run on their own or freely in parallel.",
+      "realTimeExample": "If login fails, 'add to cart' and 'checkout' cannot succeed. With dependsOnMethods the report shows one failure (login) and two skipped tests, which points straight at the real problem instead of showing three failures.",
+      "javaCode": "public class DependencyDemo {\n\n    @Test(groups = \"setup\")\n    public void startServer() { }\n\n    @Test(groups = \"setup\")\n    public void login() {\n        Assert.fail(\"Login is down\");\n    }\n\n    // Skipped, because login failed\n    @Test(dependsOnMethods = \"login\")\n    public void addToCart() { }\n\n    // Depends on every method in the 'setup' group: also skipped\n    @Test(dependsOnGroups = \"setup\")\n    public void checkout() { }\n\n    // Soft dependency: runs after login even though login failed\n    @Test(dependsOnMethods = \"login\", alwaysRun = true)\n    public void logout() { }\n}",
+      "buzzWords": [
+        "Dependent Test Is SKIPPED",
+        "Method vs Group Dependency",
+        "Hard vs Soft Dependency",
+        "alwaysRun = true",
+        "Avoids Cascading Failures"
+      ]
+    },
+    {
+      "id": 10,
+      "level": "Intermediate",
+      "topic": "Groups",
+      "question": "What are groups in TestNG, and how do you run only regression tests, including from the Maven CLI?",
+      "answer": "A group is a label attached to test methods with the groups attribute of @Test. A method can belong to several groups, for example smoke and regression, and groups can span many classes. Groups let you run a chosen subset of tests without moving or editing them: smoke, sanity, regression, or groups by module such as login and payment. There are three ways to run only the regression group. (1) In testng.xml: inside a <test> tag add <groups><run><include name=\"regression\"/></run></groups> and list the classes or packages to search. You can also <exclude> a group. (2) From the Maven command line with Surefire: mvn test -Dgroups=regression. Several groups can be given separated by commas, and -DexcludedGroups=wip leaves a group out. (3) From the IDE's run configuration by choosing 'Group'. One important detail: when you run by group, @BeforeMethod, @BeforeClass and other configuration methods run only if they belong to the group too, or have alwaysRun = true. Forgetting this is the usual reason for a NullPointerException on the driver in group runs. A group can also be built from other groups with <define> in testng.xml.",
+      "realTimeExample": "The pipeline runs 'mvn test -Dgroups=smoke' after every deployment (5 minutes) and 'mvn test -Dgroups=regression' every night (45 minutes), from the same code base, with no separate test classes for each purpose.",
+      "javaCode": "public class CheckoutTest {\n\n    @BeforeMethod(alwaysRun = true)        // required so setup runs in group runs\n    public void setUp() { }\n\n    @Test(groups = {\"smoke\", \"regression\"})\n    public void placeOrder() { }\n\n    @Test(groups = \"regression\")\n    public void applyCoupon() { }\n\n    @Test(groups = \"wip\")\n    public void giftWrap() { }\n}\n\n<!-- testng.xml -->\n<suite name=\"Regression\">\n    <test name=\"Regression tests\">\n        <groups>\n            <run>\n                <include name=\"regression\"/>\n                <exclude name=\"wip\"/>\n            </run>\n        </groups>\n        <packages>\n            <package name=\"tests.*\"/>\n        </packages>\n    </test>\n</suite>\n\n// Maven CLI\n// mvn test -Dgroups=regression\n// mvn test -Dgroups=smoke,regression -DexcludedGroups=wip",
+      "buzzWords": [
+        "groups Attribute",
+        "<include> / <exclude>",
+        "mvn test -Dgroups=regression",
+        "alwaysRun on Configuration Methods",
+        "One Test, Many Groups"
+      ]
+    },
+    {
+      "id": 11,
+      "level": "Intermediate",
+      "topic": "Execution Control",
+      "question": "What are the different ways to run specific test cases in TestNG?",
+      "answer": "(1) testng.xml by class and method: list the class and, inside it, <methods><include name=\"methodName\"/></methods> to run only chosen methods, or <exclude> to leave some out. (2) Groups: tag tests with groups and include the group in testng.xml or with -Dgroups. (3) Maven command line: mvn test -Dtest=LoginTest runs one class, -Dtest=LoginTest#validLogin runs one method, and patterns such as -Dtest=Login* or several comma-separated classes also work. (4) Separate suite files: keep testng-smoke.xml and testng-regression.xml and choose one with -DsuiteXmlFile or the Surefire configuration. (5) IDE: right-click a method, class or package and run it. (6) enabled = false on the tests you do not want. (7) Package selection in testng.xml with <packages>. (8) Programmatically: an IMethodInterceptor listener can filter or reorder the list of methods at run time, for example by a custom annotation or a system property, and the TestNG class can be driven from Java code with setTestClasses(). (9) After a run, testng-failed.xml runs only the tests that failed.",
+      "realTimeExample": "While fixing one failing test, an engineer runs just that method with 'mvn test -Dtest=CheckoutTest#applyCoupon'. Before merging they run the module's group with '-Dgroups=checkout', and the nightly job runs the full regression suite file.",
+      "javaCode": "<!-- 1. Specific methods of a class -->\n<suite name=\"Selected\">\n    <test name=\"Login only\">\n        <classes>\n            <class name=\"tests.LoginTest\">\n                <methods>\n                    <include name=\"validLogin\"/>\n                    <include name=\"lockedUser\"/>\n                </methods>\n            </class>\n        </classes>\n    </test>\n</suite>\n\n// 2. Maven command line\n// mvn test -Dtest=LoginTest\n// mvn test -Dtest=LoginTest#validLogin\n// mvn test -Dtest=LoginTest#validLogin+lockedUser\n// mvn test -Dgroups=smoke\n// mvn test -DsuiteXmlFile=testng-smoke.xml",
+      "buzzWords": [
+        "<methods><include>",
+        "Groups",
+        "-Dtest=Class#method",
+        "Separate Suite Files",
+        "IMethodInterceptor"
+      ]
+    },
+    {
+      "id": 12,
+      "level": "Intermediate",
+      "topic": "Execution Control",
+      "question": "What are the different ways to exclude or ignore tests, and how do you skip a test based on a condition?",
+      "answer": "Ways to exclude: (1) @Test(enabled = false): the method is not run and does not appear in the results. (2) @Ignore (TestNG 7 and later): placed on a method, a class or a package to ignore everything in it. (3) testng.xml: <methods><exclude name=\"methodName\"/></methods> inside a class, or simply do not list the class. (4) Groups: <exclude name=\"wip\"/> in the <run> section, or -DexcludedGroups=wip on the Maven command line. (5) An IAnnotationTransformer listener that calls annotation.setEnabled(false) for selected methods at run time. Conditional skip: throw new SkipException(\"reason\") inside the test or in a @BeforeMethod when the condition is met. TestNG marks the test as SKIPPED with your reason in the report, which is clearer than silently not running it. Typical conditions are the environment, the browser, a feature flag or a known open defect. The difference matters: a disabled test is invisible, while a skipped test is counted and reported, so people can see that something was not verified. A test is also skipped automatically when a method it depends on fails.",
+      "realTimeExample": "A payment test must not run on production because it places a real order. A @BeforeMethod checks the environment and throws SkipException(\"Not allowed on production\"). The production smoke report then shows that test as skipped with the reason, rather than passed or missing.",
+      "javaCode": "public class SkipDemo {\n\n    @Test(enabled = false)\n    public void disabledTest() { }\n\n    @Ignore(\"Feature removed in release 5.2\")\n    @Test\n    public void ignoredTest() { }\n\n    // Conditional skip\n    @Test\n    public void placeRealOrder() {\n        if (\"prod\".equalsIgnoreCase(System.getProperty(\"env\"))) {\n            throw new SkipException(\"Order placement is not allowed on production\");\n        }\n        // test steps\n    }\n\n    // Skip only on a particular browser\n    @Test\n    public void dragAndDrop() {\n        String browser = System.getProperty(\"browser\", \"chrome\");\n        if (browser.equalsIgnoreCase(\"safari\")) {\n            throw new SkipException(\"Known issue DEF-1420 on Safari\");\n        }\n    }\n}\n\n// testng.xml: <groups><run><exclude name=\"wip\"/></run></groups>\n// Maven:      mvn test -DexcludedGroups=wip",
+      "buzzWords": [
+        "enabled = false",
+        "@Ignore",
+        "<exclude> in testng.xml",
+        "SkipException",
+        "Disabled vs Skipped"
+      ]
+    },
+    {
+      "id": 13,
+      "level": "Beginner",
+      "topic": "Execution Control",
+      "question": "How do you run a test method or class repeatedly (for example 100 times)?",
+      "answer": "For a method, use the invocationCount attribute: @Test(invocationCount = 100) runs that method 100 times, and each run is reported as a separate result. Add threadPoolSize to run those invocations on several threads at once, and invocationTimeOut to limit the total time. The current iteration number is available from ITestResult or ITestContext if the test needs it. For a whole class there are three options: put @Test(invocationCount = 100) on the class, which applies it to every public method; use @Factory to create 100 instances of the class, so every test in it runs once per instance; or list the class in a <test> tag and repeat the tag, which is practical only for small numbers. A data provider that returns 100 rows also runs a test 100 times, with different data each time. Repeating a test is useful for finding flaky tests, for simple stability or load checks, and for creating test data in bulk.",
+      "realTimeExample": "A test fails roughly once in 50 runs. Running it with invocationCount = 200 in the CI environment reproduces the failure several times in one execution and gives enough screenshots and logs to find the cause.",
+      "javaCode": "public class RepeatDemo {\n\n    // Method: 100 times\n    @Test(invocationCount = 100)\n    public void checkLogin() { }\n\n    // 100 times on 5 threads, total time limit 2 minutes\n    @Test(invocationCount = 100, threadPoolSize = 5, invocationTimeOut = 120000)\n    public void checkSearch() { }\n\n    // Access the iteration number\n    @Test(invocationCount = 3)\n    public void showIteration(ITestContext context) {\n        int run = Reporter.getCurrentTestResult().getMethod().getCurrentInvocationCount();\n        System.out.println(\"Run number: \" + (run + 1));\n    }\n}\n\n// Whole class: 100 instances\npublic class RepeatFactory {\n    @Factory\n    public Object[] create() {\n        Object[] instances = new Object[100];\n        for (int i = 0; i < 100; i++) {\n            instances[i] = new LoginTest();\n        }\n        return instances;\n    }\n}",
+      "buzzWords": [
+        "invocationCount",
+        "threadPoolSize",
+        "invocationTimeOut",
+        "@Factory for Classes",
+        "Flaky Test Reproduction"
+      ]
+    },
+    {
+      "id": 14,
+      "level": "Intermediate",
+      "topic": "Parallel Execution",
+      "question": "What does threadPoolSize mean in TestNG, and how does it work?",
+      "answer": "threadPoolSize is an attribute of @Test that sets how many threads are used to run the repeated invocations of that one method. It works together with invocationCount. With @Test(invocationCount = 10, threadPoolSize = 3), TestNG creates a pool of three threads and shares the ten invocations among them, so up to three run at the same time and the total time is much shorter than ten runs one after another. If invocationCount is not set, or is 1, threadPoolSize is ignored, because there is only one invocation and nothing to share. It differs from thread-count in testng.xml: thread-count with the parallel attribute controls how many threads run different methods, classes or tests of the whole suite, while threadPoolSize applies to a single method's repetitions only. Because the invocations run concurrently, the test must be thread-safe: no shared WebDriver or shared mutable variables; use ThreadLocal for the driver. It is commonly used for simple load or concurrency checks and to expose thread-safety problems.",
+      "realTimeExample": "To check that an API-backed 'apply coupon' action behaves when several users use the same coupon at the same time, the test runs with invocationCount = 20 and threadPoolSize = 5, and asserts that the coupon's usage limit is never exceeded.",
+      "javaCode": "public class ThreadPoolDemo {\n\n    @Test(invocationCount = 6, threadPoolSize = 3)\n    public void concurrentCheck() {\n        System.out.println(\"Running on thread \" + Thread.currentThread().getId());\n    }\n\n    // threadPoolSize has no effect without invocationCount\n    @Test(threadPoolSize = 3)\n    public void singleRun() {\n        System.out.println(\"Runs once on one thread\");\n    }\n}\n\n// Compare: suite-level parallelism in testng.xml\n// <suite name=\"Suite\" parallel=\"methods\" thread-count=\"5\">",
+      "buzzWords": [
+        "Works with invocationCount",
+        "Thread Pool per Method",
+        "Concurrent Invocations",
+        "Not the Same as thread-count",
+        "Requires Thread-Safe Tests"
+      ]
+    },
+    {
+      "id": 15,
+      "level": "Beginner",
+      "topic": "Data-Driven Testing",
+      "question": "How do you parameterize a test using @Parameters?",
+      "answer": "@Parameters passes simple values from testng.xml into a test or configuration method. Step 1: declare the value in testng.xml with <parameter name=\"browser\" value=\"chrome\"/>. A parameter can be declared at <suite> level, where it applies to everything, or at <test> level, where it applies to that block and overrides the suite value. Step 2: put @Parameters(\"browser\") on the method and add a method argument to receive the value; the names inside the annotation must match the XML names, and several can be listed. Step 3: use @Optional(\"chrome\") on the argument to give a default, so the test still works when run directly from the IDE without the XML; without it, TestNG throws an error that the parameter is required. It is best for configuration-style values that differ per run or per <test> block, such as browser, environment and URL, and it is the standard way to do cross-browser testing. Its limits: it supplies one set of values per <test> block and only simple types such as String, int and boolean. To run the same test with many data sets or with objects, use @DataProvider.",
+      "realTimeExample": "testng.xml has two <test> blocks, one with browser=chrome and one with browser=firefox, both listing the same classes. The @BeforeMethod reads the parameter and starts the matching browser, so the same tests run on both browsers.",
+      "javaCode": "<!-- testng.xml -->\n<suite name=\"Suite\">\n    <parameter name=\"url\" value=\"https://www.saucedemo.com/\"/>\n\n    <test name=\"Chrome tests\">\n        <parameter name=\"browser\" value=\"chrome\"/>\n        <classes><class name=\"tests.LoginTest\"/></classes>\n    </test>\n\n    <test name=\"Firefox tests\">\n        <parameter name=\"browser\" value=\"firefox\"/>\n        <classes><class name=\"tests.LoginTest\"/></classes>\n    </test>\n</suite>\n\npublic class LoginTest {\n    private WebDriver driver;\n\n    @Parameters({\"browser\", \"url\"})\n    @BeforeMethod\n    public void setUp(@Optional(\"chrome\") String browser,\n                      @Optional(\"https://www.saucedemo.com/\") String url) {\n        driver = browser.equalsIgnoreCase(\"firefox\") ? new FirefoxDriver() : new ChromeDriver();\n        driver.get(url);\n    }\n}",
+      "buzzWords": [
+        "<parameter> in testng.xml",
+        "@Parameters(\"name\")",
+        "@Optional Default",
+        "Suite vs Test Level",
+        "One Value Set, Simple Types"
+      ]
+    },
+    {
+      "id": 16,
+      "level": "Intermediate",
+      "topic": "Data-Driven Testing",
+      "question": "What is a DataProvider? How do you create and use one, and how do you design DataProviders for scalable test data?",
+      "answer": "A DataProvider is a method annotated with @DataProvider that supplies test data to a @Test method, so one test runs once for every data set. It returns Object[][], where each inner array is one run and its elements are the test method's arguments, or an Iterator<Object[]>. To use it, give it a name and refer to that name in @Test(dataProvider = \"name\"). If it is in a different class, add dataProviderClass and make the method static. Each row is reported as a separate test result, so one failing row does not stop the others. For scalable test data: (1) keep the data outside the code in JSON, Excel, CSV or a database, with the DataProvider acting as a thin adapter that calls a reader utility; (2) put DataProviders in a dedicated class and reuse them across tests through dataProviderClass; (3) one DataProvider can serve several tests by accepting a java.lang.reflect.Method argument and choosing the data by test name; (4) return an Iterator for large data so rows are loaded lazily instead of all at once; (5) pass objects (POJOs) or a Map instead of long argument lists, so adding a column does not change every test signature; (6) use parallel = true to run rows in parallel, with the thread count set by data-provider-thread-count, provided the test is thread-safe; (7) use the indices attribute to run only selected rows while debugging.",
+      "realTimeExample": "A login test must be verified for a valid user, a locked user, a wrong password and an empty password. One test method with a four-row DataProvider replaces four nearly identical methods, and the report shows four results.",
+      "javaCode": "public class TestData {\n\n    @DataProvider(name = \"loginData\")\n    public static Object[][] loginData() {\n        return new Object[][]{\n                {\"standard_user\", \"secret_sauce\", true},\n                {\"locked_out_user\", \"secret_sauce\", false},\n                {\"standard_user\", \"wrong\", false},\n                {\"standard_user\", \"\", false}\n        };\n    }\n\n    // One provider serving several tests, chosen by the test method's name\n    @DataProvider(name = \"byMethod\", parallel = true)\n    public static Iterator<Object[]> byMethod(Method method) {\n        List<Object[]> rows = new ArrayList<>();\n        for (Map<String, String> row : JsonReader.rows(method.getName() + \".json\")) {\n            rows.add(new Object[]{row});\n        }\n        return rows.iterator();\n    }\n}\n\npublic class LoginTest extends BaseTest {\n\n    @Test(dataProvider = \"loginData\", dataProviderClass = TestData.class)\n    public void login(String username, String password, boolean shouldSucceed) {\n        boolean loggedIn = new LoginPage(driver).login(username, password).isLoggedIn();\n        Assert.assertEquals(loggedIn, shouldSucceed);\n    }\n\n    @Test(dataProvider = \"byMethod\", dataProviderClass = TestData.class)\n    public void registerUser(Map<String, String> data) {\n        // data.get(\"email\"), data.get(\"password\") ...\n    }\n}",
+      "buzzWords": [
+        "Returns Object[][] or Iterator",
+        "dataProvider and dataProviderClass",
+        "One Result per Row",
+        "External Data Source",
+        "parallel = true"
+      ]
+    },
+    {
+      "id": 17,
+      "level": "Intermediate",
+      "topic": "Data-Driven Testing",
+      "question": "How do you feed external JSON test data into a TestNG DataProvider?",
+      "answer": "Three steps. (1) Store the data as a JSON array in src/test/resources, where each object is one test case. (2) Read and convert it with a JSON library, usually Jackson (ObjectMapper) or Gson. The cleanest approach is a small POJO class whose fields match the JSON keys; Jackson converts the whole file into a List of those objects in one line. A List<Map<String, String>> also works when you do not want a class. (3) In the @DataProvider, convert the list to Object[][], one row per object, and let the test method take the POJO as its single argument. Benefits of JSON: it handles nested and structured data that Excel cannot express easily, it is plain text so changes are visible in code review and Git history, and the same files can be reused by API tests. Good practice: load from the classpath rather than an absolute path so it works on every machine and in CI; give each record a name or description and override toString() so the report shows which data set ran; and fail with a clear message if the file is missing.",
+      "realTimeExample": "users.json holds ten login cases, each with a description, username, password and expected message. Adding an eleventh case means adding one JSON object; no Java code changes, and the report lists each case by its description.",
+      "javaCode": "// src/test/resources/testdata/users.json\n// [\n//   { \"description\": \"valid user\",   \"username\": \"standard_user\",   \"password\": \"secret_sauce\", \"expected\": \"Products\" },\n//   { \"description\": \"locked user\",  \"username\": \"locked_out_user\", \"password\": \"secret_sauce\", \"expected\": \"Sorry, this user has been locked out.\" }\n// ]\n\npublic class LoginData {\n    public String description;\n    public String username;\n    public String password;\n    public String expected;\n\n    @Override\n    public String toString() { return description; }     // shown in the report\n}\n\npublic class JsonDataProvider {\n\n    @DataProvider(name = \"usersFromJson\")\n    public static Object[][] usersFromJson() throws IOException {\n        try (InputStream in = JsonDataProvider.class\n                .getResourceAsStream(\"/testdata/users.json\")) {\n\n            List<LoginData> users = new ObjectMapper()\n                    .readValue(in, new TypeReference<List<LoginData>>() { });\n\n            Object[][] data = new Object[users.size()][1];\n            for (int i = 0; i < users.size(); i++) {\n                data[i][0] = users.get(i);\n            }\n            return data;\n        }\n    }\n}\n\n@Test(dataProvider = \"usersFromJson\", dataProviderClass = JsonDataProvider.class)\npublic void login(LoginData data) {\n    String message = new LoginPage(driver).loginAndGetMessage(data.username, data.password);\n    Assert.assertTrue(message.contains(data.expected));\n}",
+      "buzzWords": [
+        "Jackson ObjectMapper",
+        "JSON Array to List of POJOs",
+        "Convert to Object[][]",
+        "Load from Classpath",
+        "toString() for Report Names"
+      ]
+    },
+    {
+      "id": 18,
+      "level": "Intermediate",
+      "topic": "Execution Control",
+      "question": "How do you pass dynamic command-line arguments to TestNG XML runners?",
+      "answer": "The suite file is static, so run-time values are passed as Java system properties with -D and read by the framework. (1) Values for the tests: run 'mvn test -Dbrowser=edge -Denv=uat' and read them in code with System.getProperty(\"browser\", \"chrome\"), giving a default as the second argument. Surefire passes these properties to the test JVM; they can also be declared under <systemPropertyVariables> in the plugin configuration with defaults. A method using @Parameters(\"browser\") also receives the system property of the same name when the parameter is not defined in testng.xml. (2) Which suite file to run: configure Surefire with <suiteXmlFile>${suiteXmlFile}</suiteXmlFile> and run 'mvn test -DsuiteXmlFile=testng-smoke.xml'. (3) Which groups or tests: -Dgroups=smoke, -DexcludedGroups=wip, -Dtest=LoginTest#validLogin. (4) Parallel settings: -Dparallel=methods -DthreadCount=5, or set them through Surefire properties. (5) Without Maven, TestNG's own command line accepts options: java -cp ... org.testng.TestNG testng.xml -groups smoke -threadcount 5 -parallel methods. In Jenkins, build parameters are placed into the Maven command, for example -Dbrowser=${BROWSER}, which is how one job runs any environment and browser combination.",
+      "realTimeExample": "A Jenkins job has dropdowns for Environment, Browser and Suite. The pipeline runs 'mvn clean test -Denv=${ENV} -Dbrowser=${BROWSER} -DsuiteXmlFile=${SUITE}', so a tester can start the smoke suite on UAT in Edge without changing any file.",
+      "javaCode": "<!-- pom.xml: Surefire -->\n<plugin>\n    <groupId>org.apache.maven.plugins</groupId>\n    <artifactId>maven-surefire-plugin</artifactId>\n    <version>3.5.2</version>\n    <configuration>\n        <suiteXmlFiles>\n            <suiteXmlFile>${suiteXmlFile}</suiteXmlFile>\n        </suiteXmlFiles>\n        <systemPropertyVariables>\n            <browser>${browser}</browser>\n            <env>${env}</env>\n        </systemPropertyVariables>\n    </configuration>\n</plugin>\n\n<properties>\n    <suiteXmlFile>testng.xml</suiteXmlFile>\n    <browser>chrome</browser>\n    <env>qa</env>\n</properties>\n\n// Run\n// mvn clean test -DsuiteXmlFile=testng-smoke.xml -Dbrowser=edge -Denv=uat\n\n// Read in the framework\nString browser = System.getProperty(\"browser\", \"chrome\");\nString env = System.getProperty(\"env\", \"qa\");",
+      "buzzWords": [
+        "-D System Properties",
+        "System.getProperty()",
+        "-DsuiteXmlFile",
+        "systemPropertyVariables",
+        "Jenkins Build Parameters"
+      ]
+    },
+    {
+      "id": 19,
+      "level": "Expert",
+      "topic": "Data-Driven Testing",
+      "question": "What is the @Factory annotation?",
+      "answer": "@Factory marks a method, or a constructor, that creates instances of a test class at run time. TestNG calls the factory, receives the objects it returns as Object[], and runs all the @Test methods of each object. It is used when the whole class must run several times with different data, typically passed through the constructor and stored in instance fields. The difference from @DataProvider: a DataProvider feeds data to one test method, which runs once per data row within a single instance of the class. A Factory creates several instances of the class, and every test method in the class runs once per instance, so @BeforeClass and @AfterClass also run for each instance. Choose a DataProvider when one test needs many inputs, and a Factory when a set of related tests must be repeated as a group for each configuration, such as each user role, country or environment. The two can be combined: @Factory(dataProvider = \"...\") on a constructor creates one instance per data row. By default TestNG does not guarantee the order between instances; group-by-instances=\"true\" in testng.xml runs all the methods of one instance before the next.",
+      "realTimeExample": "An application behaves differently for 'admin', 'manager' and 'viewer'. One test class with tests for menu, report access and edit rights is instantiated three times by a factory, once per role, so all three tests run for each role without duplicating the class.",
+      "javaCode": "public class RoleTest {\n    private final String role;\n\n    // One instance per data row\n    @Factory(dataProvider = \"roles\")\n    public RoleTest(String role) {\n        this.role = role;\n    }\n\n    @DataProvider(name = \"roles\")\n    public static Object[][] roles() {\n        return new Object[][]{{\"admin\"}, {\"manager\"}, {\"viewer\"}};\n    }\n\n    @Test\n    public void menuIsCorrect() {\n        System.out.println(\"Checking menu for \" + role);\n    }\n\n    @Test\n    public void reportAccess() {\n        System.out.println(\"Checking report access for \" + role);\n    }\n}\n\n// Classic form: a factory method returning instances\npublic class RoleFactory {\n    @Factory\n    public Object[] createInstances() {\n        return new Object[]{new RoleTest(\"admin\"), new RoleTest(\"manager\"), new RoleTest(\"viewer\")};\n    }\n}",
+      "buzzWords": [
+        "Creates Test Class Instances",
+        "Returns Object[]",
+        "Whole Class per Data Set",
+        "DataProvider: Method Level",
+        "@Factory(dataProvider = ...)"
+      ]
+    },
+    {
+      "id": 20,
+      "level": "Intermediate",
+      "topic": "Listeners",
+      "question": "What are TestNG listeners, which ones have you used, and how do you implement them?",
+      "answer": "Listeners are interfaces through which TestNG notifies your code about events during a run, such as a test starting, passing, failing or being skipped. They let you add behaviour for every test in one place, without touching the tests. Commonly used listeners: ITestListener, with onStart, onTestStart, onTestSuccess, onTestFailure, onTestSkipped and onFinish, used for logging, reporting and screenshots on failure; ISuiteListener, with onStart and onFinish for the whole suite, used for global setup and sending the result summary; IAnnotationTransformer, which changes annotation values at run time, for example attaching a retry analyzer to every test; IRetryAnalyzer, which decides whether a failed test runs again; IReporter, which builds a custom report at the end from all results; IInvokedMethodListener, called before and after every method including configuration methods; IMethodInterceptor, which filters or reorders the tests to run; and IExecutionListener, called when the whole TestNG run starts and ends. To implement one, create a class that implements the interface and override the methods you need. In TestNG 7 the methods have default empty implementations, so you override only what you use. Register the listener in one of three ways: the <listeners> tag in testng.xml, which applies to the whole suite and is the recommended way; the @Listeners annotation on a test or base class; or a service-loader file under META-INF/services for a listener that should always be active.",
+      "realTimeExample": "A single TestListener class logs the start of each test, marks pass or fail in the Extent report, attaches a screenshot when a test fails and writes the report at the end. All 400 tests get this behaviour and none of them contains reporting code.",
+      "javaCode": "public class TestListener implements ITestListener {\n\n    @Override\n    public void onTestStart(ITestResult result) {\n        System.out.println(\"STARTED : \" + result.getName());\n    }\n\n    @Override\n    public void onTestSuccess(ITestResult result) {\n        System.out.println(\"PASSED  : \" + result.getName());\n    }\n\n    @Override\n    public void onTestFailure(ITestResult result) {\n        System.out.println(\"FAILED  : \" + result.getName() + \" - \" + result.getThrowable());\n        // capture a screenshot and attach it to the report here\n    }\n\n    @Override\n    public void onTestSkipped(ITestResult result) {\n        System.out.println(\"SKIPPED : \" + result.getName());\n    }\n\n    @Override\n    public void onFinish(ITestContext context) {\n        System.out.println(\"Passed: \" + context.getPassedTests().size()\n                + \", Failed: \" + context.getFailedTests().size()\n                + \", Skipped: \" + context.getSkippedTests().size());\n    }\n}\n\n<!-- testng.xml -->\n<suite name=\"Suite\">\n    <listeners>\n        <listener class-name=\"listeners.TestListener\"/>\n    </listeners>\n    ...\n</suite>\n\n// Or on a class\n@Listeners(listeners.TestListener.class)\npublic class BaseTest { }",
+      "buzzWords": [
+        "Event Callbacks",
+        "ITestListener",
+        "ISuiteListener / IReporter",
+        "IAnnotationTransformer",
+        "<listeners> in testng.xml or @Listeners"
+      ]
+    },
+    {
+      "id": 21,
+      "level": "Expert",
+      "topic": "Listeners",
+      "question": "Write the method of the IAnnotationTransformer interface.",
+      "answer": "IAnnotationTransformer has one main method, transform(), with four parameters: transform(ITestAnnotation annotation, Class testClass, Constructor testConstructor, Method testMethod). TestNG calls it for every @Test annotation while it is reading the test classes, before any test runs. The annotation parameter represents the @Test annotation and has setter methods, so its attributes can be changed in code: setRetryAnalyzer(), setEnabled(), setPriority(), setInvocationCount(), setGroups(), setTimeOut() and setDataProvider(). Only one of the other three parameters is non-null, depending on whether the annotation was found on a class, a constructor or a method. Its purpose is to apply or change settings for many tests from one place at run time, instead of editing every @Test. The most common use is attaching a retry analyzer to all tests. Other uses are disabling tests based on an environment property or changing the invocation count for a load run. One rule to remember: it must be registered in testng.xml with the <listeners> tag (or on the command line). The @Listeners annotation does not work for it, because TestNG needs the transformer before it starts processing annotations. Newer versions also allow transforming configuration, data provider, factory and listener annotations through overloaded transform() methods.",
+      "realTimeExample": "A suite has 500 tests and the team wants one retry for all of them. Instead of adding retryAnalyzer = RetryAnalyzer.class to 500 annotations, one transformer class sets it for every test, and one line in testng.xml activates it.",
+      "javaCode": "import java.lang.reflect.Constructor;\nimport java.lang.reflect.Method;\nimport org.testng.IAnnotationTransformer;\nimport org.testng.annotations.ITestAnnotation;\n\npublic class AnnotationTransformer implements IAnnotationTransformer {\n\n    @Override\n    public void transform(ITestAnnotation annotation,\n                          Class testClass,\n                          Constructor testConstructor,\n                          Method testMethod) {\n\n        // Attach the retry analyzer to every test\n        annotation.setRetryAnalyzer(RetryAnalyzer.class);\n\n        // Disable work-in-progress tests on production\n        if (testMethod != null\n                && testMethod.getName().startsWith(\"wip\")\n                && \"prod\".equals(System.getProperty(\"env\"))) {\n            annotation.setEnabled(false);\n        }\n    }\n}\n\n<!-- Must be registered in testng.xml, not with @Listeners -->\n<listeners>\n    <listener class-name=\"listeners.AnnotationTransformer\"/>\n</listeners>",
+      "buzzWords": [
+        "transform(ITestAnnotation, Class, Constructor, Method)",
+        "Modify @Test at Run Time",
+        "setRetryAnalyzer()",
+        "setEnabled() / setPriority()",
+        "Register in testng.xml Only"
+      ]
+    },
+    {
+      "id": 22,
+      "level": "Intermediate",
+      "topic": "Listeners",
+      "question": "How do you rerun only failed test cases (for example 20 out of 100), including within the same execution? Write an IRetryAnalyzer implementation.",
+      "answer": "There are two ways, used for different purposes. (1) After the run, with testng-failed.xml. Whenever tests fail, TestNG automatically creates a file named testng-failed.xml in the output folder (test-output, or target/surefire-reports with Maven). It contains only the failed tests and the methods they depend on. Running that file as a suite, from the IDE or with mvn test -DsuiteXmlFile=target/surefire-reports/testng-failed.xml, reruns only the 20 failures. This is a separate, second execution, usually done after fixing the cause. (2) During the same execution, with IRetryAnalyzer. Create a class that implements IRetryAnalyzer and its single method retry(ITestResult result). TestNG calls it when a test fails; returning true reruns the test immediately, and returning false accepts the failure. Keep a counter so the retry happens only a limited number of times. Attach it with @Test(retryAnalyzer = RetryAnalyzer.class), or to all tests through an IAnnotationTransformer. The earlier failed attempts are reported as skipped and the final attempt decides the result. Use retries only for occasional environment problems, keep the limit at one or two, and log every retry so that flaky tests remain visible rather than hidden.",
+      "realTimeExample": "In a nightly run of 100 tests, 20 fail because the test environment restarted for two minutes. With a single automatic retry, 18 pass on the second attempt. The remaining two are real failures, and after the fix they are rerun with testng-failed.xml instead of repeating all 100.",
+      "javaCode": "import org.testng.IRetryAnalyzer;\nimport org.testng.ITestResult;\n\npublic class RetryAnalyzer implements IRetryAnalyzer {\n    private static final int MAX_RETRY = 2;\n    private int count = 0;\n\n    @Override\n    public boolean retry(ITestResult result) {\n        if (count < MAX_RETRY) {\n            count++;\n            System.out.println(\"Retrying \" + result.getName() + \" - attempt \" + count);\n            return true;         // run the test again\n        }\n        return false;            // give up: the test is marked as failed\n    }\n}\n\n// Use on a test\n@Test(retryAnalyzer = RetryAnalyzer.class)\npublic void placeOrder() { }\n\n// Rerun only the failed tests after the run\n// mvn test -DsuiteXmlFile=target/surefire-reports/testng-failed.xml",
+      "buzzWords": [
+        "testng-failed.xml",
+        "IRetryAnalyzer.retry()",
+        "Return true to Rerun",
+        "Limited Retry Count",
+        "Earlier Attempts Reported as Skipped"
+      ]
+    },
+    {
+      "id": 23,
+      "level": "Beginner",
+      "topic": "Assertions",
+      "question": "What types of assertions are used with Selenium, and what is the difference between Assert and Verify (hard versus soft assertions)?",
+      "answer": "Selenium WebDriver has no assertions of its own; they come from the test framework, here TestNG. An assertion compares an actual result with the expected result and decides whether the test passes. There are two kinds. A hard assertion uses the static methods of the Assert class: assertEquals, assertNotEquals, assertTrue, assertFalse, assertNull, assertNotNull and fail. When a hard assertion fails it throws an AssertionError immediately, the test method stops at that line and is marked failed, and the remaining lines do not run. A soft assertion uses an object of the SoftAssert class with the same method names. When a soft assertion fails, the failure is recorded and the test continues. At the end you must call assertAll(), which fails the test and reports every recorded failure together. If assertAll() is forgotten, the test passes even though checks failed, which is a common mistake. 'Assert' and 'Verify' are the names used in Selenium IDE for the same idea: assert stops the test on failure, like a hard assertion, and verify logs the failure and continues, like a soft assertion. TestNG has no verify method. Use hard assertions for conditions that make continuing pointless, such as a failed login, and soft assertions when checking several independent things on one page, so one run reports all the problems. Create a new SoftAssert object for each test.",
+      "realTimeExample": "A profile page shows name, email, phone and address. With hard assertions, a wrong name stops the test and the other three fields are not checked until the next run. With soft assertions, one run reports that both the name and the phone are wrong.",
+      "javaCode": "import org.testng.Assert;\nimport org.testng.annotations.Test;\nimport org.testng.asserts.SoftAssert;\n\npublic class AssertionDemo {\n\n    @Test\n    public void hardAssertion() {\n        Assert.assertEquals(\"Dashboard\", \"Dashboard\", \"Title mismatch\");\n        Assert.assertTrue(5 > 10, \"Value check failed\");     // test stops here\n        System.out.println(\"This line never runs\");\n    }\n\n    @Test\n    public void softAssertion() {\n        SoftAssert soft = new SoftAssert();\n\n        soft.assertEquals(\"Asha\", \"Asha R\", \"Name mismatch\");      // recorded, continues\n        soft.assertEquals(\"asha@test.com\", \"asha@test.com\");\n        soft.assertTrue(false, \"Phone number is missing\");         // recorded, continues\n        System.out.println(\"All checks executed\");\n\n        soft.assertAll();        // reports both failures; must be called\n    }\n}",
+      "expectedOutput": "hardAssertion: FAILED - Value check failed expected [true] but found [false]\nAll checks executed\nsoftAssertion: FAILED - The following asserts failed:\n    Name mismatch expected [Asha R] but found [Asha],\n    Phone number is missing expected [true] but found [false]",
+      "buzzWords": [
+        "Hard Assert Stops the Test",
+        "SoftAssert Continues",
+        "assertAll() Is Mandatory",
+        "Verify = Soft Assertion",
+        "Assertions Come from TestNG"
+      ]
+    },
+    {
+      "id": 24,
+      "level": "Expert",
+      "topic": "Parallel Execution",
+      "question": "How do you configure safe parallel execution in TestNG at method, class and suite level?",
+      "answer": "Parallel execution is configured on the <suite> tag (or a <test> tag) with two attributes: parallel, which says what runs in parallel, and thread-count, the maximum number of threads. parallel=\"methods\" runs every @Test method in its own thread; it is the fastest and requires each test to be fully independent. parallel=\"classes\" runs each class in its own thread, while methods inside one class run one after another in the same thread. parallel=\"tests\" runs each <test> tag in its own thread, which is the usual choice for cross-browser runs. parallel=\"instances\" runs each instance of a test class in its own thread. To run several suite files in parallel, list them in a master suite with <suite-files> and set the suite thread pool size (for example the -suitethreadpoolsize option). Data providers have their own setting: @DataProvider(parallel = true) with data-provider-thread-count on the suite. Making it safe: (1) keep the WebDriver in a ThreadLocal and never in a static or shared field; (2) create the driver in @BeforeMethod and quit it in @AfterMethod(alwaysRun = true), then call remove(); (3) with parallel=\"methods\", remember that one class instance is shared by all its methods, so instance fields are shared across threads too; (4) no shared mutable static data and unique test data for each test; (5) avoid priorities and dependencies between tests that run in parallel; (6) make reporting thread-safe with a ThreadLocal report entry; (7) choose the thread count according to the machine or the Grid capacity; (8) a test that cannot be made thread-safe can be isolated in its own <test> tag with parallel=\"none\", or its class marked @Test(singleThreaded = true).",
+      "realTimeExample": "A suite moved from sequential to parallel=\"methods\" with 8 threads. Tests in the same class began interfering because the class stored 'private WebDriver driver' as an instance field, shared by all its methods. Moving the driver to a ThreadLocal DriverManager made the run stable and cut the time from 80 to 14 minutes.",
+      "javaCode": "<!-- Method level -->\n<suite name=\"Suite\" parallel=\"methods\" thread-count=\"5\" data-provider-thread-count=\"3\">\n    <test name=\"All\">\n        <classes>\n            <class name=\"tests.LoginTest\"/>\n            <class name=\"tests.CartTest\"/>\n        </classes>\n    </test>\n</suite>\n\n<!-- Class level -->\n<suite name=\"Suite\" parallel=\"classes\" thread-count=\"3\"> ... </suite>\n\n<!-- Test-tag level (cross-browser) -->\n<suite name=\"Suite\" parallel=\"tests\" thread-count=\"2\">\n    <test name=\"Chrome\"><parameter name=\"browser\" value=\"chrome\"/> ... </test>\n    <test name=\"Firefox\"><parameter name=\"browser\" value=\"firefox\"/> ... </test>\n</suite>\n\n// Thread-safe driver handling\npublic class BaseTest {\n    private static final ThreadLocal<WebDriver> DRIVER = new ThreadLocal<>();\n\n    protected WebDriver driver() { return DRIVER.get(); }\n\n    @BeforeMethod(alwaysRun = true)\n    public void setUp() {\n        DRIVER.set(new ChromeDriver());\n    }\n\n    @AfterMethod(alwaysRun = true)\n    public void tearDown() {\n        if (DRIVER.get() != null) {\n            DRIVER.get().quit();\n            DRIVER.remove();\n        }\n    }\n}",
+      "buzzWords": [
+        "parallel = methods / classes / tests / instances",
+        "thread-count",
+        "ThreadLocal<WebDriver>",
+        "data-provider-thread-count",
+        "Independent Tests, No Shared State"
+      ]
+    },
+    {
+      "id": 25,
+      "level": "Expert",
+      "topic": "Listeners",
+      "question": "How do groups, listeners, retry logic and dependencies work together in TestNG?",
+      "answer": "Each feature answers a different question, and they act in sequence during a run. Groups decide which tests are selected: only methods in the included groups are considered. Dependencies decide order and eligibility among the selected tests: a method waits for the methods or groups it depends on, and is skipped if they fail. Retry logic acts when a test fails: the retry analyzer decides whether to run it again before the result is final. Listeners observe every one of these events and react by logging, reporting and capturing evidence. Interactions to know: (1) Groups and dependencies: the methods a test depends on must also be part of the run. If you run only one group and a selected method depends on a method that the group filter left out, TestNG reports that it depends on a method that is not included, so put prerequisites in the same group, or mark the dependency with ignoreMissingDependencies = true. With dependsOnGroups, all methods of the group must pass first. (2) Groups and configuration: @BeforeMethod and similar methods run in a group run only if they are in the group or have alwaysRun = true. (3) Retry and dependencies: a dependent method is decided on the final outcome. In current TestNG 7 versions, if the method it depends on fails and then passes on retry, the dependent test runs; only if it still fails after the last retry is the dependent test skipped. Some older versions skipped the dependent test after the first failed attempt, so check this behaviour on the version you use. (4) Retry and listeners: each failed attempt that will be retried is reported to listeners through onTestSkipped, and only the last attempt reaches onTestFailure or onTestSuccess. A reporting listener should therefore check result.wasRetried() so that retried attempts are not counted as real skips and screenshots are not duplicated. (5) Listeners can also influence the others: IAnnotationTransformer attaches the retry analyzer or changes groups, and IMethodInterceptor filters or reorders the selected tests.",
+      "realTimeExample": "A nightly job runs the 'regression' group. 'login' fails once because of a slow start and passes on retry, so the tests that depend on it run normally. The listener marks login as 'passed after retry' in the report, ignores the retried attempt in the skip count and attaches the screenshot from the first attempt for later analysis.",
+      "javaCode": "public class OrderFlowTest extends BaseTest {\n\n    @Test(groups = {\"smoke\", \"regression\"}, retryAnalyzer = RetryAnalyzer.class)\n    public void login() { }\n\n    @Test(groups = \"regression\", dependsOnMethods = \"login\",\n          retryAnalyzer = RetryAnalyzer.class)\n    public void addToCart() { }\n\n    @Test(groups = \"regression\", dependsOnMethods = \"addToCart\")\n    public void checkout() { }\n}\n\npublic class ReportListener implements ITestListener {\n\n    @Override\n    public void onTestSkipped(ITestResult result) {\n        if (result.wasRetried()) {\n            System.out.println(\"RETRIED : \" + result.getName());   // not a real skip\n        } else {\n            System.out.println(\"SKIPPED : \" + result.getName()\n                    + \" (dependency failed or SkipException)\");\n        }\n    }\n\n    @Override\n    public void onTestFailure(ITestResult result) {\n        System.out.println(\"FAILED after all retries: \" + result.getName());\n    }\n}\n\n// Run only the regression group with the listener\n// mvn test -Dgroups=regression",
+      "buzzWords": [
+        "Groups Select",
+        "Dependencies Order and Skip",
+        "Retry Decides the Final Result",
+        "Listeners Observe Every Event",
+        "result.wasRetried()"
+      ]
+    }
+  ]
+}

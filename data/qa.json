@@ -278,6 +278,126 @@
         "Test Procedure",
         "Verification"
       ]
+    },
+    {
+      "id": 19,
+      "level": "Beginner",
+      "topic": "QA Fundamentals",
+      "question": "What is the main objective of QA?",
+      "answer": "The main objective of QA is to prevent defects rather than only find them. QA does this by improving the way software is built: clear and testable requirements, reviews, agreed standards, early test involvement and continuous feedback. The outcome is a reliable product that meets business requirements and user expectations, delivered with fewer surprises and lower cost, because a defect prevented or caught early is far cheaper than one found in production. Finding defects by executing tests is Quality Control (QC), which is one part of the wider QA effort.",
+      "realTimeExample": "During a requirement review for a money-transfer feature, a QA engineer asks what should happen when the transfer amount exceeds the daily limit. The requirement did not cover it. The rule is added before any code is written, so a defect that would have reached testing or production is prevented at almost no cost.",
+      "buzzWords": [
+        "Defect Prevention",
+        "Process Improvement",
+        "Early Involvement",
+        "Customer Expectations",
+        "QA vs QC"
+      ]
+    },
+    {
+      "id": 20,
+      "level": "Beginner",
+      "topic": "QA Mindset",
+      "question": "What qualities should a good QA engineer have?",
+      "answer": "A good QA engineer combines thinking skills with people skills. Analytical thinking helps break a feature into testable conditions. Attention to detail catches small inconsistencies others miss. Curiosity drives the 'what if' questions that reveal edge cases. An end-user perspective keeps the focus on real usage instead of only the written requirement. Clear communication is needed to write defect reports that developers can reproduce and to explain risk to non-technical people. Add to these domain knowledge, the ability to prioritize by risk, persistence when a defect is hard to reproduce, and enough technical skill (SQL, APIs, basic programming) to look below the user interface.",
+      "realTimeExample": "While testing a discount-coupon field, a tester does not stop at a valid coupon. They try an expired coupon, the same coupon twice, a coupon in lower case, a coupon with spaces and a coupon applied after removing the item, and they find that the discount remains after the item is removed. They then report it with exact steps, test data and a screenshot so the developer reproduces it at the first attempt.",
+      "buzzWords": [
+        "Analytical Thinking",
+        "Attention to Detail",
+        "Curiosity",
+        "End-User Perspective",
+        "Clear Communication"
+      ]
+    },
+    {
+      "id": 21,
+      "level": "Intermediate",
+      "topic": "Testing Approaches",
+      "question": "Can a manual tester perform White Box Testing?",
+      "answer": "Yes, if the tester can read and understand the code. White Box Testing is defined by what you know, not by your job title: you design tests from the internal structure, such as branches, conditions and loops. A manual tester with programming knowledge can review the code, identify the decision paths and prepare test data that exercises each path, even without writing automated unit tests. In practice it is mostly done by developers through unit tests and by SDETs, because it needs access to the source code and the skill to read it. A tester without programming knowledge works at black-box or gray-box level instead.",
+      "realTimeExample": "A tester reads a shipping-fee method and sees three branches: order total below 500 (fee 50), between 500 and 2000 (fee 20), and above 2000 (free). They design inputs of 499, 500, 2000 and 2001 to cover every branch and both boundaries. This is white-box test design carried out manually.",
+      "buzzWords": [
+        "Code Knowledge Required",
+        "Branch and Path Coverage",
+        "Knowledge, Not Job Title",
+        "Developers and SDETs",
+        "Code Review"
+      ]
+    },
+    {
+      "id": 22,
+      "level": "Intermediate",
+      "topic": "Test Oracles",
+      "question": "What is a Test Oracle?",
+      "answer": "A Test Oracle is any source that tells you what the correct result of a test should be, so you can decide whether the actual result passes or fails. A test needs two things: an action and an oracle. Common oracles are requirement and design documents, user stories and acceptance criteria, business rules, a previous version of the system or a comparable product, legal and industry standards, calculations done independently (for example in a spreadsheet), and the tester's domain knowledge. In automation, the assertion is the oracle written as code. No oracle is perfect or complete, which is why testers often combine several.",
+      "realTimeExample": "To test an EMI calculator, the tester needs to know the correct EMI for a loan of 5,00,000 at 9% for 5 years. They compute it separately with the standard EMI formula in a spreadsheet. The spreadsheet result is the oracle; if the application shows a different amount, the test fails.",
+      "buzzWords": [
+        "Source of Expected Result",
+        "Pass / Fail Decision",
+        "Requirements and Business Rules",
+        "Independent Calculation",
+        "Assertion in Automation"
+      ]
+    },
+    {
+      "id": 23,
+      "level": "Intermediate",
+      "topic": "Test Oracles",
+      "question": "Why is a Test Oracle important?",
+      "answer": "Without an oracle you can observe what the system does but cannot judge whether it is right. That leads to two costly mistakes: passing wrong behaviour because it 'looked fine', and reporting correct behaviour as a defect. A reliable oracle makes results objective and repeatable, so two testers reach the same verdict. It gives defect reports their authority, because 'expected X as per requirement 4.2, actual Y' is hard to argue with. It is also what makes automation possible, since a script can only check what has been defined as expected. When no oracle exists, for example with unclear requirements, the right step is to get one by asking the product owner, comparing with a similar system or agreeing the expected behaviour and recording it.",
+      "realTimeExample": "A tester sees tax of 18% applied to a book order and is unsure whether it is right. With no oracle they might pass it. Checking the tax rules document shows that books are exempt, so the behaviour is a defect. The document turned an uncertain observation into a confirmed bug with evidence.",
+      "buzzWords": [
+        "Objective Verdict",
+        "Avoid False Pass / False Fail",
+        "Evidence for Defects",
+        "Enables Automation",
+        "Clarify When Missing"
+      ]
+    },
+    {
+      "id": 24,
+      "level": "Beginner",
+      "topic": "Test Prioritization",
+      "question": "What is Test Prioritization?",
+      "answer": "Test Prioritization is deciding the order in which test cases are executed so that the most important ones run first. It matters because there is rarely enough time to run everything, and if testing is cut short, the tests already executed should be the ones that protect the business most. Priority is usually based on business criticality, the risk and impact of failure, how often users use the feature, what changed recently, areas with a history of defects, and dependencies between features. Test cases are commonly labelled P0 or P1 (must run), P2 (should run) and P3 (run if time permits). Prioritization changes the order of execution; it does not mean low-priority tests are deleted.",
+      "realTimeExample": "For a banking application, login, fund transfer and balance display are P1 and run first on every build. Changing the profile picture and theme are P3. If the build must be released in four hours, the team finishes P1 and P2 and consciously postpones P3, reporting that to stakeholders.",
+      "buzzWords": [
+        "Execution Order",
+        "Business Criticality",
+        "Risk and Impact",
+        "P1 / P2 / P3",
+        "Limited Time"
+      ]
+    },
+    {
+      "id": 25,
+      "level": "Intermediate",
+      "topic": "Test Prioritization",
+      "question": "How do you prioritize test cases when time is limited?",
+      "answer": "I use a risk-based order and make the trade-off visible. First, a smoke test to confirm the build is stable enough to test at all. Second, business-critical flows that earn revenue or would stop users working, such as login, payment and checkout. Third, the areas changed in this release and the features connected to them, because new and modified code is where defects are most likely. Fourth, modules with a history of defects and items customers have complained about. Fifth, the remaining medium and low priority cases if time allows. Alongside this I run automated regression in parallel to cover breadth, use exploratory sessions on high-risk areas, and tell stakeholders clearly what was tested, what was not and the risk that remains, so the release decision is an informed one.",
+      "realTimeExample": "With 100 test cases and three hours left before a release that changed the coupon logic: 10 smoke tests run first, then 25 checkout and payment cases, then 20 coupon and pricing cases, then 15 from the order-history module that had defects last sprint. The remaining 30 cosmetic and low-usage cases are listed as not executed in the test summary with their risk marked as low.",
+      "buzzWords": [
+        "Smoke First",
+        "Business-Critical Flows",
+        "Recent Changes",
+        "Defect-Prone Areas",
+        "Communicate Residual Risk"
+      ]
+    },
+    {
+      "id": 26,
+      "level": "Intermediate",
+      "topic": "Test Prioritization",
+      "question": "What is Risk-Based Testing?",
+      "answer": "Risk-Based Testing is an approach in which the amount and order of testing is decided by risk. Risk has two parts: likelihood, how probable it is that a feature will fail, and impact, how serious the consequences are if it does. Likelihood rises with complex logic, new or heavily changed code, many integrations and a poor defect history. Impact rises with money, legal or safety consequences, data loss and the number of users affected. Each feature is rated on both, the two are multiplied to give a risk score, and features with the highest score are tested first and most deeply, while low-risk features receive lighter testing. The process is: identify risks, analyse and score them, plan test depth accordingly, then review the scores as the project changes. It is the standard answer to the fact that exhaustive testing is impossible.",
+      "realTimeExample": "In an e-commerce release, payment processing is rated likelihood 4 (new gateway integration) and impact 5 (direct revenue and customer money), a score of 20, so it gets full functional, negative, boundary and integration testing. The 'About Us' page is rated 1 and 1, a score of 1, so it gets a quick visual check.",
+      "buzzWords": [
+        "Likelihood x Impact",
+        "Risk Score",
+        "Test Depth by Risk",
+        "High Risk First",
+        "Exhaustive Testing Is Impossible"
+      ]
     }
   ]
 }

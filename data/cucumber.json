@@ -1,0 +1,275 @@
+{
+  "questions": [
+    {
+      "id": 1,
+      "level": "Beginner",
+      "topic": "Cucumber Basics",
+      "question": "Explain the Cucumber framework, its structure and the essential files it needs.",
+      "answer": "Cucumber is an open-source tool that supports Behaviour-Driven Development (BDD). Test scenarios are written in plain English using a format called Gherkin, so business analysts, developers and testers can all read and agree on them, and each English step is linked to code that performs it. Cucumber does not drive the browser itself; in a UI project it is combined with Selenium for browser actions and with TestNG or JUnit to run the scenarios. A Cucumber project needs four essential pieces. (1) Feature files (.feature): the scenarios in Gherkin, usually under src/test/resources/features. (2) Step definitions: Java methods annotated with @Given, @When and @Then whose expressions match the step text. (3) A runner class: a class with @CucumberOptions that tells Cucumber where the feature files and the step-definition code (the 'glue') are, which tags to run and which reports to produce. (4) Dependencies in pom.xml: cucumber-java plus cucumber-testng or cucumber-junit. Most projects add hooks (@Before and @After) for setup and teardown, page object classes that the step definitions call, a dependency-injection library such as PicoContainer to share state between step classes, and configuration and test data files.",
+      "realTimeExample": "A product owner writes 'Given a registered user, When they log in with a valid password, Then the dashboard is displayed' during story refinement. The same sentence later becomes the automated test: the tester adds step definitions that call LoginPage methods, and the scenario runs in the nightly pipeline.",
+      "javaCode": "project-root\n|-- pom.xml                                   (cucumber-java, cucumber-testng, selenium-java)\n|-- src/test/resources\n|   |-- features\n|   |   |-- login.feature                     (Gherkin scenarios)\n|   |-- config/qa.properties\n|-- src/test/java\n|   |-- stepdefinitions\n|   |   |-- LoginSteps.java                   (@Given / @When / @Then methods)\n|   |-- hooks\n|   |   |-- Hooks.java                        (@Before / @After)\n|   |-- runners\n|   |   |-- TestRunner.java                   (@CucumberOptions)\n|   |-- pages\n|   |   |-- LoginPage.java                    (Page Object Model)\n|   |-- context\n|       |-- TestContext.java                  (shared state through dependency injection)",
+      "buzzWords": [
+        "Behaviour-Driven Development",
+        "Feature File",
+        "Step Definitions (Glue)",
+        "Runner Class",
+        "Gherkin"
+      ]
+    },
+    {
+      "id": 2,
+      "level": "Beginner",
+      "topic": "Cucumber Basics",
+      "question": "What is Gherkin, and what are the key Cucumber keywords?",
+      "answer": "Gherkin is the plain-text language used to write Cucumber scenarios. It is line-based: each line starts with a keyword, and indentation shows structure. It is meant to describe behaviour, what the system should do, in business terms rather than technical steps, and it is available in many spoken languages. Keywords: Feature gives the name and description of the functionality and appears once per file. Scenario (or Example) is one test case. Given states the starting context or precondition. When states the action the user performs. Then states the expected outcome to verify. And and But continue the previous Given, When or Then to keep the text readable. Background lists steps that run before every scenario in the file. Scenario Outline (or Scenario Template) is a scenario run several times with different data. Examples is the table of data for a Scenario Outline, with placeholders written as <name>. Rule groups scenarios that illustrate one business rule. Other syntax: @ for tags, | for data tables, triple quotes for a multi-line doc string, * as a generic step keyword and # for comments.",
+      "realTimeExample": "For a withdrawal feature: Given sets the balance to 5000, When the user withdraws 2000, Then the balance shown is 3000, And a confirmation message is displayed. A non-technical stakeholder can read it and confirm that this is the required behaviour.",
+      "javaCode": "@login\nFeature: Login\n  Registered users can sign in to see their dashboard\n\n  Background:\n    Given the user is on the login page\n\n  @smoke\n  Scenario: Successful login\n    When the user logs in with username \"standard_user\" and password \"secret_sauce\"\n    Then the products page is displayed\n    And the cart is empty\n\n  Scenario Outline: Login is rejected for invalid credentials\n    When the user logs in with username \"<username>\" and password \"<password>\"\n    Then the error message \"<message>\" is shown\n\n    Examples:\n      | username        | password     | message                              |\n      | locked_out_user | secret_sauce | Sorry, this user has been locked out |\n      | standard_user   | wrong        | Username and password do not match   |",
+      "buzzWords": [
+        "Plain-Text Business Language",
+        "Feature / Scenario",
+        "Given / When / Then",
+        "And / But",
+        "Background / Scenario Outline / Examples"
+      ]
+    },
+    {
+      "id": 3,
+      "level": "Intermediate",
+      "topic": "Cucumber Basics",
+      "question": "How do feature files, step definitions, hooks and tags work together?",
+      "answer": "They are four parts of one flow. The feature file describes what to test in Gherkin. Step definitions are the code that makes each step happen: each method carries an expression in @Given, @When or @Then, and when a scenario runs, Cucumber looks through the glue packages for the one method whose expression matches the step text and calls it, passing values captured from the text as arguments. If no method matches, the step is 'undefined' and Cucumber prints a code snippet to create it; if more than one matches, it reports an ambiguous step. Hooks are methods that run automatically around scenarios without being written in the feature file: @Before runs before each scenario and @After after each scenario, even when it fails, with @BeforeStep and @AfterStep around each step and @BeforeAll and @AfterAll around the whole run. They hold technical setup and cleanup such as starting and closing the browser and taking a screenshot on failure. Tags are labels beginning with @, placed on a Feature, Scenario, Scenario Outline or Examples table. They select which scenarios run and which hooks apply. The complete flow for one scenario: the runner selects scenarios by tag, the matching @Before hooks run, the Background steps run, each step is matched to its step definition and executed, the @After hooks run, and the result goes into the report.",
+      "realTimeExample": "Running with the tag @smoke selects 15 scenarios. For each, the @Before hook opens a browser, the steps call page object methods through their step definitions, and the @After hook attaches a screenshot if the scenario failed and closes the browser. Scenarios tagged @api use a different tagged hook that skips the browser.",
+      "javaCode": "# login.feature\n@ui @smoke\nScenario: Successful login\n  Given the user is on the login page\n  When the user logs in with username \"standard_user\" and password \"secret_sauce\"\n  Then the products page is displayed\n\n// LoginSteps.java\npublic class LoginSteps {\n    private final WebDriver driver = Hooks.getDriver();\n    private final LoginPage loginPage = new LoginPage(driver);\n\n    @Given(\"the user is on the login page\")\n    public void openLoginPage() {\n        driver.get(\"https://www.saucedemo.com/\");\n    }\n\n    @When(\"the user logs in with username {string} and password {string}\")\n    public void login(String username, String password) {\n        loginPage.login(username, password);\n    }\n\n    @Then(\"the products page is displayed\")\n    public void verifyProductsPage() {\n        Assert.assertTrue(driver.getCurrentUrl().contains(\"inventory\"));\n    }\n}\n\n// Hooks.java\npublic class Hooks {\n    private static final ThreadLocal<WebDriver> DRIVER = new ThreadLocal<>();\n\n    public static WebDriver getDriver() { return DRIVER.get(); }\n\n    @Before(\"@ui\")\n    public void setUp() {\n        DRIVER.set(new ChromeDriver());\n    }\n\n    @After(\"@ui\")\n    public void tearDown(Scenario scenario) {\n        if (scenario.isFailed()) {\n            byte[] image = ((TakesScreenshot) DRIVER.get()).getScreenshotAs(OutputType.BYTES);\n            scenario.attach(image, \"image/png\", scenario.getName());\n        }\n        DRIVER.get().quit();\n        DRIVER.remove();\n    }\n}",
+      "buzzWords": [
+        "Step Text Matches an Expression",
+        "Glue Code",
+        "Hooks Run Around Scenarios",
+        "Tags Select Scenarios and Hooks",
+        "Undefined and Ambiguous Steps"
+      ]
+    },
+    {
+      "id": 4,
+      "level": "Beginner",
+      "topic": "Feature Files",
+      "question": "What is the difference between Background, Scenario and Scenario Outline?",
+      "answer": "A Scenario is a single test case: a fixed list of Given, When and Then steps that runs once with the values written in it. A Scenario Outline is a template for a test case that runs several times with different data. Its steps contain placeholders in angle brackets, such as <username>, and it is followed by an Examples table. Each row of the table is one run, with the placeholders replaced by that row's values, and each run is reported as a separate scenario. Use it instead of copying the same scenario for each data set. A Background is not a test case. It is a set of steps, normally Given steps, that is common to every scenario in the feature file. It is written once at the top and runs before each Scenario and before each row of each Scenario Outline, after the @Before hooks. A feature file can have only one Background (one per Rule in newer versions). Keep a Background short and limited to context that the reader needs, such as 'the user is logged in'; technical setup such as opening the browser belongs in hooks.",
+      "realTimeExample": "A cart feature has five scenarios that all start with a logged-in user: that step goes in the Background. Adding one specific product is a Scenario. Checking the cart total for five different quantities is a Scenario Outline with five rows in the Examples table.",
+      "javaCode": "Feature: Shopping cart\n\n  Background:\n    Given the user is logged in\n    And the cart is empty\n\n  Scenario: Add a single product\n    When the user adds \"Backpack\" to the cart\n    Then the cart count is 1\n\n  Scenario Outline: Cart total for different quantities\n    When the user adds <quantity> units of \"<product>\" priced at <price>\n    Then the cart total is <total>\n\n    Examples:\n      | product    | quantity | price | total |\n      | Backpack   | 1        | 30    | 30    |\n      | Backpack   | 3        | 30    | 90    |\n      | Bike Light | 2        | 10    | 20    |",
+      "buzzWords": [
+        "Scenario: Runs Once",
+        "Scenario Outline: Template + Examples",
+        "One Run per Examples Row",
+        "Background: Common Steps Before Each Scenario",
+        "<placeholder>"
+      ]
+    },
+    {
+      "id": 5,
+      "level": "Beginner",
+      "topic": "Feature Files",
+      "question": "Can we have two Scenario Outlines in a single feature file?",
+      "answer": "Yes. A feature file can contain any number of Scenarios and Scenario Outlines, in any mix and order. The only rule is that every Scenario Outline must have its own Examples section; an outline without Examples is an error. What is limited to one per file is the Feature keyword and the Background (apart from one Background inside each Rule). A related point that interviewers often follow with: one Scenario Outline can have more than one Examples table. Each table can have its own name and its own tags, which is useful for separating valid and invalid data, or for running only part of the data with a tag. Good practice is to keep one feature file about one feature. If the file grows very long, split it by functionality rather than removing outlines.",
+      "realTimeExample": "A login feature has one Scenario Outline for valid users of different roles and a second Scenario Outline for invalid credentials. The second has two Examples tables, one tagged @smoke with two rows and one tagged @regression with ten rows.",
+      "javaCode": "Feature: Login\n\n  Scenario Outline: Valid users reach their landing page\n    Given the user is on the login page\n    When the user logs in as \"<role>\"\n    Then the \"<page>\" page is displayed\n\n    Examples:\n      | role    | page      |\n      | admin   | Dashboard |\n      | cashier | Billing   |\n\n  Scenario Outline: Invalid credentials are rejected\n    Given the user is on the login page\n    When the user logs in with \"<username>\" and \"<password>\"\n    Then the error \"<error>\" is shown\n\n    @smoke\n    Examples: Common mistakes\n      | username | password | error               |\n      | asha     | wrong    | Invalid credentials |\n\n    @regression\n    Examples: Empty fields\n      | username | password | error                |\n      |          | Test@123 | Username is required |\n      | asha     |          | Password is required |",
+      "buzzWords": [
+        "Any Number of Scenario Outlines",
+        "Each Needs Its Own Examples",
+        "Multiple Examples Tables per Outline",
+        "Tagged Examples",
+        "One Feature and One Background per File"
+      ]
+    },
+    {
+      "id": 6,
+      "level": "Intermediate",
+      "topic": "Feature Files",
+      "question": "How do you read tabular data in Cucumber without a Scenario Outline (DataTable)?",
+      "answer": "Use a Data Table. A data table is a table written with pipe characters directly under a single step. It passes a set of data to that one step, and the scenario still runs only once. This differs from a Scenario Outline, where the Examples table makes the whole scenario run once per row. In the step definition, add a parameter of type DataTable as the last argument, or let Cucumber convert it for you by declaring the parameter as a List or Map. Conversions: asList() or List<String> for a single column; asLists() or List<List<String>> for rows without a header; asMaps() or List<Map<String, String>> when the first row is a header, giving one map per row keyed by column name, which is the most readable; and asMap() or Map<String, String> for a two-column table of key and value. A table can also be mapped to your own class with a @DataTableType method. Use a data table when one step needs several values, such as filling a form, adding several items or verifying a list.",
+      "realTimeExample": "A registration scenario fills eight fields. Instead of eight separate steps or eight placeholders, one step 'When the user registers with the following details' carries a two-column table of field and value, which the step definition reads as a Map.",
+      "javaCode": "# Feature file\nScenario: Register a new user\n  Given the user is on the registration page\n  When the user registers with the following details\n    | firstName | Asha          |\n    | lastName  | Rao           |\n    | email     | asha@test.com |\n    | city      | Bengaluru     |\n  Then the account is created\n\nScenario: Add several products\n  When the user adds the following products to the cart\n    | product    | quantity |\n    | Backpack   | 1        |\n    | Bike Light | 2        |\n\n// Step definitions\n@When(\"the user registers with the following details\")\npublic void register(Map<String, String> details) {          // key-value table\n    registrationPage.enterFirstName(details.get(\"firstName\"));\n    registrationPage.enterEmail(details.get(\"email\"));\n}\n\n@When(\"the user adds the following products to the cart\")\npublic void addProducts(DataTable table) {                   // table with a header row\n    List<Map<String, String>> rows = table.asMaps(String.class, String.class);\n    for (Map<String, String> row : rows) {\n        cartPage.add(row.get(\"product\"), Integer.parseInt(row.get(\"quantity\")));\n    }\n}",
+      "buzzWords": [
+        "DataTable",
+        "Data for One Step, Scenario Runs Once",
+        "asMaps() with Header Row",
+        "asList() / asLists() / asMap()",
+        "Examples Table Repeats the Scenario"
+      ]
+    },
+    {
+      "id": 7,
+      "level": "Beginner",
+      "topic": "Tags and Execution",
+      "question": "What are tags in Cucumber, and how do you execute scenarios using them?",
+      "answer": "A tag is a label starting with @ that is written above a Feature, Rule, Scenario, Scenario Outline or Examples table, for example @smoke, @regression, @login or @wip. An element can have several tags, and a tag placed on a Feature is inherited by every scenario in that file. Tags have two uses: selecting which scenarios to run, and deciding which hooks apply. To execute by tag, give a tag expression. In the runner: @CucumberOptions(tags = \"@smoke\"). From the command line, which overrides the runner: mvn test -Dcucumber.filter.tags=\"@smoke\". Tag expressions combine tags with the words and, or and not, with parentheses for grouping: \"@smoke and @login\" runs scenarios that have both; \"@smoke or @regression\" runs scenarios with either; \"not @wip\" runs everything except work in progress; and \"(@smoke or @regression) and not @flaky\" combines them. This single-string syntax is the current one; older Cucumber versions used a comma-separated list. Common tagging schemes are by suite (@smoke, @sanity, @regression), by module (@cart, @payment), by type (@ui, @api) and by status (@wip, @bug-1234).",
+      "realTimeExample": "After each deployment the pipeline runs 'mvn test -Dcucumber.filter.tags=\"@smoke and not @wip\"', which takes six minutes. The nightly job runs '@regression and not @wip'. No feature file is edited to switch between the two.",
+      "javaCode": "@cart\nFeature: Shopping cart\n\n  @smoke @regression\n  Scenario: Add a product to the cart\n    ...\n\n  @regression\n  Scenario: Remove a product from the cart\n    ...\n\n  @wip\n  Scenario: Save the cart for later\n    ...\n\n// Runner\n@CucumberOptions(\n        features = \"src/test/resources/features\",\n        glue = {\"stepdefinitions\", \"hooks\"},\n        tags = \"@regression and not @wip\"\n)\npublic class TestRunner extends AbstractTestNGCucumberTests { }\n\n// Command line (overrides the runner)\n// mvn test -Dcucumber.filter.tags=\"@smoke\"\n// mvn test -Dcucumber.filter.tags=\"@cart and (@smoke or @regression) and not @wip\"",
+      "buzzWords": [
+        "@tag Labels",
+        "Tag Expressions: and / or / not",
+        "cucumber.filter.tags",
+        "Feature Tags Are Inherited",
+        "Tagged Hooks"
+      ]
+    },
+    {
+      "id": 8,
+      "level": "Intermediate",
+      "topic": "Tags and Execution",
+      "question": "What is inside the Runner file, and what options does @CucumberOptions provide?",
+      "answer": "The runner is a small, usually empty, Java class that starts Cucumber. It connects feature files to step definitions and hands execution to a test framework. With TestNG the class extends AbstractTestNGCucumberTests; with JUnit 4 it is annotated with @RunWith(Cucumber.class); with JUnit 5 a @Suite class with configuration parameters is used. The settings are given in the @CucumberOptions annotation. features: the path to the feature files or folders. glue: the packages containing step definitions and hooks. tags: a tag expression selecting which scenarios to run. plugin: reporters and formatters, such as \"pretty\" for readable console output, \"html:target/cucumber-report.html\", \"json:target/cucumber.json\", \"junit:target/cucumber.xml\", \"rerun:target/failed.txt\" which writes the failed scenarios to a file, and third-party plugins such as the Allure or Extent adapters. dryRun: when true, Cucumber checks that every step has a step definition without executing anything, which quickly finds undefined steps. monochrome: when true, removes colour codes so the console output is readable. name: runs only scenarios whose name matches a pattern. snippets: the naming style of generated step snippets, CAMELCASE or UNDERSCORE. publish: publishes the report to the Cucumber Reports service. The 'strict' option from old versions no longer exists; from Cucumber 7, undefined and pending steps always fail the run. A second runner pointing features at \"@target/failed.txt\" reruns only the scenarios that failed.",
+      "realTimeExample": "Before pushing new feature files, an engineer sets dryRun = true and runs the suite in a few seconds to confirm no step is undefined. The CI runner uses the json and html plugins for reports and the rerun plugin, and a second 'FailedRunner' executes only the scenarios listed in failed.txt.",
+      "javaCode": "import io.cucumber.testng.AbstractTestNGCucumberTests;\nimport io.cucumber.testng.CucumberOptions;\n\n@CucumberOptions(\n        features = \"src/test/resources/features\",\n        glue = {\"stepdefinitions\", \"hooks\"},\n        tags = \"@regression and not @wip\",\n        plugin = {\n                \"pretty\",\n                \"html:target/cucumber-report.html\",\n                \"json:target/cucumber.json\",\n                \"rerun:target/failed.txt\"\n        },\n        monochrome = true,\n        dryRun = false\n)\npublic class TestRunner extends AbstractTestNGCucumberTests {\n}\n\n// Reruns only the failed scenarios from the previous run\n@CucumberOptions(\n        features = \"@target/failed.txt\",\n        glue = {\"stepdefinitions\", \"hooks\"},\n        plugin = {\"pretty\", \"html:target/rerun-report.html\"}\n)\npublic class FailedRunner extends AbstractTestNGCucumberTests {\n}",
+      "buzzWords": [
+        "features and glue",
+        "tags",
+        "plugin (pretty, html, json, rerun)",
+        "dryRun and monochrome",
+        "AbstractTestNGCucumberTests"
+      ]
+    },
+    {
+      "id": 9,
+      "level": "Intermediate",
+      "topic": "Hooks",
+      "question": "What are conditional (tagged) hooks versus directional (Before/After) hooks?",
+      "answer": "Hooks are methods that Cucumber runs automatically at fixed points, without being written as steps. 'Directional' describes when a hook runs: before or after something. @Before runs before each scenario and @After runs after each scenario, whether it passed or failed. @BeforeStep and @AfterStep run before and after every step. @BeforeAll and @AfterAll, which must be static methods, run once before the first scenario and once after the last scenario of the run. These are scenario hooks and step hooks that apply to everything. 'Conditional' describes whether a hook runs at all. A conditional or tagged hook takes a tag expression, such as @Before(\"@ui\") or @After(\"@db and not @readonly\"), and runs only for scenarios whose tags match. This lets different kinds of scenarios have different setup: a browser for @ui scenarios, a token for @api scenarios, test data for @db scenarios. The two ideas combine: every hook has a direction, and it may also have a condition. When several hooks of the same type exist, the order attribute decides the sequence. For @Before, lower numbers run first; for @After, higher numbers run first, so teardown happens in the reverse order of setup. Hooks must be in a package listed in glue, and an @After hook can take a Scenario parameter to check the status and attach a screenshot.",
+      "realTimeExample": "A suite mixes UI and API scenarios. @Before(\"@ui\") starts the browser and @After(\"@ui\") closes it, so API scenarios never open a browser and run much faster. An untagged @After logs the scenario name and status for every scenario.",
+      "javaCode": "public class Hooks {\n\n    @BeforeAll\n    public static void beforeAll() {\n        System.out.println(\"Once before the whole run\");\n    }\n\n    // Directional and unconditional: every scenario\n    @Before(order = 0)\n    public void logStart(Scenario scenario) {\n        System.out.println(\"Starting: \" + scenario.getName());\n    }\n\n    // Conditional (tagged): only scenarios tagged @ui\n    @Before(value = \"@ui\", order = 1)\n    public void startBrowser() {\n        DriverManager.setDriver(new ChromeDriver());\n    }\n\n    @Before(\"@api and not @public\")\n    public void fetchToken() {\n        // obtain an access token for secured API scenarios\n    }\n\n    @AfterStep(\"@ui\")\n    public void afterEachStep(Scenario scenario) {\n        // optional: screenshot after each step\n    }\n\n    @After(value = \"@ui\", order = 1)       // higher order runs first for @After\n    public void closeBrowser(Scenario scenario) {\n        if (scenario.isFailed()) {\n            byte[] image = ((TakesScreenshot) DriverManager.getDriver())\n                    .getScreenshotAs(OutputType.BYTES);\n            scenario.attach(image, \"image/png\", \"failure\");\n        }\n        DriverManager.unload();\n    }\n\n    @AfterAll\n    public static void afterAll() {\n        System.out.println(\"Once after the whole run\");\n    }\n}",
+      "buzzWords": [
+        "@Before / @After",
+        "Tagged Hook: @Before(\"@ui\")",
+        "@BeforeStep / @AfterStep",
+        "@BeforeAll / @AfterAll (static)",
+        "order Attribute"
+      ]
+    },
+    {
+      "id": 10,
+      "level": "Expert",
+      "topic": "Hooks",
+      "question": "How do you make a piece of code run only before the first scenario of a feature file, and how do you set up pre- and post-activities across all scenarios?",
+      "answer": "Cucumber has no 'before feature' hook, so this needs a small technique. A Background does not help, because it runs before every scenario, and @Before also runs before every scenario. Options: (1) If 'once for the whole run' is acceptable, use @BeforeAll, a static method that runs once before the first scenario of the entire execution. (2) For once per feature file, use a tagged @Before hook with a guard. Tag the feature, for example @orders, and in @Before(\"@orders\") check a static flag: if it is not yet set, run the one-time code and set it. To make it general for any feature, keep a thread-safe set of feature file URIs taken from scenario.getUri(), and run the code only when the URI is added for the first time. (3) With the TestNG runner, one-time work can also sit in @BeforeClass of the runner, which runs once per runner class, and a runner can be dedicated to one feature. Use thread-safe structures, such as AtomicBoolean or a concurrent set, because scenarios may run in parallel. For pre- and post-activities across all scenarios: @Before and @After, without tags, run before and after every scenario and hold per-scenario setup and cleanup such as browser start, login, screenshot on failure and browser close; @BeforeAll and @AfterAll hold global work such as loading configuration, starting a mock server, seeding data and closing connections; @BeforeStep and @AfterStep handle step-level actions such as logging or step screenshots.",
+      "realTimeExample": "The orders feature needs ten sample orders created through an API before its scenarios run, but creating them before each of the 25 scenarios would be slow. A guarded @Before(\"@orders\") hook creates them once when the first orders scenario starts, and an @AfterAll hook deletes them at the end of the run.",
+      "javaCode": "public class Hooks {\n    // Thread-safe record of features already initialised\n    private static final Set<String> INITIALISED_FEATURES = ConcurrentHashMap.newKeySet();\n\n    // Once for the entire run\n    @BeforeAll\n    public static void globalSetup() {\n        System.out.println(\"Load configuration, start mock server\");\n    }\n\n    // Once per feature file: runs only for the first scenario of each feature\n    @Before(order = 0)\n    public void oncePerFeature(Scenario scenario) {\n        String featureUri = scenario.getUri().toString();\n        if (INITIALISED_FEATURES.add(featureUri)) {          // true only the first time\n            System.out.println(\"One-time setup for \" + featureUri);\n        }\n    }\n\n    // Before and after every scenario\n    @Before(order = 1)\n    public void beforeScenario() {\n        DriverManager.setDriver(new ChromeDriver());\n    }\n\n    @After\n    public void afterScenario(Scenario scenario) {\n        DriverManager.unload();\n    }\n\n    // Once after the entire run\n    @AfterAll\n    public static void globalTeardown() {\n        System.out.println(\"Delete seeded data, stop mock server\");\n    }\n}",
+      "buzzWords": [
+        "No Before-Feature Hook",
+        "@BeforeAll: Once per Run",
+        "Guarded @Before with a Flag",
+        "scenario.getUri()",
+        "@Before / @After for Every Scenario"
+      ]
+    },
+    {
+      "id": 11,
+      "level": "Expert",
+      "topic": "State Sharing",
+      "question": "How do you share dynamic scenario state across step definitions?",
+      "answer": "Steps of one scenario often live in different step-definition classes, and a value produced in one step, such as an order id, is needed in a later step in another class. Cucumber creates new instances of the step classes for every scenario, so the value must be placed somewhere all of them can reach. The recommended way is dependency injection. Add the cucumber-picocontainer dependency, create a plain 'context' or 'world' class that holds the shared objects (the driver, page objects and a map for scenario data), and declare that class as a constructor parameter in every step-definition and hook class that needs it. PicoContainer creates one instance of the context for each scenario and passes the same instance to all classes, then discards it when the scenario ends. This gives clean isolation: nothing leaks from one scenario to the next, and it is safe in parallel execution. No configuration is needed beyond the dependency. Spring and Guice can be used instead in larger projects. Sharing through static variables is the approach to avoid: values persist between scenarios and are shared across threads, which causes wrong data and random failures in parallel runs. Inheritance does not work either, because Cucumber does not allow step-definition classes to extend a class that defines steps or hooks. Within a single class, ordinary instance fields are enough.",
+      "realTimeExample": "A checkout step in CheckoutSteps captures the order number from the confirmation page and stores it in the shared context. A later step in OrderHistorySteps reads the order number from the same context and verifies that the order appears in the history list.",
+      "javaCode": "// Shared context: one instance per scenario, created by PicoContainer\npublic class TestContext {\n    private final WebDriver driver = DriverFactory.create();\n    private final Map<String, Object> data = new HashMap<>();\n\n    public WebDriver getDriver() { return driver; }\n    public void set(String key, Object value) { data.put(key, value); }\n    public <T> T get(String key, Class<T> type) { return type.cast(data.get(key)); }\n}\n\npublic class CheckoutSteps {\n    private final TestContext context;\n\n    public CheckoutSteps(TestContext context) {       // injected\n        this.context = context;\n    }\n\n    @When(\"the user places the order\")\n    public void placeOrder() {\n        String orderId = new CheckoutPage(context.getDriver()).placeOrderAndGetId();\n        context.set(\"orderId\", orderId);\n    }\n}\n\npublic class OrderHistorySteps {\n    private final TestContext context;\n\n    public OrderHistorySteps(TestContext context) {   // same instance as above\n        this.context = context;\n    }\n\n    @Then(\"the order appears in the order history\")\n    public void verifyOrder() {\n        String orderId = context.get(\"orderId\", String.class);\n        Assert.assertTrue(new OrderHistoryPage(context.getDriver()).contains(orderId));\n    }\n}\n\npublic class Hooks {\n    private final TestContext context;\n\n    public Hooks(TestContext context) { this.context = context; }\n\n    @After\n    public void tearDown() { context.getDriver().quit(); }\n}\n\n// pom.xml: io.cucumber : cucumber-picocontainer",
+      "buzzWords": [
+        "Dependency Injection",
+        "PicoContainer",
+        "Scenario Context / World Object",
+        "Constructor Injection",
+        "Avoid Static Variables"
+      ]
+    },
+    {
+      "id": 12,
+      "level": "Expert",
+      "topic": "Tags and Execution",
+      "question": "How do you run Cucumber scenarios in parallel, and how do you use Scenario Outline effectively with it?",
+      "answer": "With the TestNG runner, parallel execution is switched on in the runner class. AbstractTestNGCucumberTests has a scenarios() method that supplies scenarios through a TestNG data provider. Override it and annotate it with @DataProvider(parallel = true); each scenario then runs in its own thread. The number of threads is the data provider thread count, set in the Surefire configuration with the dataproviderthreadcount property or with data-provider-thread-count in testng.xml; the default is 10. With JUnit 5, set cucumber.execution.parallel.enabled=true in junit-platform.properties with a fixed parallelism value. With JUnit 4, Surefire's parallel setting runs feature files in parallel, not individual scenarios. For this to be safe: every scenario must be independent with its own data; the driver must be per thread, through a ThreadLocal or a scenario-scoped context injected by PicoContainer; no static shared state; and reporting plugins must be thread-safe. Scenario Outline fits well: each row of the Examples table is treated as a separate scenario, so the rows run in parallel automatically. To use it effectively: keep every row independent, with data unique to that row such as a different user per row; do not let rows depend on being executed in table order; keep the tables focused on meaningful cases, since every row costs a browser session; split data with tagged Examples tables so a subset can be run; and move large data sets to the API level.",
+      "realTimeExample": "A login Scenario Outline has 12 rows. Sequentially it took six minutes. After overriding scenarios() with a parallel data provider and setting the thread count to 6, the 12 rows ran six at a time and finished in about one minute, each row using its own browser and its own user.",
+      "javaCode": "@CucumberOptions(\n        features = \"src/test/resources/features\",\n        glue = {\"stepdefinitions\", \"hooks\"},\n        plugin = {\"pretty\", \"json:target/cucumber.json\"}\n)\npublic class ParallelRunner extends AbstractTestNGCucumberTests {\n\n    @Override\n    @DataProvider(parallel = true)          // each scenario / Examples row in its own thread\n    public Object[][] scenarios() {\n        return super.scenarios();\n    }\n}\n\n<!-- pom.xml: Surefire sets the number of threads -->\n<plugin>\n    <groupId>org.apache.maven.plugins</groupId>\n    <artifactId>maven-surefire-plugin</artifactId>\n    <version>3.5.2</version>\n    <configuration>\n        <properties>\n            <property>\n                <name>dataproviderthreadcount</name>\n                <value>6</value>\n            </property>\n        </properties>\n    </configuration>\n</plugin>\n\n// Thread-safe driver for the parallel scenarios\npublic final class DriverManager {\n    private static final ThreadLocal<WebDriver> DRIVER = new ThreadLocal<>();\n    public static WebDriver getDriver() { return DRIVER.get(); }\n    public static void setDriver(WebDriver driver) { DRIVER.set(driver); }\n    public static void unload() { DRIVER.get().quit(); DRIVER.remove(); }\n}",
+      "buzzWords": [
+        "@DataProvider(parallel = true)",
+        "Override scenarios()",
+        "dataproviderthreadcount",
+        "Each Examples Row Is a Scenario",
+        "ThreadLocal / Scenario-Scoped Driver"
+      ]
+    },
+    {
+      "id": 13,
+      "level": "Intermediate",
+      "topic": "Tags and Execution",
+      "question": "How do you run one scenario multiple times?",
+      "answer": "Cucumber has no repeat setting like TestNG's invocationCount, so use one of these. (1) Scenario Outline: the standard way. Convert the scenario to a Scenario Outline with an Examples table; it runs once for each row. To repeat with the same data, add a column such as 'run' with values 1, 2, 3 that the steps do not need to use. To repeat with different data, give each row its own values. (2) Rerun failed scenarios: add the plugin \"rerun:target/failed.txt\" and execute a second runner whose features value is \"@target/failed.txt\"; this repeats only the scenarios that failed. (3) Retry through the test framework: with JUnit, Surefire's rerunFailingTestsCount reruns failures; with TestNG, a retry analyzer can be applied to the Cucumber runner's test method through an IAnnotationTransformer. (4) Run the whole command several times from the command line or the CI pipeline, using a tag or the scenario's line number to select it, for example a loop that executes mvn test with -Dcucumber.features=\"src/test/resources/features/login.feature:12\". (5) Call the same steps in a loop inside the step definition when the repetition is part of the behaviour itself, for example 'When the user enters a wrong password 3 times'. Choose according to the purpose: data variations use a Scenario Outline, flaky-test investigation uses a loop in the pipeline, and intermittent environment failures use the rerun file.",
+      "realTimeExample": "To check whether a 'place order' scenario is flaky, an engineer turns it into a Scenario Outline with a 'run' column of ten rows and executes it in parallel. Two of the ten runs fail at the payment step, which confirms the flakiness and provides screenshots for both failures.",
+      "javaCode": "# 1. Repeat with a Scenario Outline\nScenario Outline: Place an order (run <run>)\n  Given the user is logged in\n  When the user places an order for \"Backpack\"\n  Then the order confirmation is displayed\n\n  Examples:\n    | run |\n    | 1   |\n    | 2   |\n    | 3   |\n\n# 5. Repetition that is part of the behaviour\nScenario: Account is locked after three wrong passwords\n  When the user enters a wrong password 3 times\n  Then the account is locked\n\n// Step definition\n@When(\"the user enters a wrong password {int} times\")\npublic void wrongPassword(int times) {\n    for (int i = 0; i < times; i++) {\n        loginPage.login(\"asha\", \"wrong\" + i);\n    }\n}\n\n// 4. Select a single scenario by line number and repeat it from the shell\n// mvn test -Dcucumber.features=\"src/test/resources/features/order.feature:12\"",
+      "buzzWords": [
+        "Scenario Outline with Examples Rows",
+        "No Built-in invocationCount",
+        "rerun Plugin",
+        "Feature File Line Number",
+        "Loop Inside a Step"
+      ]
+    },
+    {
+      "id": 14,
+      "level": "Intermediate",
+      "topic": "Integration",
+      "question": "How do you integrate Cucumber with Selenium and TestNG?",
+      "answer": "Each tool has one role: Cucumber reads the feature files and maps steps to code, Selenium performs the browser actions, and TestNG runs the scenarios and provides assertions, parallel execution and its reports. Steps to integrate: (1) Add dependencies to pom.xml: cucumber-java, cucumber-testng, selenium-java, testng, and optionally cucumber-picocontainer. Keep all Cucumber artifacts on the same version. (2) Write feature files in src/test/resources/features. (3) Write step definitions that call page object methods; the page objects contain the Selenium code, so step definitions stay short. (4) Add a Hooks class: @Before creates the WebDriver and @After takes a screenshot on failure and quits it. (5) Create the runner class that extends AbstractTestNGCucumberTests and is annotated with @CucumberOptions giving features, glue, tags and plugins. This base class is what makes TestNG treat each scenario as a test. (6) Use TestNG's Assert in the Then steps. (7) Create testng.xml that lists the runner class, and point the Maven Surefire plugin to it, so 'mvn test' runs the scenarios. (8) Add reporting with the Cucumber html and json plugins or an Extent or Allure adapter, and run from Jenkins. For parallel runs, override the scenarios() method with @DataProvider(parallel = true).",
+      "realTimeExample": "A team starts a BDD project: the feature file describes login, LoginSteps calls LoginPage, Hooks starts and closes Chrome, and TestRunner extends AbstractTestNGCucumberTests. Running 'mvn test' executes the scenarios through TestNG and produces target/cucumber-report.html.",
+      "javaCode": "<!-- pom.xml -->\n<dependency>\n    <groupId>io.cucumber</groupId>\n    <artifactId>cucumber-java</artifactId>\n    <version>7.20.1</version>\n</dependency>\n<dependency>\n    <groupId>io.cucumber</groupId>\n    <artifactId>cucumber-testng</artifactId>\n    <version>7.20.1</version>\n</dependency>\n<dependency>\n    <groupId>org.seleniumhq.selenium</groupId>\n    <artifactId>selenium-java</artifactId>\n    <version>4.27.0</version>\n</dependency>\n\n// Runner\n@CucumberOptions(\n        features = \"src/test/resources/features\",\n        glue = {\"stepdefinitions\", \"hooks\"},\n        plugin = {\"pretty\", \"html:target/cucumber-report.html\"}\n)\npublic class TestRunner extends AbstractTestNGCucumberTests { }\n\n// Hooks\npublic class Hooks {\n    @Before\n    public void setUp() { DriverManager.setDriver(new ChromeDriver()); }\n\n    @After\n    public void tearDown() { DriverManager.unload(); }\n}\n\n// Step definition using a page object and a TestNG assertion\n@Then(\"the products page is displayed\")\npublic void verifyProducts() {\n    Assert.assertEquals(new ProductsPage(DriverManager.getDriver()).getTitle(), \"Products\");\n}\n\n<!-- testng.xml -->\n<suite name=\"BDD Suite\">\n    <test name=\"Cucumber scenarios\">\n        <classes>\n            <class name=\"runners.TestRunner\"/>\n        </classes>\n    </test>\n</suite>",
+      "buzzWords": [
+        "cucumber-java + cucumber-testng",
+        "AbstractTestNGCucumberTests",
+        "Step Definitions Call Page Objects",
+        "Hooks Manage the Driver",
+        "Runner in testng.xml"
+      ]
+    },
+    {
+      "id": 15,
+      "level": "Intermediate",
+      "topic": "Integration",
+      "question": "Why do you prefer Cucumber BDD in your project?",
+      "answer": "Give reasons that fit a real team situation, and be ready to state the cost as well. Benefits: (1) Shared understanding. Scenarios are written in plain business language, so product owners, business analysts, developers and testers can read, review and agree on expected behaviour before development. This reduces misunderstood requirements. (2) Living documentation. The feature files describe what the system does and are checked on every run, so they do not go out of date like a separate document. (3) Requirements linked to tests. Each scenario maps to acceptance criteria of a user story, which gives clear traceability and coverage. (4) Reusability. A step definition written once is reused in many scenarios, and new scenarios can often be written from existing steps without new code. (5) Readable reports that non-technical stakeholders understand. (6) Easy selection of what to run through tags, and data-driven testing through Scenario Outline. (7) It works with Selenium, REST Assured, TestNG and JUnit. Costs, which interviewers expect you to know: an extra layer to maintain (feature files and step definitions on top of page objects); poorly written steps become numerous and duplicated; and the benefit is lost if only testers read the feature files. In that case, plain TestNG is simpler and faster. So the honest position is: we use it because business stakeholders take part in writing and reviewing scenarios; it is a collaboration tool first and a test tool second.",
+      "realTimeExample": "In sprint refinement, the product owner, a developer and a tester write the scenarios for a 'refund' story together, in a 'three amigos' session. A missing rule, refunds after 30 days, is found during that discussion rather than after development, and those scenarios later run as the automated acceptance tests.",
+      "buzzWords": [
+        "Shared Understanding",
+        "Living Documentation",
+        "Three Amigos",
+        "Reusable Steps",
+        "Extra Maintenance Layer"
+      ]
+    },
+    {
+      "id": 16,
+      "level": "Intermediate",
+      "topic": "Integration",
+      "question": "What are the key differences between the Cucumber framework and TestNG?",
+      "answer": "They serve different purposes and are often used together, so the question is really about what each contributes. Purpose: Cucumber is a BDD tool for describing behaviour in plain language and linking it to code; TestNG is a test execution framework for Java. How tests are written: in Cucumber, tests are scenarios in Gherkin feature files with step definitions behind them; in TestNG, tests are Java methods annotated with @Test. Audience: Cucumber scenarios can be read by non-technical people; TestNG tests are read by people who know Java. Grouping: Cucumber uses tags and tag expressions; TestNG uses groups. Setup and teardown: Cucumber has hooks (@Before, @After, @BeforeStep, @BeforeAll); TestNG has a full hierarchy of annotations from @BeforeSuite to @AfterMethod. Data-driven testing: Cucumber uses Scenario Outline with Examples and data tables; TestNG uses @DataProvider and @Parameters. Execution control: TestNG has priorities, dependencies, invocation counts, timeouts, retry analyzers, listeners and native parallel execution configured in testng.xml; Cucumber has none of these itself and relies on the runner it is attached to. Configuration: Cucumber uses a runner class with @CucumberOptions; TestNG uses testng.xml. Reports: Cucumber produces scenario and step-level reports in business language; TestNG produces method-level reports. Choose plain TestNG when the tests are for the technical team only, and add Cucumber when business collaboration and readable specifications are needed. In a combined framework, Cucumber supplies the specification layer and TestNG executes it.",
+      "realTimeExample": "One company's API regression suite, read only by engineers, is written directly in TestNG with data providers. Its customer-facing acceptance tests are written in Cucumber so the product team can review them, and they are executed by TestNG through AbstractTestNGCucumberTests with parallel threads.",
+      "javaCode": "// TestNG: test written as a Java method\n@Test(groups = \"smoke\", dataProvider = \"users\")\npublic void login(String username, String password) {\n    new LoginPage(driver).login(username, password);\n    Assert.assertTrue(driver.getCurrentUrl().contains(\"inventory\"));\n}\n\n# Cucumber: the same test written as a specification\n@smoke\nScenario Outline: Successful login\n  Given the user is on the login page\n  When the user logs in with \"<username>\" and \"<password>\"\n  Then the products page is displayed\n\n  Examples:\n    | username      | password     |\n    | standard_user | secret_sauce |",
+      "buzzWords": [
+        "BDD Tool vs Test Execution Framework",
+        "Gherkin Scenarios vs @Test Methods",
+        "Tags vs Groups",
+        "Hooks vs Before/After Annotations",
+        "Often Used Together"
+      ]
+    },
+    {
+      "id": 17,
+      "level": "Expert",
+      "topic": "Integration",
+      "question": "How do you pass the browser name from a Jenkinsfile to a Cucumber step definition?",
+      "answer": "The value travels through four links: Jenkins parameter, Maven command, Java system property, and the framework code that creates the driver. (1) In the Jenkinsfile, declare a build parameter, for example a choice parameter named BROWSER with the values chrome, firefox and edge. (2) In the stage that runs the tests, pass it to Maven as a system property: mvn clean test -Dbrowser=${params.BROWSER}. Maven Surefire passes properties given with -D on to the JVM that runs the tests. (3) In the test code, read it with System.getProperty(\"browser\", \"chrome\"), where the second argument is the default used for local runs. (4) Read it in the right place. The browser is a technical setting, so it should be read in the @Before hook or the driver factory, which then creates the matching WebDriver. Step definitions do not read the property; they simply use the driver, obtained from a ThreadLocal driver manager or the injected scenario context. The browser name should not be written in the feature file, because it is not business behaviour. If a step definition does need the value, for example to skip an action on one browser, expose it through the shared context or read the same system property. The same route carries other settings such as the environment and the tag expression: -Denv=${params.ENV} and -Dcucumber.filter.tags=\"${params.TAGS}\".",
+      "realTimeExample": "A tester opens the Jenkins job, chooses 'edge' and '@smoke' from the dropdowns and clicks Build. The pipeline runs 'mvn clean test -Dbrowser=edge -Dcucumber.filter.tags=\"@smoke\"', the @Before hook starts Edge, and the smoke scenarios run without any file being edited.",
+      "javaCode": "// Jenkinsfile\npipeline {\n    agent any\n    parameters {\n        choice(name: 'BROWSER', choices: ['chrome', 'firefox', 'edge'], description: 'Browser')\n        string(name: 'TAGS', defaultValue: '@smoke', description: 'Cucumber tag expression')\n    }\n    stages {\n        stage('Test') {\n            steps {\n                sh \"mvn clean test -Dbrowser=${params.BROWSER} -Dcucumber.filter.tags='${params.TAGS}'\"\n            }\n        }\n    }\n}\n\n// Hooks.java: the value is read where the driver is created\npublic class Hooks {\n\n    @Before(\"@ui\")\n    public void setUp() {\n        String browser = System.getProperty(\"browser\", \"chrome\");\n        WebDriver driver;\n\n        switch (browser.toLowerCase()) {\n            case \"firefox\": driver = new FirefoxDriver(); break;\n            case \"edge\":    driver = new EdgeDriver();    break;\n            default:        driver = new ChromeDriver();\n        }\n        DriverManager.setDriver(driver);\n    }\n}\n\n// Step definition: uses the driver, does not care which browser it is\n@Given(\"the user is on the login page\")\npublic void openLoginPage() {\n    DriverManager.getDriver().get(\"https://www.saucedemo.com/\");\n}",
+      "buzzWords": [
+        "Jenkins Build Parameter",
+        "mvn test -Dbrowser=...",
+        "System.getProperty(\"browser\")",
+        "Read in @Before Hook / Driver Factory",
+        "Not in the Feature File"
+      ]
+    }
+  ]
+}

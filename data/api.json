@@ -1,0 +1,36 @@
+{
+  "questions": [
+    {
+      "id": 1,
+      "level": "Beginner",
+      "topic": "HTTP Status Codes",
+      "question": "What is the difference between HTTP status codes 500 and 503?",
+      "answer": "Both are 5xx codes, which mean the server failed to handle a request that may have been valid. 500 Internal Server Error is a general error: something unexpected went wrong inside the application while processing the request, such as an unhandled exception, a null value, a failed database query or a coding defect. The server is running but this request broke it. Sending the same request again usually fails in the same way until the defect is fixed. 503 Service Unavailable means the server is temporarily unable to handle requests at all: it is overloaded, down for maintenance, restarting, or a service it depends on is not reachable. The problem is with availability, not with a particular request. It is expected to recover, and the response may include a Retry-After header telling the client when to try again. For a tester: a 500 on a specific input is normally a defect to report with the request, the response body and the server log; a 503 points to the environment or infrastructure, so check whether the service is up and retry later.",
+      "realTimeExample": "Sending a POST /orders request with a quantity of -1 returns 500 because the code does not validate the value and an exception is thrown; that is a defect (it should have been a 400). During a deployment window every endpoint returns 503 for two minutes and then works again; that is an environment condition, not a defect in the endpoint.",
+      "javaCode": "// REST Assured: assert the status code and inspect the error\nResponse response = given()\n        .contentType(ContentType.JSON)\n        .body(\"{\\\"productId\\\": 10, \\\"quantity\\\": -1}\")\n.when()\n        .post(\"https://api.example.com/orders\");\n\nint status = response.statusCode();\nSystem.out.println(\"Status: \" + status);\n\nif (status == 503) {\n    System.out.println(\"Service unavailable. Retry-After: \" + response.header(\"Retry-After\"));\n} else if (status == 500) {\n    System.out.println(\"Server error body: \" + response.asString());\n}\n\n// A negative input should be rejected by validation, not crash the server\nAssert.assertEquals(status, 400, \"Invalid quantity should return 400 Bad Request\");",
+      "buzzWords": [
+        "5xx: Server-Side Errors",
+        "500: Unexpected Application Error",
+        "503: Temporarily Unavailable",
+        "Retry-After Header",
+        "Defect vs Environment Issue"
+      ]
+    },
+    {
+      "id": 2,
+      "level": "Intermediate",
+      "topic": "REST Assured",
+      "question": "What is the use of Request Specification and Response Specification in Rest Assured?",
+      "answer": "They remove repetition from API tests. Most requests to one API share the same settings, and most responses share the same basic expectations; specifications let you define these once and reuse them. RequestSpecification holds the common parts of a request: base URI and base path, headers, content type, authentication, query or path parameters, cookies and logging. It is built with RequestSpecBuilder and applied with given().spec(requestSpec). ResponseSpecification holds the common checks on a response: expected status code, content type, headers, a maximum response time and body assertions. It is built with ResponseSpecBuilder and applied with then().spec(responseSpec). Benefits: tests become shorter and show only what is specific to them; a change such as a new base URL or token is made in one place; and all tests apply the same standard checks. A test can still add its own headers, parameters or assertions on top of a specification. Specifications can also be set globally through RestAssured.requestSpecification and RestAssured.responseSpecification, though passing them explicitly is clearer and safer when tests run in parallel. Different specifications can be kept for different purposes, for example one with an admin token and one without authentication.",
+      "realTimeExample": "Forty tests call the same API with the same base URL, a JSON content type and a bearer token, and all expect JSON back within two seconds. Those settings live in two specification objects created in a base class, so each test contains only its endpoint, its payload and its own assertions. When the token header name changed, one line was edited.",
+      "javaCode": "import static io.restassured.RestAssured.given;\nimport static org.hamcrest.Matchers.*;\n\npublic class UserApiTest {\n    private static RequestSpecification requestSpec;\n    private static ResponseSpecification responseSpec;\n\n    @BeforeClass\n    public void setUp() {\n        requestSpec = new RequestSpecBuilder()\n                .setBaseUri(\"https://api.example.com\")\n                .setBasePath(\"/v1\")\n                .setContentType(ContentType.JSON)\n                .addHeader(\"Authorization\", \"Bearer \" + System.getenv(\"API_TOKEN\"))\n                .log(LogDetail.URI)\n                .build();\n\n        responseSpec = new ResponseSpecBuilder()\n                .expectStatusCode(200)\n                .expectContentType(ContentType.JSON)\n                .expectResponseTime(lessThan(2000L))\n                .build();\n    }\n\n    @Test\n    public void getUser() {\n        given()\n                .spec(requestSpec)\n                .pathParam(\"id\", 7)                 // test-specific addition\n        .when()\n                .get(\"/users/{id}\")\n        .then()\n                .spec(responseSpec)\n                .body(\"id\", equalTo(7))             // test-specific assertion\n                .body(\"email\", notNullValue());\n    }\n\n    @Test\n    public void listUsers() {\n        given()\n                .spec(requestSpec)\n                .queryParam(\"page\", 1)\n        .when()\n                .get(\"/users\")\n        .then()\n                .spec(responseSpec)\n                .body(\"data.size()\", greaterThan(0));\n    }\n}",
+      "buzzWords": [
+        "RequestSpecBuilder",
+        "ResponseSpecBuilder",
+        "given().spec() / then().spec()",
+        "Reuse Common Settings",
+        "Single Point of Change"
+      ]
+    }
+  ]
+}
