@@ -2,11 +2,517 @@
   "questions": [
     {
       "id": 1,
-      "topic": "Basics",
-      "difficulty": "Beginner",
-      "question": "What is Playwright?",
-      "answer": "Playwright is an automation framework used for testing web applications across different browsers.",
-      "example": "await page.goto('https://example.com');"
+      "level": "Beginner",
+      "topic": "Architecture & Framework",
+      "question": "What is Playwright? Explain its architecture and execution model.",
+      "answer": "Playwright is an open-source browser automation and testing framework from Microsoft. It drives Chromium (Chrome and Edge), Firefox and WebKit (the engine of Safari) with one API, and supports TypeScript, JavaScript, Python, Java and .NET. Architecture: your test code is the client. It talks to the Playwright server (the driver process) over a single WebSocket connection that stays open for the whole session, so commands and events travel both ways without a new HTTP request per action. The server controls the browsers directly through their debugging protocols: the Chrome DevTools Protocol for Chromium and equivalent protocols for its own builds of Firefox and WebKit. There is no separate driver executable per browser as in Selenium. Object model: a Browser is one browser process; a BrowserContext is an isolated session inside it, like a fresh incognito profile, with its own cookies and storage; a Page is a tab inside a context. Execution model with the Playwright Test runner: tests run in parallel worker processes; each test gets a new context and page, so tests are isolated; actions wait automatically until the element is ready; and assertions retry until they pass or time out.",
+      "realTimeExample": "Running 'npx playwright test' with four workers starts four processes. Each launches a browser, and every test receives its own context, so a login cookie set by one test is never seen by another, even though they share a browser.",
+      "code": "import { test, expect } from '@playwright/test';\n\n// The runner supplies 'page': a new tab in a new, isolated browser context\ntest('home page has the right title', async ({ page }) => {\n  await page.goto('https://playwright.dev/');\n  await expect(page).toHaveTitle(/Playwright/);\n});\n\n// The same model written out by hand\nimport { chromium } from '@playwright/test';\n\nasync function manual() {\n  const browser = await chromium.launch();          // Browser: one process\n  const context = await browser.newContext();       // BrowserContext: isolated session\n  const page = await context.newPage();             // Page: a tab\n  await page.goto('https://playwright.dev/');\n  await browser.close();\n}",
+      "buzzWords": [
+        "Chromium, Firefox, WebKit",
+        "Single WebSocket Connection",
+        "Browser > Context > Page",
+        "Worker Processes",
+        "Auto-Waiting"
+      ]
+    },
+    {
+      "id": 2,
+      "level": "Intermediate",
+      "topic": "Architecture & Framework",
+      "question": "Explain your Playwright framework architecture and folder structure, and how you would design it to scale.",
+      "answer": "Describe it in layers. Configuration: playwright.config.ts is the centre. It defines the test directory, timeouts, retries, number of workers, reporters, the shared 'use' options (baseURL, trace, screenshot, video) and 'projects', which are named configurations such as chromium, firefox, webkit or a mobile device. Tests: spec files under tests/, grouped by feature, containing only business steps and assertions. Page objects: one class per page or component under pages/, holding locators and actions. Fixtures: custom fixtures that create page objects, logged-in sessions and test data and hand them to tests, replacing base classes and beforeEach duplication. Utilities and API helpers: data generators and API clients used to create data quickly. Test data and environment: JSON files and .env files per environment, with secrets coming from CI variables. Authentication: a setup project logs in once and saves the storage state, which other projects reuse. Reporting: HTML report plus JUnit or Allure for CI, with traces on failure. To scale: keep tests independent so they run fully in parallel; create data through APIs; tag tests (@smoke, @regression) and run subsets with --grep; split the suite across CI machines with --shard; use lint rules and code review; and track flaky tests.",
+      "realTimeExample": "A suite of 900 tests runs on every pull request as a 60-test @smoke set in four minutes, and nightly as the full suite split into six shards on six agents, each with four workers, finishing in about fifteen minutes.",
+      "code": "project-root\n|-- playwright.config.ts          (projects, workers, retries, reporters, use options)\n|-- package.json\n|-- .env.qa / .env.staging        (base URLs; secrets come from CI variables)\n|-- tests/\n|   |-- auth.setup.ts             (logs in once, saves storage state)\n|   |-- login/login.spec.ts\n|   |-- cart/cart.spec.ts\n|   |-- api/users.api.spec.ts\n|-- pages/\n|   |-- LoginPage.ts\n|   |-- CartPage.ts\n|   |-- components/Header.ts\n|-- fixtures/\n|   |-- test.ts                   (test.extend with page objects and data)\n|-- utils/\n|   |-- apiClient.ts\n|   |-- dataFactory.ts\n|-- test-data/users.json\n|-- playwright-report/  test-results/   (generated, ignored by Git)\n\n// playwright.config.ts\nimport { defineConfig, devices } from '@playwright/test';\n\nexport default defineConfig({\n  testDir: './tests',\n  fullyParallel: true,\n  retries: process.env.CI ? 1 : 0,\n  workers: process.env.CI ? 4 : undefined,\n  reporter: [['html'], ['junit', { outputFile: 'results/junit.xml' }]],\n  use: {\n    baseURL: process.env.BASE_URL || 'https://qa.example.com',\n    trace: 'on-first-retry',\n    screenshot: 'only-on-failure',\n    video: 'retain-on-failure'\n  },\n  projects: [\n    { name: 'setup', testMatch: /.*\\.setup\\.ts/ },\n    { name: 'chromium', use: { ...devices['Desktop Chrome'] }, dependencies: ['setup'] },\n    { name: 'firefox', use: { ...devices['Desktop Firefox'] }, dependencies: ['setup'] }\n  ]\n});",
+      "buzzWords": [
+        "playwright.config.ts",
+        "Projects",
+        "Page Objects + Fixtures",
+        "Storage-State Setup Project",
+        "Tags and Sharding"
+      ]
+    },
+    {
+      "id": 3,
+      "level": "Intermediate",
+      "topic": "Architecture & Framework",
+      "question": "Selenium versus Playwright: what are the key differences, why did you choose Playwright, and when would you pick one over the other?",
+      "answer": "Protocol: Selenium sends each command as an HTTP request using the W3C WebDriver standard through a separate driver for each browser. Playwright keeps one WebSocket connection and controls browsers through their debugging protocols, which is faster and lets the browser push events to the test. Waiting: Selenium needs explicit waits written by the tester. Playwright waits automatically before each action and its assertions retry. Isolation: Selenium usually starts a browser per test. Playwright creates a lightweight browser context per test, which is quicker. Built-in features: Playwright includes a test runner, parallel execution, network interception and mocking, API testing, trace viewer, video, screenshots and a code generator. Selenium needs TestNG or JUnit, a Grid and extra libraries for these. Browsers: Selenium drives real installed browsers including Safari and older versions. Playwright uses bundled Chromium, Firefox and WebKit builds; WebKit is close to Safari but is not Safari itself. Languages and ecosystem: Selenium supports more languages, including Ruby, and has the larger community and the widest cloud support. Choose Playwright for a new project on a modern web application, especially with a JavaScript or TypeScript team. Choose or keep Selenium for a large existing Java suite, for legacy or real Safari browser coverage, or where organisational tooling is built around WebDriver and Grid.",
+      "realTimeExample": "A team moved a React application's tests to Playwright because half their Selenium failures were timing problems. Auto-waiting removed most explicit waits, and the trace viewer cut failure analysis time. Their older Java suite for an internal legacy application stayed on Selenium.",
+      "code": "// Selenium (Java): explicit wait written by the tester\n// WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));\n// wait.until(ExpectedConditions.elementToBeClickable(By.id(\"login\"))).click();\n// Assert.assertEquals(driver.findElement(By.id(\"msg\")).getText(), \"Welcome\");\n\n// Playwright (TypeScript): waiting is built in\nimport { test, expect } from '@playwright/test';\n\ntest('login', async ({ page }) => {\n  await page.goto('/login');\n  await page.getByRole('button', { name: 'Login' }).click();     // waits until it is clickable\n  await expect(page.getByText('Welcome')).toBeVisible();          // retries until visible\n});",
+      "buzzWords": [
+        "WebDriver over HTTP vs WebSocket",
+        "Auto-Wait vs Explicit Waits",
+        "Browser Context Isolation",
+        "Built-in Runner, Tracing and Mocking",
+        "Real Safari and Legacy: Selenium"
+      ]
+    },
+    {
+      "id": 4,
+      "level": "Intermediate",
+      "topic": "Architecture & Framework",
+      "question": "How do TypeScript types improve automation framework reliability?",
+      "answer": "TypeScript adds static types to JavaScript, so many mistakes are found by the compiler and the editor before any test runs. (1) Typos and wrong usage are caught early: a misspelt method, a missing argument or passing a number where a string is expected is flagged as you type, instead of failing halfway through a run. (2) Test data has a defined shape: an interface such as User { email: string; role: 'admin' | 'viewer' } guarantees every data object has the right fields, and a union type restricts a value to the allowed options. (3) API responses can be typed, so reading a field that does not exist is a compile error. (4) Page objects and fixtures are typed, so a test knows exactly which methods a page offers and what they return. (5) Refactoring is safe: renaming a method updates all uses, and anything missed fails to compile. (6) Editor support: auto-completion and inline documentation make tests quicker to write. (7) Missing awaits can be caught with the lint rule no-floating-promises, a common cause of flaky tests. (8) null and undefined are checked when strict mode is on. Types are checked only at compile time, so data arriving at run time, such as an API response, still needs validation. Run 'tsc --noEmit' in CI, because the Playwright runner does not type-check by itself.",
+      "realTimeExample": "A developer renamed the fixture option from userRole to role. In plain JavaScript, 40 tests would have silently received undefined and failed at run time. With TypeScript, the build failed immediately and listed every line to fix.",
+      "code": "// Shape of test data: wrong or missing fields are compile errors\ninterface User {\n  email: string;\n  password: string;\n  role: 'admin' | 'manager' | 'viewer';      // only these values are allowed\n}\n\nconst admin: User = { email: 'admin@test.com', password: 'Secret@1', role: 'admin' };\n// const bad: User = { email: 'x@test.com', role: 'owner' };   // error: 'owner' not allowed, password missing\n\n// Typed page object\nimport { Page, Locator } from '@playwright/test';\n\nexport class LoginPage {\n  private readonly username: Locator;\n  private readonly password: Locator;\n  private readonly submit: Locator;\n\n  constructor(private readonly page: Page) {\n    this.username = page.getByLabel('Username');\n    this.password = page.getByLabel('Password');\n    this.submit = page.getByRole('button', { name: 'Login' });\n  }\n\n  async login(user: User): Promise<void> {\n    await this.username.fill(user.email);\n    await this.password.fill(user.password);\n    await this.submit.click();\n  }\n}\n\n// Typed API response\ninterface OrderResponse { id: number; status: 'PAID' | 'PENDING'; total: number; }\n// const order = (await response.json()) as OrderResponse;\n// order.totl   -> compile error: property 'totl' does not exist",
+      "buzzWords": [
+        "Compile-Time Error Detection",
+        "Interfaces for Test Data",
+        "Union Types",
+        "Safe Refactoring",
+        "tsc --noEmit in CI"
+      ]
+    },
+    {
+      "id": 5,
+      "level": "Intermediate",
+      "topic": "Architecture & Framework",
+      "question": "How have you implemented the Page Object Model in Playwright?",
+      "answer": "Each page or reusable component is a TypeScript class. The constructor receives the Playwright Page and creates the locators once, stored as private readonly fields. Because a Locator is only a description of how to find an element, and is resolved again each time it is used, creating it early is safe and does not go stale. Public methods describe user actions, such as login() or addToCart(), and methods that read state return values or locators. Assertions are kept in the tests using expect, though a page may expose a locator for the test to assert on. Shared parts such as the header become component classes used by several pages. The page objects are given to tests through custom fixtures rather than being created with 'new' in every test: the fixture builds the object and the test asks for it by name. Compared with Selenium page objects, no explicit waits are written in the methods, since Playwright actions wait automatically. Keep page objects free of test logic and do not put all methods in one large base class.",
+      "realTimeExample": "A test reads: await loginPage.goto(); await loginPage.login(user); await expect(dashboard.heading).toBeVisible(). When the login button's label changed, one locator in LoginPage was edited and thirty tests kept working.",
+      "code": "// pages/LoginPage.ts\nimport { Page, Locator } from '@playwright/test';\n\nexport class LoginPage {\n  private readonly username: Locator;\n  private readonly password: Locator;\n  private readonly loginButton: Locator;\n  readonly error: Locator;                       // exposed for assertions\n\n  constructor(private readonly page: Page) {\n    this.username = page.getByPlaceholder('Username');\n    this.password = page.getByPlaceholder('Password');\n    this.loginButton = page.getByRole('button', { name: 'Login' });\n    this.error = page.locator('[data-test=\"error\"]');\n  }\n\n  async goto(): Promise<void> {\n    await this.page.goto('https://www.saucedemo.com/');\n  }\n\n  async login(user: string, pass: string): Promise<void> {\n    await this.username.fill(user);\n    await this.password.fill(pass);\n    await this.loginButton.click();\n  }\n}\n\n// tests/login.spec.ts\nimport { test, expect } from '@playwright/test';\nimport { LoginPage } from '../pages/LoginPage';\n\ntest('locked user sees an error', async ({ page }) => {\n  const loginPage = new LoginPage(page);\n  await loginPage.goto();\n  await loginPage.login('locked_out_user', 'secret_sauce');\n  await expect(loginPage.error).toContainText('locked out');\n});",
+      "buzzWords": [
+        "Class per Page",
+        "Locators Created in the Constructor",
+        "Action Methods",
+        "Assertions in Tests",
+        "Provided Through Fixtures"
+      ]
+    },
+    {
+      "id": 6,
+      "level": "Expert",
+      "topic": "Architecture & Framework",
+      "question": "How do you implement fixtures, and how would you design reusable Playwright fixtures?",
+      "answer": "A fixture is a named piece of setup that the test runner prepares for a test and cleans up afterwards. A test receives fixtures by listing their names in its function parameters. Playwright has built-in fixtures: page, context, browser, request and browserName. Custom fixtures are created with test.extend. Each fixture is an async function that receives other fixtures and a 'use' callback: code before 'await use(value)' is the setup, the value passed to use() is what the test receives, and code after it is the teardown, which runs even if the test fails. Benefits over beforeEach and afterEach: a fixture is created only for tests that ask for it; setup and teardown sit together; fixtures can depend on other fixtures; and they are shared by importing one 'test' object. Scopes: test scope, the default, creates the fixture for each test; worker scope ({ scope: 'worker' }) creates it once per worker process, suitable for expensive things such as a test account or a database connection. Other options: { auto: true } runs a fixture for every test without it being requested, and option fixtures let a value be set in the config. Design guidelines: one responsibility per fixture, typed with a TypeScript interface; page-object fixtures; data fixtures that create data through an API and delete it afterwards; an authenticated-page fixture; and one fixtures file that tests import instead of '@playwright/test'.",
+      "realTimeExample": "A 'testUser' fixture creates a user through the API before the test and deletes it afterwards. A 'loggedInPage' fixture depends on testUser and logs in. A test that lists loggedInPage in its parameters starts already signed in, with a user that exists only for that test.",
+      "code": "// fixtures/test.ts\nimport { test as base, expect, Page } from '@playwright/test';\nimport { LoginPage } from '../pages/LoginPage';\n\ntype User = { id: string; email: string; password: string };\n\ntype Fixtures = {\n  loginPage: LoginPage;\n  testUser: User;\n  loggedInPage: Page;\n};\n\nexport const test = base.extend<Fixtures>({\n  // Page-object fixture\n  loginPage: async ({ page }, use) => {\n    await use(new LoginPage(page));\n  },\n\n  // Data fixture with setup and teardown\n  testUser: async ({ request }, use) => {\n    const email = `user_${Date.now()}@test.com`;\n    const response = await request.post('/api/users', { data: { email, password: 'Test@123' } });\n    const user = { ...(await response.json()), email, password: 'Test@123' } as User;\n\n    await use(user);                                        // the test runs here\n\n    await request.delete(`/api/users/${user.id}`);          // teardown, even if the test failed\n  },\n\n  // Fixture that depends on other fixtures\n  loggedInPage: async ({ page, loginPage, testUser }, use) => {\n    await loginPage.goto();\n    await loginPage.login(testUser.email, testUser.password);\n    await use(page);\n  }\n});\n\nexport { expect };\n\n// tests/profile.spec.ts\nimport { test, expect } from '../fixtures/test';\n\ntest('user can open the profile', async ({ loggedInPage, testUser }) => {\n  await loggedInPage.goto('/profile');\n  await expect(loggedInPage.getByText(testUser.email)).toBeVisible();\n});",
+      "buzzWords": [
+        "test.extend()",
+        "await use(value)",
+        "Setup Before, Teardown After",
+        "Test Scope vs Worker Scope",
+        "Created Only When Requested"
+      ]
+    },
+    {
+      "id": 7,
+      "level": "Intermediate",
+      "topic": "Architecture & Framework",
+      "question": "When and why would you use isolated browser contexts, and how do they compare with Selenium sessions?",
+      "answer": "A BrowserContext is an independent browser session inside one browser process, comparable to a separate incognito window. Each context has its own cookies, local storage, session storage, cache and permissions, so nothing leaks between contexts. Creating one takes a few milliseconds and little memory, because the browser process is already running. Why they are used: (1) test isolation: the Playwright Test runner gives every test a new context automatically, so tests cannot affect each other and can run in parallel; (2) multiple users in one test: open two contexts, log in as different users, and verify an interaction such as a chat message or an approval flow; (3) different settings per context: viewport, device emulation, locale, time zone, geolocation, permissions, HTTP credentials and saved storage state; (4) reusing login by loading a storage state into a new context. Comparison with Selenium: a Selenium session is one WebDriver instance tied to one browser process. Getting a clean state normally means quitting the browser and starting a new one, which takes seconds, and two users at once require two browsers. Selenium isolates by process; Playwright isolates by context, which is much lighter.",
+      "realTimeExample": "A test for a support chat opens one context as the customer and another as the agent. The customer sends 'Hello', and the test asserts the message appears in the agent's page within the same test, with two separate logins and one browser.",
+      "code": "import { test, expect } from '@playwright/test';\n\ntest('agent receives the customer message', async ({ browser }) => {\n  // Two isolated sessions in one browser\n  const customerContext = await browser.newContext();\n  const agentContext = await browser.newContext({ locale: 'en-GB', timezoneId: 'Europe/London' });\n\n  const customerPage = await customerContext.newPage();\n  const agentPage = await agentContext.newPage();\n\n  await customerPage.goto('/chat?user=customer');\n  await agentPage.goto('/chat?user=agent');\n\n  await customerPage.getByPlaceholder('Type a message').fill('Hello');\n  await customerPage.getByRole('button', { name: 'Send' }).click();\n\n  await expect(agentPage.getByText('Hello')).toBeVisible();\n\n  await customerContext.close();\n  await agentContext.close();\n});\n\n// Device emulation in its own context\n// const mobile = await browser.newContext({ ...devices['iPhone 14'] });",
+      "buzzWords": [
+        "Isolated Session",
+        "Separate Cookies and Storage",
+        "Cheap to Create",
+        "Multiple Users in One Test",
+        "Lighter Than a New Browser"
+      ]
+    },
+    {
+      "id": 8,
+      "level": "Intermediate",
+      "topic": "Architecture & Framework",
+      "question": "How do you bypass login screens using saved browser storage state?",
+      "answer": "Logging in through the UI before every test is slow and adds failures unrelated to the feature under test. Playwright can save the signed-in state once and reuse it. After logging in, context.storageState({ path }) writes the cookies and local storage of that context to a JSON file. A new context created with that file starts already authenticated. The recommended setup has three parts. (1) A setup project: a file such as auth.setup.ts logs in through the UI, or faster through an API request, and saves the state to a file such as playwright/.auth/user.json. (2) The test projects in the config declare dependencies: ['setup'] and set use: { storageState: 'playwright/.auth/user.json' }. (3) Tests then open application pages directly without seeing the login page. For several roles, save one file per role and select it with test.use({ storageState: ... }) in a file or describe block. Tests that check the login page itself use an empty state: test.use({ storageState: { cookies: [], origins: [] } }). Cautions: the file contains real session tokens, so add it to .gitignore; sessions expire, so regenerate the state on each run; and if tests change server-side data for the account, give each parallel worker its own account.",
+      "realTimeExample": "A suite of 300 tests spent about six seconds logging in per test, thirty minutes in total across the run. With a setup project that logs in once and saves the state, every test starts on its target page and the run is far shorter.",
+      "code": "// tests/auth.setup.ts\nimport { test as setup, expect } from '@playwright/test';\n\nconst authFile = 'playwright/.auth/user.json';\n\nsetup('authenticate', async ({ page }) => {\n  await page.goto('/login');\n  await page.getByLabel('Username').fill(process.env.APP_USER!);\n  await page.getByLabel('Password').fill(process.env.APP_PASSWORD!);\n  await page.getByRole('button', { name: 'Login' }).click();\n  await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible();\n\n  await page.context().storageState({ path: authFile });      // save cookies + local storage\n});\n\n// playwright.config.ts\n// projects: [\n//   { name: 'setup', testMatch: /.*\\.setup\\.ts/ },\n//   {\n//     name: 'chromium',\n//     use: { ...devices['Desktop Chrome'], storageState: 'playwright/.auth/user.json' },\n//     dependencies: ['setup']\n//   }\n// ]\n\n// tests/orders.spec.ts: already logged in\nimport { test, expect } from '@playwright/test';\n\ntest('orders page opens directly', async ({ page }) => {\n  await page.goto('/orders');\n  await expect(page.getByRole('heading', { name: 'My Orders' })).toBeVisible();\n});\n\n// Tests of the login page itself start signed out\n// test.use({ storageState: { cookies: [], origins: [] } });",
+      "buzzWords": [
+        "context.storageState({ path })",
+        "Setup Project",
+        "dependencies: ['setup']",
+        "Cookies and Local Storage",
+        "Keep the Auth File out of Git"
+      ]
+    },
+    {
+      "id": 9,
+      "level": "Intermediate",
+      "topic": "Architecture & Framework",
+      "question": "How do you execute Playwright tests in parallel, and how do you keep that safe?",
+      "answer": "Parallelism is built into the test runner. It starts several worker processes; each worker runs test files one after another with its own browser. By default, different files run in parallel and the tests inside one file run in order. Setting fullyParallel: true in the config, or test.describe.configure({ mode: 'parallel' }) in a file, also runs the tests within a file in parallel. The number of workers is set with 'workers' in the config or --workers on the command line; the default is half the CPU cores. To spread a suite over several CI machines, use sharding: --shard=1/4 on the first machine, --shard=2/4 on the second and so on, then merge the reports. Tests that must run in order can use mode: 'serial', though that is discouraged. Keeping it safe: (1) each test already gets a fresh context, so browser state is isolated; (2) server-side data is not isolated, so every test creates its own unique data; (3) no shared mutable variables at module level, because workers are separate processes and do not share memory anyway; (4) one account per worker when tests modify account data, using testInfo.parallelIndex or workerIndex to pick it; (5) no dependence on execution order; (6) worker count matched to the machine, since too many workers cause timeouts; (7) unique file names for downloads.",
+      "realTimeExample": "A suite ran in 22 minutes with one worker. With fullyParallel and four workers it dropped to six minutes, but three tests that all edited the same user's profile began failing at random. Giving each worker its own user, chosen by parallelIndex, fixed them.",
+      "code": "// playwright.config.ts\nimport { defineConfig } from '@playwright/test';\n\nexport default defineConfig({\n  fullyParallel: true,                         // tests inside a file also run in parallel\n  workers: process.env.CI ? 4 : undefined,     // default: half of the CPU cores\n  retries: process.env.CI ? 1 : 0\n});\n\n// One file opting in or out\nimport { test } from '@playwright/test';\ntest.describe.configure({ mode: 'parallel' });   // or 'serial'\n\n// One account per worker, so parallel tests do not share server-side data\ntest('update profile', async ({ page }, testInfo) => {\n  const user = `qa_user_${testInfo.parallelIndex}@test.com`;\n  // log in as this worker's user ...\n});\n\n// Command line\n// npx playwright test --workers=6\n// npx playwright test --shard=1/4        (machine 1 of 4)\n// npx playwright test --grep @smoke",
+      "buzzWords": [
+        "Worker Processes",
+        "fullyParallel: true",
+        "--workers and --shard",
+        "Fresh Context per Test",
+        "Unique Data per Test or Worker"
+      ]
+    },
+    {
+      "id": 10,
+      "level": "Intermediate",
+      "topic": "Architecture & Framework",
+      "question": "How do you structure API tests using Playwright?",
+      "answer": "Playwright can send HTTP requests without opening a browser, through the APIRequestContext. In tests it is available as the built-in 'request' fixture, which offers get(), post(), put(), patch() and delete(). The response object gives status(), ok(), headers() and json() or text(). Structure: (1) Configuration: set baseURL and extraHTTPHeaders, such as the Authorization header, under 'use' in the config, usually in a dedicated 'api' project. (2) Layout: spec files grouped by resource under tests/api/. (3) Helper layer: small API client classes or functions wrapping the endpoints, so tests read as business steps and the same helpers can create test data for UI tests. (4) Types: interfaces for request and response bodies. (5) Assertions: status code, headers, body fields with expect, and optionally schema validation with a library such as Ajv or Zod. (6) Fixtures: an authenticated request context, and data fixtures that create and delete records. (7) Coverage: positive and negative cases, and CRUD flows where the id returned by POST is used in later calls. A major advantage is mixing API and UI: create data through the API, verify it in the UI, or the reverse, in one test. page.request shares cookies with the browser context.",
+      "realTimeExample": "A test creates an order with a POST request, opens the 'My Orders' page in the browser and asserts the new order is listed, then deletes it with a DELETE request. The three-second API setup replaces a forty-second UI flow.",
+      "code": "import { test, expect } from '@playwright/test';\n\n// playwright.config.ts -> use: { baseURL: 'https://api.example.com', extraHTTPHeaders: { Authorization: `Bearer ${process.env.API_TOKEN}` } }\n\ninterface User { id: number; name: string; job: string; }\n\ntest.describe('Users API', () => {\n  test('create, read and delete a user', async ({ request }) => {\n    // Create\n    const created = await request.post('/users', { data: { name: 'Asha', job: 'QA' } });\n    expect(created.status()).toBe(201);\n    const user = (await created.json()) as User;\n    expect(user.name).toBe('Asha');\n\n    // Read: the id from the first call is used in the second\n    const fetched = await request.get(`/users/${user.id}`);\n    expect(fetched.ok()).toBeTruthy();\n    expect(fetched.headers()['content-type']).toContain('application/json');\n    expect(await fetched.json()).toMatchObject({ id: user.id, job: 'QA' });\n\n    // Delete\n    const removed = await request.delete(`/users/${user.id}`);\n    expect(removed.status()).toBe(204);\n  });\n\n  test('unknown user returns 404', async ({ request }) => {\n    const response = await request.get('/users/999999');\n    expect(response.status()).toBe(404);\n  });\n});\n\n// API + UI in one test\ntest('order created by API is visible in the UI', async ({ request, page }) => {\n  const order = await (await request.post('/orders', { data: { productId: 10 } })).json();\n  await page.goto('/orders');\n  await expect(page.getByText(`Order #${order.id}`)).toBeVisible();\n});",
+      "buzzWords": [
+        "request Fixture",
+        "APIRequestContext",
+        "baseURL and extraHTTPHeaders",
+        "status(), ok(), json()",
+        "API Setup for UI Tests"
+      ]
+    },
+    {
+      "id": 11,
+      "level": "Beginner",
+      "topic": "Locators, Waits & Interactions",
+      "question": "Which locator strategies do you use in Playwright, and how do you design stable or dynamic locators for dynamic UIs?",
+      "answer": "A Locator describes how to find an element; it is resolved each time it is used, so it does not go stale. Playwright recommends locating elements the way a user perceives them. In order of preference: getByRole() with an accessible name, for buttons, links, headings, checkboxes and similar; getByLabel() for form fields; getByPlaceholder(); getByText() for non-interactive content; getByAltText() for images; getByTitle(); and getByTestId() for a dedicated data-testid attribute agreed with developers. page.locator() with CSS or XPath is the fallback. For dynamic UIs: (1) avoid generated ids and class names, which change with every build; (2) narrow down with chaining and filter() instead of positions: locate a container such as a list item or table row, filter it by text or by a child locator, then find the button inside it; (3) build locators from data, for example a function that takes a product name and returns the locator of that product's row; (4) use regular expressions or exact: false for text that partly changes; (5) use first(), last() or nth() only when position is the real requirement; (6) rely on strictness: an action on a locator that matches several elements fails, which reveals ambiguous locators early. The Playwright code generator and Inspector suggest locators, which should then be reviewed.",
+      "realTimeExample": "In a product list every card has an 'Add to cart' button with a generated class. The test finds the list item that contains the text 'Backpack' and clicks the 'Add to cart' button inside it, which keeps working when the order of the cards or the class names change.",
+      "code": "import { test, expect, Page, Locator } from '@playwright/test';\n\ntest('locator strategies', async ({ page }) => {\n  await page.getByRole('button', { name: 'Sign in' }).click();\n  await page.getByLabel('Email').fill('asha@test.com');\n  await page.getByPlaceholder('Search products').fill('backpack');\n  await expect(page.getByText('Welcome back')).toBeVisible();\n  await page.getByTestId('checkout-button').click();\n\n  // Fallbacks\n  await page.locator('#coupon').fill('SAVE10');\n  await page.locator('//table[@id=\"orders\"]//tr[1]').click();\n});\n\n// Dynamic locator: container filtered by its content, then the element inside it\nfunction productCard(page: Page, name: string): Locator {\n  return page.getByRole('listitem').filter({ hasText: name });\n}\n\ntest('add a specific product', async ({ page }) => {\n  await productCard(page, 'Backpack').getByRole('button', { name: 'Add to cart' }).click();\n\n  // Row that contains a given cell, then an action in that row\n  const row = page.getByRole('row').filter({ has: page.getByRole('cell', { name: 'ORD-48213' }) });\n  await row.getByRole('button', { name: 'View' }).click();\n\n  // Partly changing text\n  await expect(page.getByText(/Order #\\d+ placed/)).toBeVisible();\n});",
+      "buzzWords": [
+        "getByRole First",
+        "getByLabel / getByTestId",
+        "Chaining and filter()",
+        "Parameterized Locator Functions",
+        "Strict Mode"
+      ]
+    },
+    {
+      "id": 12,
+      "level": "Beginner",
+      "topic": "Locators, Waits & Interactions",
+      "question": "What is the difference between locator(), getByRole() and getByText()?",
+      "answer": "All three return a Locator and all wait automatically; they differ in what they match on. page.locator(selector) is the general-purpose method. It takes a CSS selector or an XPath expression and matches on the structure of the page: tags, ids, classes and attributes. It can find anything, but it ties the test to implementation details that change, so it is the fallback. getByRole(role, { name }) matches on the element's accessibility role and accessible name, which is how assistive technology and users identify it: a button named 'Submit', a link named 'Home', a heading, a checkbox, a textbox. The role can come from the tag itself, such as <button>, or from a role attribute, and the name from the visible text, a label or aria-label. It is the recommended first choice, because it survives changes to markup and styling and also confirms that the element is exposed accessibly. Options include name, exact, checked and level. getByText(text) matches elements by their visible text, as a substring by default, case-insensitive, or exactly with { exact: true }, or by a regular expression. It suits non-interactive content such as messages, paragraphs and labels. For buttons and links, getByRole with a name is more precise than getByText.",
+      "realTimeExample": "A 'Submit' button was changed from <button class='btn-primary'> to a restyled <button class='cta'>. page.locator('.btn-primary') broke, while page.getByRole('button', { name: 'Submit' }) kept working because the role and name were the same.",
+      "code": "import { test, expect } from '@playwright/test';\n\ntest('three ways to locate', async ({ page }) => {\n  await page.goto('/checkout');\n\n  // locator(): CSS or XPath, tied to the markup\n  await page.locator('input#coupon').fill('SAVE10');\n  await page.locator('//button[@type=\"submit\"]').click();\n\n  // getByRole(): role + accessible name (preferred for interactive elements)\n  await page.getByRole('button', { name: 'Place order' }).click();\n  await page.getByRole('checkbox', { name: 'Accept terms' }).check();\n  await expect(page.getByRole('heading', { name: 'Order summary', level: 2 })).toBeVisible();\n\n  // getByText(): visible text (best for non-interactive content)\n  await expect(page.getByText('Order placed successfully')).toBeVisible();\n  await expect(page.getByText('Total', { exact: true })).toBeVisible();\n  await expect(page.getByText(/Order #\\d+/)).toBeVisible();\n\n  // They can be combined\n  await page.locator('#cart').getByRole('button', { name: 'Remove' }).first().click();\n});",
+      "buzzWords": [
+        "locator(): CSS / XPath",
+        "getByRole(): Role and Accessible Name",
+        "getByText(): Visible Text",
+        "User-Facing Locators First",
+        "exact and Regular Expressions"
+      ]
+    },
+    {
+      "id": 13,
+      "level": "Intermediate",
+      "topic": "Locators, Waits & Interactions",
+      "question": "What is Playwright auto-waiting, how does it compare with Selenium explicit waits, and when are explicit waits still justified?",
+      "answer": "Before performing an action, Playwright automatically waits for the element to pass a set of 'actionability' checks, and retries until they pass or the timeout is reached. For a click, the element must be attached to the DOM, visible, stable (not moving), able to receive events (not covered by another element) and enabled. For fill() it must also be editable. Navigation waits for the page to load, and assertions written with expect(locator), called web-first assertions, such as toBeVisible() or toHaveText(), retry until the condition is true. In Selenium none of this is automatic: the tester writes WebDriverWait with a condition for each element that may not be ready, and forgetting one causes a flaky test. Explicit waits are still justified in Playwright when the test depends on something other than an element's readiness: waiting for a specific network response with page.waitForResponse(); waiting for a URL change with page.waitForURL(); waiting for a new tab, download or dialog with waitForEvent(); waiting for an element to disappear, with expect(locator).toBeHidden(); waiting for a custom JavaScript condition with page.waitForFunction(); and retrying a block with expect.poll() or expect().toPass(). Avoid page.waitForTimeout(), a fixed sleep, except while debugging. Note that auto-waiting does not apply to methods that read state immediately, such as isVisible() or count(); assert with expect() instead.",
+      "realTimeExample": "After clicking 'Save', the page shows a spinner and then a toast. In Selenium the test needs waits for the spinner to disappear and for the toast to appear. In Playwright, await expect(page.getByText('Saved')).toBeVisible() retries on its own until the toast shows.",
+      "code": "import { test, expect } from '@playwright/test';\n\ntest('auto-waiting and justified explicit waits', async ({ page }) => {\n  await page.goto('/profile');\n\n  // Auto-wait: no wait code needed before these\n  await page.getByLabel('City').fill('Bengaluru');\n  await page.getByRole('button', { name: 'Save' }).click();\n  await expect(page.getByText('Profile saved')).toBeVisible();      // retrying assertion\n\n  // Justified explicit waits\n  const responsePromise = page.waitForResponse(r => r.url().includes('/api/profile') && r.status() === 200);\n  await page.getByRole('button', { name: 'Refresh' }).click();\n  const response = await responsePromise;                           // wait for the API call\n  expect((await response.json()).city).toBe('Bengaluru');\n\n  await page.getByRole('link', { name: 'Orders' }).click();\n  await page.waitForURL('**/orders');                               // wait for navigation\n\n  await expect(page.locator('.spinner')).toBeHidden();              // wait for disappearance\n\n  await expect.poll(async () => {                                   // poll a non-UI condition\n    const res = await page.request.get('/api/report/status');\n    return (await res.json()).state;\n  }, { timeout: 30_000 }).toBe('READY');\n\n  // Avoid: await page.waitForTimeout(5000);\n});",
+      "buzzWords": [
+        "Actionability Checks",
+        "Visible, Stable, Enabled, Receives Events",
+        "Web-First Assertions Retry",
+        "waitForResponse / waitForURL / waitForEvent",
+        "Avoid waitForTimeout"
+      ]
+    },
+    {
+      "id": 14,
+      "level": "Beginner",
+      "topic": "Locators, Waits & Interactions",
+      "question": "Write a Playwright script to log in to an application.",
+      "answer": "A login test has four steps: open the login page, fill in the credentials, submit, and verify that the login succeeded. In Playwright Test, import test and expect, and use the 'page' fixture, which is a new tab in a clean context. page.goto() opens the URL. fill() types into a field after clearing it, and click() presses the button; both wait until the element is ready, so no explicit wait is needed. Always finish with an assertion on something that only a logged-in user sees, such as the URL, a heading or the user's name; without it the test would pass even when login fails. Use web-first assertions such as toHaveURL() and toBeVisible(), which retry. Every Playwright call returns a promise and must be awaited; a missing await is the most common cause of confusing failures. Credentials should come from environment variables or test data, not be hard-coded, in a real project. Include a negative test, such as a wrong password showing an error message. The script below uses the public practice site saucedemo.com.",
+      "realTimeExample": "Running 'npx playwright test login.spec.ts --headed' opens the browser so the steps can be watched; running with --ui opens UI mode for stepping through each action with the page snapshot.",
+      "code": "import { test, expect } from '@playwright/test';\n\ntest.describe('Login', () => {\n  test.beforeEach(async ({ page }) => {\n    await page.goto('https://www.saucedemo.com/');\n  });\n\n  test('valid user can log in', async ({ page }) => {\n    await page.getByPlaceholder('Username').fill('standard_user');\n    await page.getByPlaceholder('Password').fill('secret_sauce');\n    await page.getByRole('button', { name: 'Login' }).click();\n\n    // Verify something only a logged-in user sees\n    await expect(page).toHaveURL(/inventory/);\n    await expect(page.locator('.title')).toHaveText('Products');\n  });\n\n  test('wrong password shows an error', async ({ page }) => {\n    await page.getByPlaceholder('Username').fill('standard_user');\n    await page.getByPlaceholder('Password').fill('wrong_password');\n    await page.getByRole('button', { name: 'Login' }).click();\n\n    await expect(page.locator('[data-test=\"error\"]'))\n      .toContainText('Username and password do not match');\n    await expect(page).toHaveURL('https://www.saucedemo.com/');\n  });\n});\n\n// Run:  npx playwright test login.spec.ts\n//       npx playwright test login.spec.ts --headed",
+      "buzzWords": [
+        "page.goto()",
+        "fill() and click()",
+        "await Every Call",
+        "toHaveURL() / toHaveText()",
+        "Assert the Logged-In State"
+      ]
+    },
+    {
+      "id": 15,
+      "level": "Expert",
+      "topic": "Locators, Waits & Interactions",
+      "question": "Amazon scenario: search for 'iPhone 16 Pro 256GB', create a dynamic locator for the product, and fetch its price using a dynamic locator.",
+      "answer": "The point of the question is to locate the price relative to the product, not by position, so that the locator works for any product name. Steps: (1) Search: fill the search box and press Enter. (2) Find the result card. Each Amazon search result is a container with the attribute data-component-type=\"s-search-result\". Locate all such containers and narrow them with filter({ hasText }) to the one whose text contains the product name. Because titles vary, filter on the important parts separately, 'iPhone 16 Pro' and '256', and exclude sponsored or accessory results where needed, for example with hasNotText for 'Case'. (3) From that card, locate the price inside it. Amazon shows the price in an element with class a-price, which contains a visually hidden span, a-offscreen, holding the full text such as '₹1,19,900', and a span a-price-whole with the digits. Chaining card.locator('.a-price .a-offscreen') scopes the price to the chosen product. (4) Read the text with textContent(), since the element is hidden from view, and convert it to a number. Put this in a function that takes the product name. Amazon changes its markup and shows different layouts by region, so verify the selectors in DevTools; the technique is what is being tested.",
+      "realTimeExample": "The same function, priceOf(page, 'iPhone 16 Pro', '256'), works for a different phone by changing the arguments, because the price is always found inside the card that contains the given name.",
+      "code": "import { test, expect, Page, Locator } from '@playwright/test';\n\n// Dynamic locator: the result card that contains all the given words\nfunction productCard(page: Page, ...words: string[]): Locator {\n  let card = page.locator('[data-component-type=\"s-search-result\"]');\n  for (const word of words) {\n    card = card.filter({ hasText: word });\n  }\n  return card.filter({ hasNotText: /case|cover/i }).first();\n}\n\n// Price located relative to that card\nasync function priceOf(page: Page, ...words: string[]): Promise<number> {\n  const priceText = await productCard(page, ...words)\n    .locator('.a-price .a-offscreen')\n    .first()\n    .textContent();\n\n  return Number((priceText ?? '').replace(/[^0-9.]/g, ''));\n}\n\ntest('fetch the price of iPhone 16 Pro 256GB', async ({ page }) => {\n  await page.goto('https://www.amazon.in/');\n\n  const searchBox = page.locator('#twotabsearchtextbox');\n  await searchBox.fill('iPhone 16 Pro 256GB');\n  await searchBox.press('Enter');\n\n  const card = productCard(page, 'iPhone 16 Pro', '256');\n  await expect(card).toBeVisible();\n\n  const title = await card.locator('h2').first().innerText();\n  const price = await priceOf(page, 'iPhone 16 Pro', '256');\n\n  console.log(`${title} -> ${price}`);\n  expect(price).toBeGreaterThan(0);\n});",
+      "buzzWords": [
+        "Result Card Container",
+        "filter({ hasText })",
+        "Price Scoped to the Card",
+        "textContent() for Hidden Text",
+        "Parameterized Function"
+      ]
+    },
+    {
+      "id": 16,
+      "level": "Intermediate",
+      "topic": "Locators, Waits & Interactions",
+      "question": "How do you handle file upload and download in Playwright?",
+      "answer": "Upload: use setInputFiles() on the file input element. It accepts a file path, an array of paths for multiple files, or an object with name, mimeType and buffer to upload content created in memory without a file on disk. Passing an empty array clears the selection. It works on hidden inputs too. When the page has no accessible input and opens a file chooser from a custom button, start waiting for the 'filechooser' event, click the button, and call fileChooser.setFiles(). The operating system dialog never has to be handled. Download: start waiting for the 'download' event before the click that triggers it, then await the promise. The Download object provides suggestedFilename(), saveAs(path) to store the file where you want it, path() for the temporary location, and failure() to check for errors. Downloaded files are kept in a temporary folder and deleted when the context closes, so call saveAs() to keep one. After saving, verify the name and size and read the contents with Node's fs module, or a library for PDF and Excel. The pattern 'create the promise first, then perform the action' is essential; awaiting the event after the click can miss it. Downloads work the same in headless mode.",
+      "realTimeExample": "A test uploads a profile photo and asserts that the file name appears, then clicks 'Export CSV', saves the download and checks that the first line of the file is the expected header row.",
+      "code": "import { test, expect } from '@playwright/test';\nimport fs from 'fs';\nimport path from 'path';\n\ntest('upload files', async ({ page }) => {\n  await page.goto('/profile');\n\n  // Single and multiple files\n  await page.locator('input[type=\"file\"]').setInputFiles('test-data/photo.png');\n  await page.getByLabel('Documents').setInputFiles(['test-data/a.pdf', 'test-data/b.pdf']);\n\n  // File created in memory\n  await page.getByLabel('Notes').setInputFiles({\n    name: 'notes.txt',\n    mimeType: 'text/plain',\n    buffer: Buffer.from('hello from the test')\n  });\n\n  // Custom button that opens a file chooser\n  const chooserPromise = page.waitForEvent('filechooser');\n  await page.getByRole('button', { name: 'Choose file' }).click();\n  const chooser = await chooserPromise;\n  await chooser.setFiles('test-data/photo.png');\n\n  await expect(page.getByText('photo.png')).toBeVisible();\n});\n\ntest('download a file and check its contents', async ({ page }) => {\n  await page.goto('/reports');\n\n  const downloadPromise = page.waitForEvent('download');          // before the click\n  await page.getByRole('button', { name: 'Export CSV' }).click();\n  const download = await downloadPromise;\n\n  expect(download.suggestedFilename()).toBe('orders.csv');\n\n  const target = path.join('downloads', download.suggestedFilename());\n  await download.saveAs(target);\n\n  const lines = fs.readFileSync(target, 'utf-8').split('\\n');\n  expect(lines[0].trim()).toBe('OrderId,Customer,Amount');\n  expect(lines.length).toBeGreaterThan(1);\n});",
+      "buzzWords": [
+        "setInputFiles()",
+        "filechooser Event",
+        "waitForEvent('download')",
+        "download.saveAs()",
+        "Promise First, Then the Action"
+      ]
+    },
+    {
+      "id": 17,
+      "level": "Intermediate",
+      "topic": "Locators, Waits & Interactions",
+      "question": "How do you handle multiple tabs in Playwright?",
+      "answer": "In Playwright every tab or pop-up window is a separate Page object belonging to a BrowserContext. There is no 'switch to window' step as in Selenium: you simply hold a variable for each page and call methods on whichever one you need, and they can be used alternately at any time. To capture a tab opened by a click, such as a link with target=\"_blank\": start waiting for the new page before the click, with context.waitForEvent('page'), or page.waitForEvent('popup') for a window opened by that specific page, then perform the click and await the promise to get the new Page. Call waitForLoadState() on the new page if needed, then work with it. As with downloads, the order matters: create the promise first, then click. context.pages() returns all open pages of the context. page.bringToFront() makes a tab the visible one, which matters only for behaviour that depends on focus. Close a tab with page.close(); the other pages remain usable without any switching back. To open a tab yourself, call context.newPage().",
+      "realTimeExample": "Clicking 'View invoice' opens the invoice in a new tab. The test captures that page, asserts the invoice number, closes it, and continues on the original orders page with the same 'page' variable as before.",
+      "code": "import { test, expect } from '@playwright/test';\n\ntest('work with a tab opened by a link', async ({ page, context }) => {\n  await page.goto('/orders');\n\n  // Start waiting for the new tab, then click\n  const newPagePromise = context.waitForEvent('page');\n  await page.getByRole('link', { name: 'View invoice' }).click();\n  const invoicePage = await newPagePromise;\n\n  await invoicePage.waitForLoadState();\n  await expect(invoicePage).toHaveTitle(/Invoice/);\n  await expect(invoicePage.getByText('INV-48213')).toBeVisible();\n\n  // No switching: the original page is still usable\n  await expect(page.getByRole('heading', { name: 'My Orders' })).toBeVisible();\n\n  console.log('Open tabs:', context.pages().length);      // 2\n\n  await invoicePage.close();\n\n  // A pop-up opened by this page\n  const popupPromise = page.waitForEvent('popup');\n  await page.getByRole('button', { name: 'Help' }).click();\n  const popup = await popupPromise;\n  await expect(popup.getByRole('heading', { name: 'Help Centre' })).toBeVisible();\n\n  // Open a tab yourself\n  const adminPage = await context.newPage();\n  await adminPage.goto('/admin');\n});",
+      "buzzWords": [
+        "Each Tab Is a Page Object",
+        "context.waitForEvent('page')",
+        "page.waitForEvent('popup')",
+        "No Window Switching",
+        "context.pages()"
+      ]
+    },
+    {
+      "id": 18,
+      "level": "Intermediate",
+      "topic": "Locators, Waits & Interactions",
+      "question": "How do you handle shadow-root elements in Playwright compared with Selenium?",
+      "answer": "Shadow DOM is a hidden DOM subtree attached to an element (the shadow host), used by web components to encapsulate their markup and styles. Playwright: locators pierce open shadow roots automatically. CSS selectors given to page.locator(), and the getBy methods such as getByRole(), getByText() and getByTestId(), all search inside open shadow trees without any special syntax, including nested ones. So an input inside a web component is located the same way as any other element. Two limits: XPath does not pierce shadow roots, so use CSS or the getBy methods; and closed shadow roots (mode: 'closed') cannot be accessed. Selenium: normal findElement() calls stop at the shadow boundary and throw NoSuchElementException. You must first locate the shadow host, call getShadowRoot() on it (Selenium 4), which returns a SearchContext, and then find elements within that context using CSS selectors only. For nested shadow roots the step is repeated for each level. Before Selenium 4 this was done through JavaScript, returning arguments[0].shadowRoot. In both tools, an iframe is a different thing from a shadow root and still needs its own handling: frameLocator() in Playwright and switchTo().frame() in Selenium.",
+      "realTimeExample": "A design-system component <app-login> keeps its username field inside an open shadow root. The Selenium test needed three lines to reach the field through the shadow host; the Playwright test used page.getByLabel('Username') unchanged.",
+      "code": "import { test, expect } from '@playwright/test';\n\ntest('elements inside open shadow roots', async ({ page }) => {\n  await page.goto('/components');\n\n  // Playwright: CSS and getBy locators pierce open shadow DOM automatically\n  await page.locator('app-login input#username').fill('asha.rao');\n  await page.getByLabel('Password').fill('Test@123');\n  await page.getByRole('button', { name: 'Login' }).click();\n  await expect(page.getByText('Welcome')).toBeVisible();\n\n  // XPath does NOT pierce shadow roots\n  // await page.locator('//input[@id=\"username\"]').fill('x');     // would not find it\n});\n\n// Selenium (Java), for comparison:\n// WebElement host = driver.findElement(By.cssSelector(\"app-login\"));\n// SearchContext shadowRoot = host.getShadowRoot();\n// shadowRoot.findElement(By.cssSelector(\"#username\")).sendKeys(\"asha.rao\");",
+      "buzzWords": [
+        "Locators Pierce Open Shadow DOM",
+        "No Special Syntax in Playwright",
+        "XPath Does Not Pierce",
+        "Selenium: getShadowRoot()",
+        "Closed Shadow Roots Are Not Accessible"
+      ]
+    },
+    {
+      "id": 19,
+      "level": "Beginner",
+      "topic": "Locators, Waits & Interactions",
+      "question": "How do you capture element-specific versus viewport screenshots in Playwright?",
+      "answer": "There are three levels. Viewport: page.screenshot({ path }) captures what is currently visible in the browser window. Full page: page.screenshot({ path, fullPage: true }) captures the entire scrollable page, which Playwright supports directly in all browsers. Element: locator.screenshot({ path }) captures only that element; Playwright scrolls it into view and waits for it first. Useful options: omit path to receive the image as a Buffer; type and quality for JPEG; mask, a list of locators to cover dynamic areas such as dates with a coloured box; animations: 'disabled' to freeze CSS animations; and clip to capture a specific rectangle. Automatic capture on failure is configured, not coded: use: { screenshot: 'only-on-failure' } in the config attaches a screenshot to the report for each failed test. For visual regression testing, use the assertion expect(page).toHaveScreenshot() or expect(locator).toHaveScreenshot(): the first run saves a baseline image, later runs compare against it, with options such as maxDiffPixels or maxDiffPixelRatio for tolerance, and baselines are updated with --update-snapshots. A screenshot can also be attached to the report manually with testInfo.attach().",
+      "realTimeExample": "A test of a pricing card takes an element screenshot of just that card and compares it with the baseline, masking the 'Offer ends in 02:13:45' countdown so that the changing time does not fail the comparison.",
+      "code": "import { test, expect } from '@playwright/test';\n\ntest('screenshots', async ({ page }, testInfo) => {\n  await page.goto('/pricing');\n\n  // Viewport\n  await page.screenshot({ path: 'screenshots/viewport.png' });\n\n  // Full page\n  await page.screenshot({ path: 'screenshots/full-page.png', fullPage: true });\n\n  // Single element\n  const card = page.getByTestId('pro-plan-card');\n  await card.screenshot({ path: 'screenshots/pro-plan.png' });\n\n  // Mask dynamic content and freeze animations\n  await page.screenshot({\n    path: 'screenshots/masked.png',\n    mask: [page.locator('.countdown'), page.locator('.user-avatar')],\n    animations: 'disabled'\n  });\n\n  // Attach to the HTML report\n  await testInfo.attach('pro plan', { body: await card.screenshot(), contentType: 'image/png' });\n\n  // Visual comparison against a stored baseline\n  await expect(card).toHaveScreenshot('pro-plan.png', { maxDiffPixelRatio: 0.01 });\n});\n\n// playwright.config.ts:  use: { screenshot: 'only-on-failure' }\n// Update baselines:      npx playwright test --update-snapshots",
+      "buzzWords": [
+        "page.screenshot()",
+        "fullPage: true",
+        "locator.screenshot()",
+        "mask and animations: 'disabled'",
+        "toHaveScreenshot()"
+      ]
+    },
+    {
+      "id": 20,
+      "level": "Expert",
+      "topic": "Network, Mocking & Debugging",
+      "question": "How do you intercept and modify API network requests and responses in Playwright?",
+      "answer": "Use page.route(urlPattern, handler), or context.route() to apply it to every page in the context. The pattern is a glob such as '**/api/orders*', a regular expression or a function. Register the route before the action that triggers the request. The handler receives a Route object and decides what happens. route.continue() sends the request on, optionally with changes to the URL, method, headers or post data: this modifies the request. route.fulfill() answers the request yourself without contacting the server, with a status, headers and body or json: this mocks the response. route.abort() blocks the request. route.fetch() performs the real request and returns the real response, which you can then alter and pass to route.fulfill({ response, json }): this modifies the response while keeping everything else genuine. route.fallback() passes the request to the next matching handler. Requests can also be observed without interception using page.on('request'), page.on('response') and page.waitForResponse(). Uses: testing how the UI handles errors, empty lists, slow responses and edge-case data that is hard to create in a real back end; removing dependence on third-party services; and adding headers such as a test flag. Remove a route with page.unroute(). Recorded traffic can be replayed from a HAR file with page.routeFromHAR(). Mocks test the front end only, so keep some tests against the real API as well.",
+      "realTimeExample": "To test the 'Only 1 left in stock' badge, the test lets the real product API respond, changes the stock value in the JSON to 1, and passes the modified response to the page. The badge can then be verified without preparing a product with exactly one item in the database.",
+      "code": "import { test, expect } from '@playwright/test';\n\ntest('modify a request', async ({ page }) => {\n  await page.route('**/api/**', async route => {\n    const headers = { ...route.request().headers(), 'x-test-run': 'true' };\n    await route.continue({ headers });                    // forward with an extra header\n  });\n  await page.goto('/products');\n});\n\ntest('mock a response completely', async ({ page }) => {\n  await page.route('**/api/products', async route => {\n    await route.fulfill({\n      status: 200,\n      contentType: 'application/json',\n      json: [{ id: 1, name: 'Mock Backpack', price: 30, stock: 5 }]\n    });\n  });\n\n  await page.goto('/products');\n  await expect(page.getByText('Mock Backpack')).toBeVisible();\n});\n\ntest('modify the real response', async ({ page }) => {\n  await page.route('**/api/products/10', async route => {\n    const response = await route.fetch();                 // real call\n    const body = await response.json();\n    body.stock = 1;                                       // change one field\n    await route.fulfill({ response, json: body });\n  });\n\n  await page.goto('/products/10');\n  await expect(page.getByText('Only 1 left in stock')).toBeVisible();\n});\n\ntest('observe without intercepting', async ({ page }) => {\n  page.on('response', r => {\n    if (r.status() >= 400) console.log('Failed request:', r.status(), r.url());\n  });\n  await page.goto('/products');\n});",
+      "buzzWords": [
+        "page.route()",
+        "route.continue(): Modify the Request",
+        "route.fulfill(): Mock the Response",
+        "route.fetch(): Change the Real Response",
+        "route.abort()"
+      ]
+    },
+    {
+      "id": 21,
+      "level": "Intermediate",
+      "topic": "Network, Mocking & Debugging",
+      "question": "How do you mock error responses such as 403 and 404 with Playwright route handlers?",
+      "answer": "Register a route for the endpoint and answer it with route.fulfill(), giving the status code you want to simulate and a body in the shape the real API returns for that error. The application then behaves as if the server had refused or failed, and the test asserts what the user should see. For 404 Not Found, verify the 'not found' message or empty state. For 403 Forbidden, verify the 'access denied' message and that the restricted content is not shown. The same approach covers 401, to check the redirect to login; 500 and 503, to check the error banner and retry option; and a network failure with route.abort('failed') or abort('timedout'). To add a delay before the response, wait inside the handler before calling fulfill, which lets you test loading indicators. To fail only the first call and let the retry succeed, keep a counter in the handler. Match the method when needed with route.request().method(), calling route.fallback() for other methods. Make the mocked body realistic, because the front end usually reads a message or code from it. These tests verify the UI's error handling, which is hard to trigger reliably against a real back end; the real API's own error responses should be covered by API tests.",
+      "realTimeExample": "It is difficult to make a real server return 403 on demand for an order page. Mocking the order API with a 403 lets the test confirm that the page shows 'You do not have permission to view this order' and hides the order details.",
+      "code": "import { test, expect } from '@playwright/test';\n\ntest('404: product not found message', async ({ page }) => {\n  await page.route('**/api/products/999', route =>\n    route.fulfill({\n      status: 404,\n      contentType: 'application/json',\n      body: JSON.stringify({ code: 'NOT_FOUND', message: 'Product not found' })\n    })\n  );\n\n  await page.goto('/products/999');\n  await expect(page.getByText('Product not found')).toBeVisible();\n});\n\ntest('403: access denied message', async ({ page }) => {\n  await page.route('**/api/orders/*', route =>\n    route.fulfill({ status: 403, json: { message: 'Forbidden' } })\n  );\n\n  await page.goto('/orders/48213');\n  await expect(page.getByText('You do not have permission to view this order')).toBeVisible();\n  await expect(page.getByTestId('order-details')).toBeHidden();\n});\n\ntest('500 on the first call, success on retry', async ({ page }) => {\n  let calls = 0;\n  await page.route('**/api/cart', async route => {\n    calls++;\n    if (calls === 1) {\n      await route.fulfill({ status: 500, json: { message: 'Server error' } });\n    } else {\n      await route.fulfill({ status: 200, json: { items: [] } });\n    }\n  });\n\n  await page.goto('/cart');\n  await expect(page.getByText('Something went wrong')).toBeVisible();\n  await page.getByRole('button', { name: 'Retry' }).click();\n  await expect(page.getByText('Your cart is empty')).toBeVisible();\n});\n\ntest('network failure', async ({ page }) => {\n  await page.route('**/api/products', route => route.abort('failed'));\n  await page.goto('/products');\n  await expect(page.getByText('Check your connection')).toBeVisible();\n});",
+      "buzzWords": [
+        "route.fulfill({ status })",
+        "Realistic Error Body",
+        "Assert the Error UI",
+        "route.abort('failed')",
+        "Counter for Fail-Then-Succeed"
+      ]
+    },
+    {
+      "id": 22,
+      "level": "Intermediate",
+      "topic": "Network, Mocking & Debugging",
+      "question": "How do you block image and font network requests in Playwright?",
+      "answer": "Intercept the requests with page.route() or context.route() and call route.abort() for the ones you do not want. There are two ways to choose them. By resource type: register a route for all requests ('**/*') and check route.request().resourceType(). The types include 'image', 'font', 'stylesheet', 'media', 'script', 'xhr' and 'fetch'. Abort when the type is 'image' or 'font' and call route.continue() for everything else. This is the most reliable way, because it does not depend on the file extension. By URL pattern: register a glob for file extensions, such as '**/*.{png,jpg,jpeg,gif,svg,webp,woff,woff2,ttf}', and abort every match. Use context.route() so the rule applies to all pages and pop-ups in the context, and register it before navigating. Why do it: pages load faster and use less bandwidth, which shortens test runs; and third-party resources such as ads and analytics, which can be slow or unreliable, can be blocked in the same way by matching their domains. Cautions: do not block images or fonts in visual or layout tests, where they are the thing being checked; an aborted request appears as a failed request in the console and network logs; and intercepting every request adds a small overhead, so target the route narrowly when only a few URLs matter.",
+      "realTimeExample": "A product listing loads 200 images that the functional tests never look at. Blocking images and fonts in the context cut the page load in CI noticeably, while the visual-regression project, which needs the images, runs without the block.",
+      "code": "import { test, expect } from '@playwright/test';\n\ntest('block images and fonts by resource type', async ({ page, context }) => {\n  await context.route('**/*', route => {\n    const type = route.request().resourceType();\n    if (type === 'image' || type === 'font') {\n      return route.abort();\n    }\n    return route.continue();\n  });\n\n  await page.goto('/products');\n  await expect(page.getByRole('heading', { name: 'Products' })).toBeVisible();\n});\n\ntest('block by URL pattern and by domain', async ({ page }) => {\n  // File extensions\n  await page.route('**/*.{png,jpg,jpeg,gif,svg,webp,woff,woff2,ttf}', route => route.abort());\n\n  // Third-party analytics and ads\n  await page.route(/google-analytics\\.com|doubleclick\\.net/, route => route.abort());\n\n  await page.goto('/products');\n});\n\n// As a reusable fixture applied to every test of a project\n// export const test = base.extend({\n//   context: async ({ context }, use) => {\n//     await context.route('**/*', r =>\n//       ['image', 'font'].includes(r.request().resourceType()) ? r.abort() : r.continue());\n//     await use(context);\n//   }\n// });",
+      "buzzWords": [
+        "route.abort()",
+        "request().resourceType()",
+        "'image' and 'font'",
+        "context.route() for All Pages",
+        "Do Not Block in Visual Tests"
+      ]
+    },
+    {
+      "id": 23,
+      "level": "Expert",
+      "topic": "Network, Mocking & Debugging",
+      "question": "How do you configure network throttling (for example Slow 3G) in Playwright?",
+      "answer": "Playwright has no single built-in option for bandwidth throttling, so there are three approaches. (1) Chromium only, real throttling: open a Chrome DevTools Protocol session with context.newCDPSession(page) and send the command Network.emulateNetworkConditions with four values: offline, latency in milliseconds, and downloadThroughput and uploadThroughput in bytes per second. Slow 3G is approximately 500 kilobits per second down and up with 400 ms latency (Chrome's preset is 400 ms with roughly 400 to 500 kbps), so the throughput value is (500 × 1024) / 8 bytes per second. This slows all traffic of that page just as DevTools throttling does, but it does not work in Firefox or WebKit. (2) Any browser, simulated delay: use page.route() and wait inside the handler before calling route.continue() or route.fulfill(). This delays chosen requests, which is enough for testing loading spinners, skeleton screens and timeouts, but it does not limit bandwidth. (3) Offline mode, any browser: context.setOffline(true) cuts the network to test offline behaviour, and setOffline(false) restores it. CPU slowdown is also available in Chromium through the CDP command Emulation.setCPUThrottlingRate. Use throttling for specific behaviour tests, not across the whole suite, and raise timeouts for those tests.",
+      "realTimeExample": "On Slow 3G the product page must show skeleton placeholders until data arrives and must not show a blank screen. The test throttles the network through CDP, opens the page, asserts the skeleton is visible first and then that the products appear within the longer timeout.",
+      "code": "import { test, expect } from '@playwright/test';\n\ntest('Slow 3G through CDP (Chromium only)', async ({ page, context, browserName }) => {\n  test.skip(browserName !== 'chromium', 'CDP throttling works only in Chromium');\n  test.setTimeout(120_000);\n\n  const client = await context.newCDPSession(page);\n  await client.send('Network.enable');\n  await client.send('Network.emulateNetworkConditions', {\n    offline: false,\n    latency: 400,                                  // milliseconds\n    downloadThroughput: (500 * 1024) / 8,          // bytes per second (500 kbps)\n    uploadThroughput: (500 * 1024) / 8\n  });\n\n  await page.goto('/products');\n  await expect(page.getByTestId('skeleton').first()).toBeVisible();\n  await expect(page.getByRole('listitem').first()).toBeVisible({ timeout: 60_000 });\n});\n\ntest('simulated slow API in any browser', async ({ page }) => {\n  await page.route('**/api/products', async route => {\n    await new Promise(resolve => setTimeout(resolve, 3000));     // 3-second delay\n    await route.continue();\n  });\n\n  await page.goto('/products');\n  await expect(page.getByText('Loading products...')).toBeVisible();\n});\n\ntest('offline mode', async ({ page, context }) => {\n  await page.goto('/products');\n  await context.setOffline(true);\n  await page.getByRole('button', { name: 'Refresh' }).click();\n  await expect(page.getByText('You are offline')).toBeVisible();\n  await context.setOffline(false);\n});",
+      "buzzWords": [
+        "context.newCDPSession(page)",
+        "Network.emulateNetworkConditions",
+        "Latency and Throughput",
+        "Chromium Only",
+        "context.setOffline(true)"
+      ]
+    },
+    {
+      "id": 24,
+      "level": "Intermediate",
+      "topic": "Network, Mocking & Debugging",
+      "question": "How do you capture video recordings and trace logs in Playwright, and how do you use Trace Viewer to debug failures?",
+      "answer": "Both are switched on in playwright.config.ts under 'use'. Video: video: 'on' records every test, 'retain-on-failure' records all but keeps only the failures, and 'on-first-retry' records only when a test is retried. Videos are saved in the test-results folder and linked in the HTML report. Trace: trace: 'on-first-retry' is the recommended setting for CI; others are 'on', 'retain-on-failure' and 'off'. A trace is a zip file that records the whole test. Open it with 'npx playwright show-trace trace.zip', by clicking the trace in the HTML report, or by dropping it on trace.playwright.dev. What Trace Viewer shows: a timeline with a screenshot strip; the list of every action with its duration; for each action, DOM snapshots before, during and after, which are real page snapshots that can be inspected with DevTools, not images; the exact element that was targeted, highlighted; the network requests with headers and bodies; console messages; the test source line; and errors with the call log explaining what Playwright waited for. Debugging with it: open the failed action, read the error and call log, compare the before and after snapshots to see what was on screen, and check the network and console tabs for a failed API call or a JavaScript error. A trace is far more informative than a video because every step can be inspected. Traces can also be recorded on demand with --trace on.",
+      "realTimeExample": "A test failed in CI with 'element is not enabled'. The trace's snapshot for that step showed the Pay button still disabled, and the network tab showed the price-calculation API returning 500 just before. The cause was a back-end error, found without rerunning the test.",
+      "code": "// playwright.config.ts\nimport { defineConfig } from '@playwright/test';\n\nexport default defineConfig({\n  retries: process.env.CI ? 1 : 0,\n  use: {\n    trace: 'on-first-retry',            // 'on' | 'retain-on-failure' | 'off'\n    video: 'retain-on-failure',         // 'on' | 'on-first-retry' | 'off'\n    screenshot: 'only-on-failure'\n  },\n  reporter: [['html', { open: 'never' }]]\n});\n\n// Command line\n// npx playwright test --trace on                      record a trace for every test\n// npx playwright show-report                          open the HTML report (trace link inside)\n// npx playwright show-trace test-results/checkout-chromium-retry1/trace.zip\n\n// Manual tracing when not using the test runner\n// await context.tracing.start({ screenshots: true, snapshots: true, sources: true });\n// ... actions ...\n// await context.tracing.stop({ path: 'trace.zip' });",
+      "buzzWords": [
+        "trace: 'on-first-retry'",
+        "video: 'retain-on-failure'",
+        "npx playwright show-trace",
+        "DOM Snapshots Before and After",
+        "Network and Console in the Trace"
+      ]
+    },
+    {
+      "id": 25,
+      "level": "Expert",
+      "topic": "Network, Mocking & Debugging",
+      "question": "How do you identify, diagnose and fix flaky tests in Playwright using screenshots, videos and traces?",
+      "answer": "Identify: a flaky test passes and fails without any code change. With retries enabled, Playwright labels a test that failed and then passed on retry as 'flaky' in the report, giving a ready list. To confirm and reproduce, run the test many times: npx playwright test file.spec.ts --repeat-each=50, with CI-like settings such as the same number of workers. Diagnose from the artifacts of a failing attempt. Screenshot: shows the page at the moment of failure, revealing an overlay, a spinner, the wrong page or an unexpected dialog. Video: shows the sequence, useful for timing and animation problems. Trace: the most useful. Open the failing action and read the call log, which states what Playwright was waiting for; compare the DOM snapshots before and after; check the network tab for a slow or failed request and the console for JavaScript errors; and compare with the trace of a passing run. Typical causes and fixes: a missing await on a Playwright call, fixed with the await and the no-floating-promises lint rule; assertions on values read immediately, such as isVisible() or textContent(), replaced with retrying expect assertions; hard waits replaced with event or state waits; shared test data fixed with unique data per test; dependence on test order fixed with independence; unstable locators replaced with role or test-id locators; animations disabled; third-party calls mocked; and too many workers reduced. Also consider that the application itself may have a race condition, which should be reported as a defect. Retries are a safety net, not the fix; track the flaky list and reduce it.",
+      "realTimeExample": "A cart test was flaky about one run in twenty. The trace showed the test read the cart count with textContent() immediately after clicking 'Add', before the counter updated. Replacing it with await expect(cartCount).toHaveText('1') made it pass 200 runs in a row.",
+      "code": "// Reproduce\n// npx playwright test cart.spec.ts --repeat-each=50 --workers=4\n// npx playwright test cart.spec.ts --repeat-each=50 --trace on\n\n// playwright.config.ts: keep evidence for failures\n// retries: process.env.CI ? 2 : 0,\n// use: { trace: 'on-first-retry', video: 'retain-on-failure', screenshot: 'only-on-failure' }\n\nimport { test, expect } from '@playwright/test';\n\ntest('add to cart updates the counter', async ({ page }, testInfo) => {\n  if (testInfo.retry > 0) {\n    console.log(`Retry number ${testInfo.retry}`);        // visible in the report\n  }\n\n  await page.goto('/products');\n  await page.getByRole('button', { name: 'Add to cart' }).first().click();\n\n  // Flaky: reads the value once, immediately\n  // const count = await page.locator('.cart-count').textContent();\n  // expect(count).toBe('1');\n\n  // Stable: retries until the counter shows 1\n  await expect(page.locator('.cart-count')).toHaveText('1');\n});\n\n// Flaky: a forgotten await lets the test continue too early\n// page.getByRole('button', { name: 'Save' }).click();\n// Stable:\n// await page.getByRole('button', { name: 'Save' }).click();",
+      "buzzWords": [
+        "--repeat-each",
+        "'flaky' Status in the Report",
+        "Call Log and DOM Snapshots",
+        "Retrying Assertions",
+        "Missing await"
+      ]
+    },
+    {
+      "id": 26,
+      "level": "Intermediate",
+      "topic": "Network, Mocking & Debugging",
+      "question": "How do you attach Playwright trace viewer artifacts to test reports on CI failure?",
+      "answer": "Two things are needed: Playwright must record the trace, and the CI system must keep the files after the job ends. (1) Record: in the config set trace: 'on-first-retry' with retries enabled in CI, or 'retain-on-failure'. Playwright then saves a trace.zip for the failing test in the test-results folder. (2) Report: use the HTML reporter. It automatically embeds the trace, screenshots and video of each failed test, and the report contains a link that opens the trace viewer in the browser, so no extra code is required. (3) Publish: the CI workspace is discarded after the run, so upload the playwright-report folder, and optionally test-results, as build artifacts. The upload step must run even when the tests fail, since that is exactly when the artifacts matter: in GitHub Actions use 'if: always()' or '!cancelled()' with actions/upload-artifact; in Jenkins use the HTML Publisher plugin and archiveArtifacts inside a post { always { ... } } block; in Azure DevOps use PublishPipelineArtifact with condition: always(). (4) View: download the artifact and run 'npx playwright show-report', or open trace.zip at trace.playwright.dev. Extra evidence can be attached from a test with testInfo.attach(). For sharded runs, use the blob reporter on each shard and 'npx playwright merge-reports' to produce one combined report.",
+      "realTimeExample": "A nightly run fails on one test. The engineer opens the pipeline run, downloads the 'playwright-report' artifact, opens index.html, clicks the failed test and then its trace, and sees every step with snapshots, without reproducing the failure locally.",
+      "code": "// playwright.config.ts\n// retries: process.env.CI ? 1 : 0,\n// use: { trace: 'on-first-retry', screenshot: 'only-on-failure', video: 'retain-on-failure' },\n// reporter: [['html', { open: 'never' }], ['junit', { outputFile: 'results/junit.xml' }]]\n\n# GitHub Actions\n- name: Run Playwright tests\n  run: npx playwright test\n\n- name: Upload report and traces\n  if: ${{ !cancelled() }}                 # also runs when tests fail\n  uses: actions/upload-artifact@v4\n  with:\n    name: playwright-report\n    path: |\n      playwright-report/\n      test-results/\n    retention-days: 14\n\n// Jenkinsfile\n// post {\n//   always {\n//     archiveArtifacts artifacts: 'playwright-report/**, test-results/**', allowEmptyArchive: true\n//     publishHTML(target: [reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Playwright Report'])\n//   }\n// }\n\n// Extra attachment from a test\n// await testInfo.attach('api-response', { body: JSON.stringify(data), contentType: 'application/json' });",
+      "buzzWords": [
+        "trace: 'on-first-retry'",
+        "HTML Reporter Embeds Traces",
+        "Upload Artifacts Even on Failure",
+        "if: always() / post { always }",
+        "merge-reports for Shards"
+      ]
+    },
+    {
+      "id": 27,
+      "level": "Beginner",
+      "topic": "Network, Mocking & Debugging",
+      "question": "How do you generate Allure or HTML reports in Playwright?",
+      "answer": "Reporters are configured with the 'reporter' option in playwright.config.ts, or with --reporter on the command line, and several can be used at once. HTML report, built in: set reporter: 'html'. After the run, Playwright writes a self-contained report to the playwright-report folder with pass, fail, flaky and skipped counts, filters, test steps, errors, and the attached screenshots, videos and traces. Open it with 'npx playwright show-report'. Options include outputFolder and open ('always', 'never' or 'on-failure'). Other built-in reporters: list, line and dot for the console; json and junit, which produce files that CI tools read to show test results; github for annotations; and blob for merging sharded runs. Allure report: install the allure-playwright package and add ['allure-playwright'] to the reporters. The run produces raw result files in the allure-results folder. Generate the report with the Allure command-line tool: 'allure generate allure-results --clean -o allure-report' and view it with 'allure open', or use 'allure serve allure-results'. Allure adds history and trends, categories of failures, and labels such as epic, feature, severity and owner. In CI, publish the HTML or Allure folder as an artifact or with the CI tool's report plugin, and use the junit reporter for the built-in test results view. test.step() gives readable steps in both reports.",
+      "realTimeExample": "A pipeline uses three reporters together: 'list' for readable console output during the run, 'junit' so Jenkins shows the pass and fail trend, and 'html' as a downloadable artifact with traces for debugging.",
+      "code": "// playwright.config.ts\nimport { defineConfig } from '@playwright/test';\n\nexport default defineConfig({\n  reporter: [\n    ['list'],                                               // console\n    ['html', { outputFolder: 'playwright-report', open: 'never' }],\n    ['junit', { outputFile: 'results/junit.xml' }],        // for CI test results\n    ['allure-playwright']                                   // npm i -D allure-playwright\n  ]\n});\n\n// Readable steps in the report\nimport { test, expect } from '@playwright/test';\n\ntest('checkout', async ({ page }) => {\n  await test.step('Add a product to the cart', async () => {\n    await page.goto('/products');\n    await page.getByRole('button', { name: 'Add to cart' }).first().click();\n  });\n\n  await test.step('Verify the cart', async () => {\n    await expect(page.locator('.cart-count')).toHaveText('1');\n  });\n});\n\n// Commands\n// npx playwright test\n// npx playwright show-report                               open the HTML report\n// npx playwright test --reporter=line                      override from the command line\n// allure generate allure-results --clean -o allure-report  build the Allure report\n// allure open allure-report",
+      "buzzWords": [
+        "reporter in playwright.config.ts",
+        "Built-in HTML Reporter",
+        "npx playwright show-report",
+        "allure-playwright",
+        "junit for CI"
+      ]
+    },
+    {
+      "id": 28,
+      "level": "Intermediate",
+      "topic": "CI/CD & TypeScript",
+      "question": "How do you integrate Playwright with Jenkins?",
+      "answer": "The tests run from the command line, so Jenkins only needs an environment with Node.js and the browsers, and a pipeline that runs the commands and publishes the results. Environment: the simplest and most reliable choice is to run the job inside the official Playwright Docker image, mcr.microsoft.com/playwright, with a version tag matching the @playwright/test version in package.json; it already contains the browsers and their system libraries. Without Docker, install Node.js on the agent (or use the NodeJS plugin) and run 'npx playwright install --with-deps'. Pipeline stages in a Jenkinsfile kept in the repository: (1) Checkout from Git; (2) Install dependencies with 'npm ci'; (3) Run 'npx playwright test', passing parameters such as the environment, project or tag as environment variables or CLI options; (4) Publish results in a post { always } block so it runs even when tests fail: junit for the test results trend, the HTML Publisher plugin or archiveArtifacts for the Playwright HTML report, and traces. Configuration for CI: set CI=true, which the config uses to enable retries and fix the worker count; tests run headless by default. Triggers: on each commit by webhook, on a schedule with cron for nightly runs, or after a deployment job. Add parameters for environment and tag, keep secrets in Jenkins credentials, and use parallel stages with --shard to split a large suite across agents.",
+      "realTimeExample": "After each deployment to QA, a Jenkins job starts in the Playwright Docker image, runs 'npx playwright test --grep @smoke' against the QA URL, shows the JUnit trend on the job page, publishes the HTML report and posts the result to the team channel.",
+      "code": "// Jenkinsfile\npipeline {\n  agent {\n    docker {\n      image 'mcr.microsoft.com/playwright:v1.49.0-noble'     // match your @playwright/test version\n      args '--ipc=host'\n    }\n  }\n\n  parameters {\n    choice(name: 'ENV', choices: ['qa', 'staging'], description: 'Environment')\n    string(name: 'TAG', defaultValue: '@smoke', description: 'Tests to run')\n  }\n\n  environment {\n    CI = 'true'\n    BASE_URL = \"https://${params.ENV}.example.com\"\n    APP_PASSWORD = credentials('app-password')\n  }\n\n  stages {\n    stage('Install') {\n      steps { sh 'npm ci' }\n    }\n    stage('Test') {\n      steps { sh \"npx playwright test --grep '${params.TAG}'\" }\n    }\n  }\n\n  post {\n    always {\n      junit 'results/junit.xml'\n      publishHTML(target: [\n        reportDir: 'playwright-report',\n        reportFiles: 'index.html',\n        reportName: 'Playwright Report',\n        keepAll: true,\n        alwaysLinkToLastBuild: true\n      ])\n      archiveArtifacts artifacts: 'test-results/**', allowEmptyArchive: true\n    }\n  }\n}",
+      "buzzWords": [
+        "Official Playwright Docker Image",
+        "npm ci",
+        "npx playwright test",
+        "post { always }: Publish Reports",
+        "CI=true"
+      ]
+    },
+    {
+      "id": 29,
+      "level": "Intermediate",
+      "topic": "CI/CD & TypeScript",
+      "question": "How do you integrate Playwright with Azure DevOps?",
+      "answer": "Create a YAML pipeline, azure-pipelines.yml, in the repository. Main parts: Trigger: 'trigger' for branches that start the pipeline on a push, 'pr' for pull-request validation, and 'schedules' with a cron expression for nightly runs. Pool: a Microsoft-hosted agent such as ubuntu-latest, or a self-hosted agent. Steps: (1) install Node.js with the task for it (UseNode or NodeTool); (2) 'npm ci' to install dependencies; (3) 'npx playwright install --with-deps' to install browsers and their system libraries, or instead run the job in the official Playwright container using the 'container' keyword; (4) 'npx playwright test', with CI set to 'true' and other values such as the base URL passed as environment variables. Secrets are stored as secret pipeline variables or in a variable group linked to Azure Key Vault, and must be mapped explicitly into the step's env block. Publishing: PublishTestResults@2 with the JUnit file gives the Tests tab with pass, fail and history; PublishPipelineArtifact@1 uploads the playwright-report folder, including traces. Both need condition: succeededOrFailed() or always(), so they run when tests fail. For scale, use a matrix or the parallel strategy with --shard to run several agents. Results can also be linked to Azure Test Plans, and Microsoft offers a hosted Playwright service for running on cloud browsers.",
+      "realTimeExample": "Every pull request to main runs the @smoke tests as a required check; the Tests tab shows which test failed, and the playwright-report artifact contains the trace. A scheduled run executes the full regression at 1 a.m. UTC.",
+      "code": "# azure-pipelines.yml\ntrigger:\n  branches:\n    include: [ main ]\n\npr:\n  branches:\n    include: [ main ]\n\nschedules:\n  - cron: '0 1 * * *'              # 01:00 UTC every day\n    displayName: Nightly regression\n    branches:\n      include: [ main ]\n    always: true                    # run even when there are no new commits\n\npool:\n  vmImage: ubuntu-latest\n\nvariables:\n  CI: 'true'\n\nsteps:\n  - task: UseNode@1\n    inputs:\n      version: '20.x'\n    displayName: Install Node.js\n\n  - script: npm ci\n    displayName: Install dependencies\n\n  - script: npx playwright install --with-deps\n    displayName: Install browsers\n\n  - script: npx playwright test\n    displayName: Run Playwright tests\n    env:\n      BASE_URL: $(BASE_URL)\n      APP_PASSWORD: $(APP_PASSWORD)          # secret variable, mapped explicitly\n\n  - task: PublishTestResults@2\n    condition: succeededOrFailed()\n    inputs:\n      testResultsFormat: JUnit\n      testResultsFiles: 'results/junit.xml'\n      testRunTitle: Playwright tests\n\n  - task: PublishPipelineArtifact@1\n    condition: succeededOrFailed()\n    inputs:\n      targetPath: playwright-report\n      artifact: playwright-report",
+      "buzzWords": [
+        "azure-pipelines.yml",
+        "trigger / pr / schedules",
+        "npx playwright install --with-deps",
+        "PublishTestResults@2 (JUnit)",
+        "condition: succeededOrFailed()"
+      ]
+    },
+    {
+      "id": 30,
+      "level": "Expert",
+      "topic": "CI/CD & TypeScript",
+      "question": "More than 400 tests pass locally, but the scheduled execution in Azure DevOps is not running. How would you investigate?",
+      "answer": "The tests pass, so the question is why the pipeline does not start, or starts and does nothing. Work through it in order. (1) Did the schedule fire at all? Open the pipeline and check the run history, and use 'Scheduled runs' in the pipeline menu, which lists the upcoming runs Azure DevOps has calculated. If the list is empty, the schedule is not being recognised. (2) Schedule definition: the cron expression is in UTC, not local time, so the run may be happening at a different hour than expected. Check the syntax of the five fields. (3) No changes: by default a scheduled run is skipped if there have been no code changes since the last successful scheduled run. Add 'always: true' to the schedule. (4) Branch: the schedule must be in the YAML file on the branch it names under branches.include, and it is read from each branch's own copy of the file. A schedule added only on a feature branch does not run for main. (5) Overrides: schedules defined in the pipeline's settings UI override the ones in YAML; clear them if YAML should apply. (6) Pipeline state: check that the pipeline is not disabled or paused, and that the YAML has no errors that prevent it from being parsed. (7) Agents: the run may be queued and waiting: no free parallel jobs, self-hosted agents offline, or an expired service connection or permission that must be approved. (8) If the run starts but executes no tests: check test filters such as --grep or the project name, the testDir path, a failing install step, or environment variables and secrets missing in CI. Also note that pipelines with no activity for a long time can have their schedules stopped. After fixing, trigger a manual run and confirm the next scheduled time.",
+      "realTimeExample": "A nightly regression never appeared in the run history. The 'Scheduled runs' view was empty because the schedules block had been added on a feature branch only, and it lacked 'always: true'. Merging the YAML to main and adding that line made the 1 a.m. UTC run appear and execute.",
+      "code": "# Checklist in azure-pipelines.yml\nschedules:\n  - cron: '30 19 * * 1-5'          # UTC! 19:30 UTC = 01:00 IST the next day\n    displayName: Nightly regression\n    branches:\n      include:\n        - main                      # this YAML must exist on main\n    always: true                    # run even without new commits\n\n# Things to verify in the Azure DevOps UI\n# 1. Pipeline > ... > Scheduled runs          -> are upcoming runs listed?\n# 2. Pipeline > Edit > Triggers               -> UI schedules override YAML schedules\n# 3. Pipeline > Settings                      -> is the pipeline enabled, not paused?\n# 4. Project settings > Parallel jobs         -> is a job slot free? agents online?\n# 5. Run details                              -> queued, waiting for approval, or failed early?\n\n# If the run starts but runs 0 tests, check the command and filters\n# npx playwright test --list                  -> what would be executed?\n# npx playwright test --grep @regression      -> does the tag match any test?",
+      "buzzWords": [
+        "Cron Is in UTC",
+        "always: true",
+        "Schedule Must Be on the Target Branch",
+        "UI Schedules Override YAML",
+        "Scheduled Runs View"
+      ]
+    },
+    {
+      "id": 31,
+      "level": "Beginner",
+      "topic": "CI/CD & TypeScript",
+      "question": "Write a TypeScript function to remove duplicate values from an array.",
+      "answer": "The shortest solution uses a Set, a built-in collection that stores each value only once and keeps the order of insertion. Create a Set from the array and spread it back into a new array: [...new Set(values)]. Making the function generic, with a type parameter T, lets one function work for arrays of numbers, strings or any other type while keeping the type information: function unique<T>(values: T[]): T[]. It runs in O(n) time and does not change the original array. Alternatives: filter with indexOf, which keeps an element only if its first index equals the current index; it is clear but O(n²). Or reduce, building the result while checking includes(). A point interviewers look for: a Set compares objects by reference, not by content, so two different objects with the same fields are both kept. To remove duplicate objects, decide which property identifies them and use a Map keyed by that property, or track seen keys in a Set. The same rule applies to NaN and to comparing '1' with 1: a Set treats NaN as equal to itself and does not treat the string '1' as the number 1.",
+      "realTimeExample": "A test collects product names from several pages of results and removes duplicates before asserting the count of distinct products. For product objects from an API, duplicates are removed by product id.",
+      "code": "// Generic: works for any element type\nfunction unique<T>(values: T[]): T[] {\n  return [...new Set(values)];\n}\n\nconsole.log(unique([1, 2, 2, 3, 1, 4]));                    // [1, 2, 3, 4]\nconsole.log(unique(['qa', 'dev', 'qa', 'ops']));            // ['qa', 'dev', 'ops']\n\n// Without Set: filter + indexOf (O(n * n))\nfunction uniqueWithFilter<T>(values: T[]): T[] {\n  return values.filter((value, index) => values.indexOf(value) === index);\n}\nconsole.log(uniqueWithFilter([5, 5, 6, 7, 6]));             // [5, 6, 7]\n\n// Objects: remove duplicates by a key\ninterface Product { id: number; name: string; }\n\nfunction uniqueBy<T, K>(items: T[], key: (item: T) => K): T[] {\n  const seen = new Map<K, T>();\n  for (const item of items) {\n    if (!seen.has(key(item))) {\n      seen.set(key(item), item);           // keep the first occurrence\n    }\n  }\n  return [...seen.values()];\n}\n\nconst products: Product[] = [\n  { id: 1, name: 'Backpack' },\n  { id: 2, name: 'Bike Light' },\n  { id: 1, name: 'Backpack' }\n];\nconsole.log(uniqueBy(products, p => p.id));\n// [ { id: 1, name: 'Backpack' }, { id: 2, name: 'Bike Light' } ]",
+      "expectedOutput": "[ 1, 2, 3, 4 ]\n[ 'qa', 'dev', 'ops' ]\n[ 5, 6, 7 ]\n[ { id: 1, name: 'Backpack' }, { id: 2, name: 'Bike Light' } ]",
+      "buzzWords": [
+        "[...new Set(values)]",
+        "Generic Function <T>",
+        "filter + indexOf",
+        "Objects Compared by Reference",
+        "Map Keyed by Id"
+      ]
+    },
+    {
+      "id": 32,
+      "level": "Beginner",
+      "topic": "CI/CD & TypeScript",
+      "question": "What JavaScript basics should an automation engineer know?",
+      "answer": "These are the points usually asked in a quick-fire round. Variables: let for values that change, const for values that do not, and var avoided because it is function-scoped and hoisted. Data types: string, number, boolean, null, undefined, bigint and symbol are primitives; objects, arrays and functions are reference types. Equality: === compares value and type; == converts types first and should be avoided, since '5' == 5 is true. Truthy and falsy: false, 0, '', null, undefined and NaN are falsy. Functions: normal functions and arrow functions; arrow functions do not have their own 'this'. Template literals: `Hello ${name}`. Destructuring and spread: const { id, name } = user; const copy = [...list]. Array methods: map transforms, filter selects, find returns the first match, forEach iterates, reduce combines, some and every test conditions, includes checks membership. Objects and JSON: JSON.parse() and JSON.stringify(). Asynchronous code, the most important topic for Playwright: a Promise represents a result that arrives later; async functions return promises; await pauses until the promise settles. Forgetting await is the classic automation bug. Promise.all runs several promises together. Error handling with try, catch and finally. Modules with import and export. Optional chaining (user?.address?.city) and nullish coalescing (value ?? 'default'). Scope and closures. null versus undefined: undefined means not assigned, null means deliberately empty.",
+      "realTimeExample": "A test wrote 'page.click(\"#save\")' without await and then asserted the success message, which failed intermittently because the assertion ran before the click finished. Adding await fixed it; understanding promises explained why.",
+      "code": "// let / const\nconst browser = 'chromium';\nlet retries = 0;\nretries++;\n\n// === vs ==\nconsole.log('5' == 5, '5' === 5);                    // true false\n\n// Template literal, destructuring, spread\nconst user = { id: 7, name: 'Asha', role: 'admin' };\nconst { name, role } = user;\nconsole.log(`${name} is ${role}`);                   // Asha is admin\nconst updated = { ...user, role: 'viewer' };\n\n// Array methods\nconst prices = [499, 1200, 750, 2500];\nconsole.log(prices.filter(p => p > 700));            // [ 1200, 750, 2500 ]\nconsole.log(prices.map(p => p * 2));                 // [ 998, 2400, 1500, 5000 ]\nconsole.log(prices.find(p => p > 1000));             // 1200\nconsole.log(prices.reduce((sum, p) => sum + p, 0));  // 4949\nconsole.log(prices.some(p => p > 2000), prices.every(p => p > 500));   // true false\n\n// Optional chaining and nullish coalescing\nconst city = updated.address?.city ?? 'unknown';\nconsole.log(city);                                   // unknown\n\n// Promises and async / await\nfunction fetchStatus() {\n  return new Promise(resolve => setTimeout(() => resolve('READY'), 100));\n}\n\nasync function main() {\n  try {\n    const status = await fetchStatus();              // wait for the result\n    console.log(status);                             // READY\n    const [a, b] = await Promise.all([fetchStatus(), fetchStatus()]);\n    console.log(a, b);                               // READY READY\n  } catch (error) {\n    console.log('Failed:', error);\n  }\n}\nmain();",
+      "expectedOutput": "true false\nAsha is admin\n[ 1200, 750, 2500 ]\n[ 998, 2400, 1500, 5000 ]\n1200\n4949\ntrue false\nunknown\nREADY\nREADY READY",
+      "buzzWords": [
+        "let / const",
+        "=== vs ==",
+        "map / filter / find / reduce",
+        "Promises and async / await",
+        "Optional Chaining and ??"
+      ]
     }
   ]
 }
