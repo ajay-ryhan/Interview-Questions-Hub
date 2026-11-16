@@ -3,33 +3,1439 @@
     {
       "id": 1,
       "level": "Beginner",
-      "topic": "HTTP Status Codes",
-      "question": "What is the difference between HTTP status codes 500 and 503?",
-      "answer": "Both are 5xx codes, which mean the server failed to handle a request that may have been valid. 500 Internal Server Error is a general error: something unexpected went wrong inside the application while processing the request, such as an unhandled exception, a null value, a failed database query or a coding defect. The server is running but this request broke it. Sending the same request again usually fails in the same way until the defect is fixed. 503 Service Unavailable means the server is temporarily unable to handle requests at all: it is overloaded, down for maintenance, restarting, or a service it depends on is not reachable. The problem is with availability, not with a particular request. It is expected to recover, and the response may include a Retry-After header telling the client when to try again. For a tester: a 500 on a specific input is normally a defect to report with the request, the response body and the server log; a 503 points to the environment or infrastructure, so check whether the service is up and retry later.",
-      "realTimeExample": "Sending a POST /orders request with a quantity of -1 returns 500 because the code does not validate the value and an exception is thrown; that is a defect (it should have been a 400). During a deployment window every endpoint returns 503 for two minutes and then works again; that is an environment condition, not a defect in the endpoint.",
-      "javaCode": "// REST Assured: assert the status code and inspect the error\nResponse response = given()\n        .contentType(ContentType.JSON)\n        .body(\"{\\\"productId\\\": 10, \\\"quantity\\\": -1}\")\n.when()\n        .post(\"https://api.example.com/orders\");\n\nint status = response.statusCode();\nSystem.out.println(\"Status: \" + status);\n\nif (status == 503) {\n    System.out.println(\"Service unavailable. Retry-After: \" + response.header(\"Retry-After\"));\n} else if (status == 500) {\n    System.out.println(\"Server error body: \" + response.asString());\n}\n\n// A negative input should be rejected by validation, not crash the server\nAssert.assertEquals(status, 400, \"Invalid quantity should return 400 Bad Request\");",
+      "topic": "API Fundamentals",
+      "question": "What is an API?",
+      "answer": "An API (Application Programming Interface) is a defined way for two software components to communicate. It exposes operations or data through agreed rules, such as endpoints, request methods, parameters, headers and response formats. A client does not need to know the server's internal implementation; it only needs to follow the API contract. APIs can be provided by libraries, operating systems, databases or network services. A REST API is one common kind of web API, not the meaning of API itself.",
+      "realTimeExample": "A mobile banking app calls a bank API to retrieve an account balance. The app sends an authenticated request; the API returns structured data without exposing how the bank stores or calculates the balance.",
+      "javaCode": "",
       "buzzWords": [
-        "5xx: Server-Side Errors",
-        "500: Unexpected Application Error",
-        "503: Temporarily Unavailable",
-        "Retry-After Header",
-        "Defect vs Environment Issue"
+        "Application Programming Interface",
+        "Contract",
+        "Client-server communication",
+        "Request and response",
+        "Abstraction"
       ]
     },
     {
       "id": 2,
+      "level": "Beginner",
+      "topic": "API Fundamentals",
+      "question": "What is a web service, why is it important, and how do web services differ from APIs?",
+      "answer": "A web service is a software system that makes functionality or data available to other systems over a network, commonly using web protocols such as HTTP. It is important because it enables interoperability and integration across applications and platforms. An API is the broader interface/contract through which software components interact; a web service is an API exposed over a network using web technologies. Therefore, every web service exposes an API, but not every API is a web service: a local library API may run inside one process. Web services may use REST, SOAP or other protocols and styles.",
+      "realTimeExample": "A travel website calls an airline web service to check flight availability. The endpoint and request format form the API contract; the network-accessible implementation is the web service.",
+      "javaCode": "",
+      "buzzWords": [
+        "Web service",
+        "API contract",
+        "Interoperability",
+        "HTTP",
+        "Network communication"
+      ]
+    },
+    {
+      "id": 3,
+      "level": "Beginner",
+      "topic": "API Fundamentals",
+      "question": "What is REST (full form), and why is it widely used?",
+      "answer": "REST stands for Representational State Transfer. It is an architectural style for distributed systems, not a protocol or a programming language. REST commonly uses HTTP, resource-oriented URIs, standard methods, stateless requests, representations such as JSON, and cache controls. It is widely used because it builds on familiar web infrastructure, is relatively simple to consume, supports loose coupling and works across platforms. A service should be described as RESTful only to the extent that it follows REST constraints; using JSON over HTTP alone does not automatically make it REST.",
+      "realTimeExample": "A client retrieves /customers/42 with GET and receives a JSON representation. A later request includes its own authentication and context rather than relying on hidden server-side session state.",
+      "javaCode": "",
+      "buzzWords": [
+        "Representational State Transfer",
+        "Architectural style",
+        "Resources",
+        "Statelessness",
+        "HTTP methods"
+      ]
+    },
+    {
+      "id": 4,
+      "level": "Intermediate",
+      "topic": "API Fundamentals",
+      "question": "What are REST, SOAP and GraphQL, and how do SOAP and REST differ in design?",
+      "answer": "REST is an architectural style that commonly uses HTTP resources and methods, often exchanging JSON. SOAP is a protocol with a formal XML message envelope, defined processing rules and extensibility standards; it can operate over different underlying transports, commonly HTTP. GraphQL is a query language and runtime for APIs in which clients request specific fields from a schema, often through one HTTP endpoint. REST is resource/method oriented and usually has multiple resource URLs; SOAP is message/operation oriented with XML envelopes and formal contracts such as WSDL; GraphQL is schema/query oriented and lets clients shape the response. None is universally best: the choice depends on compatibility, governance, tooling and client needs.",
+      "realTimeExample": "A public product catalogue may use REST; a legacy enterprise payment integration may use SOAP with a WSDL contract; a mobile app with many screens may use GraphQL to request only the fields each screen needs.",
+      "javaCode": "",
+      "buzzWords": [
+        "REST",
+        "SOAP",
+        "GraphQL",
+        "XML envelope",
+        "WSDL",
+        "Schema"
+      ]
+    },
+    {
+      "id": 5,
+      "level": "Intermediate",
+      "topic": "API Fundamentals",
+      "question": "What is WSDL, and what role does it play?",
+      "answer": "WSDL stands for Web Services Description Language. It is an XML-based description of a web service, traditionally used with SOAP. It describes the service's operations, messages, data types, bindings and service endpoints. Consumers and tools can use the WSDL to understand the contract and generate client code or test requests. WSDL describes the interface; it is not itself the SOAP message or the service implementation.",
+      "realTimeExample": "A QA engineer imports a SOAP service's WSDL into SoapUI. SoapUI reads the operations and message definitions and creates sample requests for operations such as GetCustomer.",
+      "javaCode": "",
+      "buzzWords": [
+        "Web Services Description Language",
+        "SOAP contract",
+        "Operations",
+        "Messages",
+        "Bindings",
+        "Service endpoint"
+      ]
+    },
+    {
+      "id": 6,
+      "level": "Beginner",
+      "topic": "API Fundamentals",
+      "question": "How is XML different from HTML?",
+      "answer": "XML (Extensible Markup Language) is a general-purpose markup format for representing structured data with user-defined, properly nested tags. HTML (HyperText Markup Language) defines the structure and semantics of web pages using a standard set of elements that browsers interpret for display and interaction. XML focuses on data structure and extensibility; HTML focuses on document structure and presentation semantics. XML is case-sensitive and requires well-formed nesting and closing tags. Modern HTML parsing is more forgiving, although valid HTML should still follow its specification.",
+      "realTimeExample": "An API may return XML such as <customer><id>42</id></customer> to represent data. A web page uses HTML elements such as <h1>Customer</h1> and <p>Account details</p> to present content.",
+      "javaCode": "",
+      "buzzWords": [
+        "Extensible Markup Language",
+        "HyperText Markup Language",
+        "Structured data",
+        "Web document",
+        "Well-formedness"
+      ]
+    },
+    {
+      "id": 7,
+      "level": "Beginner",
+      "topic": "API Fundamentals",
+      "question": "What is a schema in web technologies?",
+      "answer": "A schema is a formal definition of the structure, allowed values, types and constraints of data or messages. In APIs, a JSON Schema or XML Schema (XSD) can define required properties, data types, formats, nesting and validation rules. A database schema defines tables, columns and relationships, which is a different but related use of the term. A schema helps producers and consumers agree on a contract and allows automated validation.",
+      "realTimeExample": "A response schema says that an order must contain an integer id, a status string and an items array. A test validates the response against that schema and fails if id is returned as an object or a required field is missing.",
+      "javaCode": "",
+      "buzzWords": [
+        "Contract",
+        "JSON Schema",
+        "XML Schema",
+        "XSD",
+        "Data types",
+        "Validation"
+      ]
+    },
+    {
+      "id": 8,
+      "level": "Beginner",
+      "topic": "API Fundamentals",
+      "question": "What is an endpoint?",
+      "answer": "An endpoint is a network-accessible address at which an API operation can be invoked. In HTTP APIs it is commonly the combination of a URL path and an HTTP method, sometimes with path parameters. The same path can support different operations depending on the method. An endpoint may also require headers, authentication, query parameters or a request body.",
+      "realTimeExample": "GET /api/v1/orders/105 retrieves order 105, while DELETE /api/v1/orders/105 requests its deletion. They use the same resource path but represent different operations.",
+      "javaCode": "",
+      "buzzWords": [
+        "Endpoint",
+        "Resource path",
+        "HTTP method",
+        "Path parameter",
+        "API operation"
+      ]
+    },
+    {
+      "id": 9,
+      "level": "Beginner",
+      "topic": "API Fundamentals",
+      "question": "What is a payload?",
+      "answer": "A payload is the application data carried in a request or response, separate from transport or protocol metadata such as headers. In an HTTP POST request, the JSON body containing a new customer's details is the request payload. A response body containing the created customer is the response payload. GET requests normally do not use a request body; clients should use path or query parameters to identify or filter resources.",
+      "realTimeExample": "A POST /customers request sends {\"name\":\"Maya\",\"email\":\"maya@example.com\"} as its JSON payload. The server responds with the created customer and its generated id.",
+      "javaCode": "",
+      "buzzWords": [
+        "Request body",
+        "Response body",
+        "JSON",
+        "Application data",
+        "Headers"
+      ]
+    },
+    {
+      "id": 10,
+      "level": "Intermediate",
+      "topic": "API Fundamentals",
+      "question": "What is the difference between a URI and a URL?",
+      "answer": "URI stands for Uniform Resource Identifier: it identifies a resource. URL stands for Uniform Resource Locator: it identifies a resource and provides a way to locate it, typically through a scheme and location. A URL is a type of URI, but not every URI is necessarily a URL; for example, a URN can identify a resource by name without locating it. In everyday API discussions, people often use URL when referring to an HTTP address.",
+      "realTimeExample": "https://api.example.com/users/42 is a URL and also a URI. urn:isbn:9780132350884 is a URI that identifies a book by its ISBN but does not specify a network location.",
+      "javaCode": "",
+      "buzzWords": [
+        "Uniform Resource Identifier",
+        "Uniform Resource Locator",
+        "URN",
+        "Scheme",
+        "Resource identification"
+      ]
+    },
+    {
+      "id": 11,
+      "level": "Beginner",
+      "topic": "API Fundamentals",
+      "question": "What is 3-tier architecture?",
+      "answer": "Three-tier architecture separates an application into presentation, application/business logic and data tiers. The presentation tier handles the user interface; the application tier processes requests and enforces business rules; and the data tier stores and retrieves information. The tiers may run on separate machines or be logically separated within a deployment. This separation improves maintainability, scalability and security, but it does not guarantee that every system is physically deployed as three separate servers.",
+      "realTimeExample": "In an online store, the browser is the presentation tier, the order service validates checkout and calculates totals in the application tier, and a database stores orders and inventory in the data tier.",
+      "javaCode": "",
+      "buzzWords": [
+        "Presentation tier",
+        "Business logic tier",
+        "Data tier",
+        "Separation of concerns",
+        "Scalability"
+      ]
+    },
+    {
+      "id": 12,
+      "level": "Intermediate",
+      "topic": "API Fundamentals",
+      "question": "What is server-side validation?",
+      "answer": "Server-side validation is the checking performed by the backend after it receives a request. It verifies that input is valid, permitted and consistent with business rules, regardless of what client-side validation has done. Examples include required fields, data types, length limits, allowed values, ownership, inventory and authorization checks. Client-side validation improves user experience but can be bypassed, so the server must enforce security and business rules. Invalid input should produce an appropriate 4xx response with a useful, non-sensitive error description.",
+      "realTimeExample": "A user changes a browser request to submit a negative product quantity. Even if the UI prevents it, the API must reject the value rather than create an invalid order.",
+      "javaCode": "",
+      "buzzWords": [
+        "Input validation",
+        "Business rules",
+        "Trust boundary",
+        "Client-side vs server-side",
+        "4xx response"
+      ]
+    },
+    {
+      "id": 13,
+      "level": "Intermediate",
+      "topic": "API Fundamentals",
+      "question": "What are the components of an HTTP request?",
+      "answer": "An HTTP request consists of a request line in HTTP/1.1 (method, request target and HTTP version), headers, an optional message body, and the required framing/ending defined by the HTTP version. The request target may contain a path and query string. Headers carry metadata such as Host, Accept, Content-Type and Authorization. The body carries content when the operation needs it, such as JSON for many POST or PUT requests. HTTP/2 and HTTP/3 encode these elements differently, so the HTTP/1.1 textual request-line model should not be assumed to describe their wire format.",
+      "realTimeExample": "A POST request to /api/orders may include Content-Type: application/json and Authorization: Bearer <token> headers, followed by a JSON body containing the items to order.",
+      "javaCode": "",
+      "buzzWords": [
+        "Method",
+        "Request target",
+        "Headers",
+        "Message body",
+        "HTTP version",
+        "Content-Type"
+      ]
+    },
+    {
+      "id": 14,
+      "level": "Beginner",
+      "topic": "API Fundamentals",
+      "question": "What is an HTTP response?",
+      "answer": "An HTTP response is the server's message to a client after processing a request. In HTTP/1.1 it contains a status line (HTTP version, status code and reason phrase), response headers, and an optional body. The status code communicates the outcome category, headers provide metadata such as Content-Type, Cache-Control and Set-Cookie, and the body may contain the requested representation or error details. HTTP/2 and HTTP/3 use different binary framing and do not use the HTTP/1.1 textual status line on the wire.",
+      "realTimeExample": "A GET /products/10 request may return status 200, Content-Type: application/json, and a body containing the product id, name and price.",
+      "javaCode": "",
+      "buzzWords": [
+        "Status code",
+        "Response headers",
+        "Response body",
+        "Content-Type",
+        "HTTP response"
+      ]
+    },
+    {
+      "id": 15,
+      "level": "Intermediate",
+      "topic": "API Fundamentals",
+      "question": "Explain the HTTP methods GET, POST, PUT, PATCH and DELETE and their differences (GET vs POST, POST vs PUT, PUT vs PATCH), including the essential components of GET and POST.",
+      "answer": "GET retrieves a representation of a resource and is safe and idempotent. POST asks the target resource to process the submitted representation; it is commonly used to create a subordinate resource or trigger an operation, and is not inherently idempotent. PUT creates or replaces the state of the resource at the target URI and is idempotent by definition. PATCH applies a partial modification and is not guaranteed to be idempotent; the patch document's semantics determine that. DELETE requests removal of the target resource's association/state and is idempotent in intended effect, although repeated responses may differ (for example 204 then 404). GET vs POST: GET data is usually expressed in the path/query and is intended for retrieval; POST commonly carries input in the body and may change server state. POST vs PUT: POST commonly lets the server choose a new resource URI or perform an action; PUT targets a known URI and replaces/creates its state. PUT vs PATCH: PUT sends the complete intended representation (subject to API semantics); PATCH sends a change document. Essential GET components are method, endpoint/path, optional query parameters and relevant headers; a GET request body has no generally defined semantics and should normally be avoided. Essential POST components are method, endpoint, relevant headers (especially Content-Type and authentication where needed) and a request body when the operation requires data. Responses should be checked for status, headers and body as applicable.",
+      "realTimeExample": "A test creates an order with POST /orders, retrieves it with GET /orders/501, changes its delivery address with PATCH /orders/501, replaces the full editable representation with PUT /orders/501 if the API defines that contract, and removes it with DELETE /orders/501.",
+      "javaCode": "// REST Assured examples\n given().accept(ContentType.JSON).when().get(\"/orders?status=OPEN\").then().statusCode(200);\n given().contentType(ContentType.JSON).body(orderJson).when().post(\"/orders\").then().statusCode(201);\n given().contentType(ContentType.JSON).body(fullOrderJson).when().put(\"/orders/501\").then().statusCode(200);\n given().contentType(ContentType.JSON).body(\"{\\\"deliveryAddress\\\":\\\"New address\\\"}\").when().patch(\"/orders/501\").then().statusCode(200);\n when().delete(\"/orders/501\").then().statusCode(204);",
+      "buzzWords": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE",
+        "Safe method",
+        "Idempotency",
+        "Request body"
+      ]
+    },
+    {
+      "id": 16,
+      "level": "Intermediate",
+      "topic": "API Fundamentals",
+      "question": "What is the purpose of the TRACE method?",
+      "answer": "TRACE asks the server to return the received request message in the response body, allowing a client to see how the request was received and whether intermediaries modified it. It is primarily a diagnostic method and is rarely enabled on public production APIs. It can expose sensitive request headers or enable Cross-Site Tracing risks in some configurations, so servers commonly disable it. QA should not assume TRACE is supported; verify the API/server policy.",
+      "realTimeExample": "During controlled diagnostics, an administrator may use TRACE in a test environment to investigate proxy handling. A public API may correctly return 405 Method Not Allowed because TRACE is disabled.",
+      "javaCode": "",
+      "buzzWords": [
+        "TRACE",
+        "Diagnostic method",
+        "Request reflection",
+        "Proxy",
+        "Security risk",
+        "405 Method Not Allowed"
+      ]
+    },
+    {
+      "id": 17,
+      "level": "Intermediate",
+      "topic": "API Fundamentals",
+      "question": "If a GET request takes one minute to respond, can another HTTP method (e.g. HEAD) validate it faster?",
+      "answer": "Not necessarily. HEAD requests the same response metadata as GET but without the response body; a correctly implemented HEAD response should have the headers that a corresponding GET would have returned. It can save bandwidth and body-transfer time, but the server may still perform the same expensive database query or computation, so it may take nearly as long. HEAD validates reachability and selected metadata, not the correctness or completeness of the GET body. Measure both methods and confirm the endpoint's HEAD implementation and semantics.",
+      "realTimeExample": "If GET /reports/monthly takes 60 seconds because the server generates the report, HEAD /reports/monthly may still take 60 seconds even though it transfers no report body. It cannot prove the report contents are correct.",
+      "javaCode": "",
+      "buzzWords": [
+        "HEAD",
+        "GET semantics",
+        "Response headers",
+        "Server processing time",
+        "Performance measurement"
+      ]
+    },
+    {
+      "id": 18,
+      "level": "Beginner",
+      "topic": "API Fundamentals",
+      "question": "What is the difference between query parameters and path parameters? Give the query-parameter syntax.",
+      "answer": "Path parameters identify a specific resource or a hierarchical part of its path and are embedded in the URI path, for example /users/42. Query parameters usually filter, sort, paginate or otherwise modify a request for a resource collection and appear after ? as name=value pairs. Multiple query parameters are separated by &, and values should be URL-encoded when necessary. These are common conventions rather than absolute rules; the API contract determines their meaning.",
+      "realTimeExample": "GET /users/42 identifies user 42 using a path parameter. GET /users?role=admin&page=2 filters users and selects page 2 using query parameters.",
+      "javaCode": "// REST Assured\n given().pathParam(\"id\", 42).when().get(\"/users/{id}\");\n given().queryParam(\"role\", \"admin\").queryParam(\"page\", 2).when().get(\"/users\");",
+      "buzzWords": [
+        "Path parameter",
+        "Query parameter",
+        "URI path",
+        "Filtering",
+        "Pagination",
+        "URL encoding"
+      ]
+    },
+    {
+      "id": 19,
+      "level": "Beginner",
+      "topic": "API Fundamentals",
+      "question": "Explain the common HTTP status-code families and what 400, 404 and 501 mean.",
+      "answer": "1xx codes are informational; 2xx indicate success; 3xx indicate redirection or further action; 4xx indicate a client-side request problem; and 5xx indicate that the server failed to fulfil an apparently valid request. 400 Bad Request means the server cannot or will not process the request because of a client error such as malformed syntax or invalid framing. 404 Not Found means the target resource was not found, or the server is unwilling to disclose that it exists. 501 Not Implemented means the server does not support the functionality required to fulfil the request, commonly an unimplemented method or capability. 501 is not the normal response for an invalid field value.",
+      "realTimeExample": "A malformed JSON body may return 400. A request for a non-existent order may return 404. A server that does not implement a requested HTTP method may return 501, though 405 is more appropriate when the method is known but not allowed for that resource.",
+      "javaCode": "",
+      "buzzWords": [
+        "1xx Informational",
+        "2xx Success",
+        "3xx Redirection",
+        "4xx Client Error",
+        "5xx Server Error",
+        "400",
+        "404",
+        "501"
+      ]
+    },
+    {
+      "id": 20,
+      "level": "Beginner",
+      "topic": "API Fundamentals",
+      "question": "What is the difference between 200, 201 and 204?",
+      "answer": "200 OK means the request succeeded; a response body is commonly included but is not mandatory for every use. 201 Created means the request successfully created one or more resources; the response should identify the created resource, typically with a Location header and/or representation. 204 No Content means the request succeeded and there is no response content; clients must not expect a response body. The exact status depends on the operation and API contract.",
+      "realTimeExample": "GET /users/42 returns 200 with the user. POST /users creates a user and returns 201 with Location: /users/43. DELETE /users/43 succeeds and returns 204 with no body.",
+      "javaCode": "",
+      "buzzWords": [
+        "200 OK",
+        "201 Created",
+        "204 No Content",
+        "Location header",
+        "Response body"
+      ]
+    },
+    {
+      "id": 21,
+      "level": "Beginner",
+      "topic": "API Fundamentals",
+      "question": "What is the difference between 401 (Unauthorized) and 403 (Forbidden)?",
+      "answer": "401 Unauthorized means the request lacks valid authentication credentials for the target resource; the client may authenticate and retry. A 401 response must include a WWW-Authenticate challenge for the applicable authentication scheme. 403 Forbidden means the server understood the request but refuses to fulfil it; the user may be authenticated but lacks permission, or the server may refuse for another policy reason. In short, 401 is an authentication problem; 403 is an access/permission refusal. APIs sometimes use 404 instead of 403 to avoid revealing resource existence.",
+      "realTimeExample": "A user with no token or an expired token receives 401. A logged-in customer who tries to access an administrator-only endpoint receives 403.",
+      "javaCode": "",
+      "buzzWords": [
+        "401 Unauthorized",
+        "403 Forbidden",
+        "Authentication",
+        "Authorization",
+        "WWW-Authenticate",
+        "Access control"
+      ]
+    },
+    {
+      "id": 22,
+      "level": "Intermediate",
+      "topic": "API Fundamentals",
+      "question": "What is the difference between 500, 502 and 503, and when does 502 occur?",
+      "answer": "500 Internal Server Error is a generic response when the server encounters an unexpected condition and cannot complete the request. 502 Bad Gateway means a server acting as a gateway or proxy received an invalid response from an upstream server. 503 Service Unavailable means the server is temporarily unable to handle the request, commonly due to overload or maintenance; it may include Retry-After. A 502 can occur when an API gateway calls a downstream service and receives a malformed response, connection reset or otherwise invalid upstream response. A mere slow upstream more commonly leads to a timeout-related 504 Gateway Timeout, depending on the architecture.",
+      "realTimeExample": "An API gateway forwards GET /inventory to an inventory service. If the service returns a malformed HTTP response, the gateway may return 502. If the gateway cannot get a response before its timeout, it may return 504.",
+      "javaCode": "",
+      "buzzWords": [
+        "500 Internal Server Error",
+        "502 Bad Gateway",
+        "503 Service Unavailable",
+        "504 Gateway Timeout",
+        "Upstream service",
+        "Proxy"
+      ]
+    },
+    {
+      "id": 23,
+      "level": "Intermediate",
+      "topic": "API Fundamentals",
+      "question": "Which status codes do you use for negative scenarios?",
+      "answer": "I choose the status code that matches the failure and the API contract, rather than using one code for every negative test. Common cases include 400 for malformed or invalid requests; 401 for missing/invalid authentication; 403 for insufficient permission; 404 for a missing resource; 405 for a method not allowed on the resource; 409 for a state conflict or duplicate operation; 415 for unsupported media type; 422 for syntactically valid content that fails semantic validation where the API uses that convention; 429 for rate limiting; and 5xx for server-side failures such as 500, 502, 503 or 504. I also assert the error body, headers and that no unintended state change occurred.",
+      "realTimeExample": "A negative test submits an invalid quantity and expects 400 (or the documented 422); an unauthenticated call expects 401; a duplicate order key may expect 409; and excessive requests may expect 429 with Retry-After.",
+      "javaCode": "",
+      "buzzWords": [
+        "400",
+        "401",
+        "403",
+        "404",
+        "405",
+        "409",
+        "415",
+        "422",
+        "429",
+        "5xx",
+        "Error contract"
+      ]
+    },
+    {
+      "id": 24,
+      "level": "Beginner",
+      "topic": "API Fundamentals",
+      "question": "What is the difference between authentication and authorization?",
+      "answer": "Authentication verifies who or what the caller is, usually using credentials such as a password, API key, certificate or token. Authorization determines what that authenticated identity is allowed to do, based on roles, scopes, permissions, ownership or policy. Authentication normally happens before authorization, although systems may combine them in a gateway or policy layer. A valid identity does not automatically have permission to access every resource.",
+      "realTimeExample": "A user signs in and receives a token (authentication). The API then checks whether the token has the orders:read scope before returning an order (authorization).",
+      "javaCode": "",
+      "buzzWords": [
+        "Authentication",
+        "Authorization",
+        "Identity",
+        "Roles",
+        "Scopes",
+        "Permissions"
+      ]
+    },
+    {
+      "id": 25,
+      "level": "Intermediate",
+      "topic": "API Fundamentals",
+      "question": "Which authentication types have you used (Basic, Bearer, OAuth)?",
+      "answer": "A truthful interview answer should name only mechanisms I have actually used. Basic authentication sends a Base64-encoded username:password value in the Authorization header; Base64 is encoding, not encryption, so Basic must be protected by TLS and is generally unsuitable for modern user-facing delegated access. Bearer authentication sends a token in Authorization: Bearer <token>; possession of the token is sufficient to use it, so it must be protected and scoped appropriately. OAuth 2.0 is an authorization framework that lets a client obtain limited access tokens from an authorization server using defined grant flows. A bearer token may be an OAuth access token, but Bearer and OAuth are not synonyms. For QA, verify missing, invalid, expired and insufficient-scope credentials as well as successful access.",
+      "realTimeExample": "In Postman, configure Basic Auth for a test account, then test a protected API using a bearer access token. For OAuth 2.0, obtain a token through the approved flow and use it only for the scopes needed by the test.",
+      "javaCode": "// REST Assured examples\n given().auth().preemptive().basic(\"qauser\", System.getenv(\"QA_PASSWORD\"));\n given().header(\"Authorization\", \"Bearer \" + accessToken).when().get(\"/profile\");",
+      "buzzWords": [
+        "Basic Authentication",
+        "Base64 encoding",
+        "TLS",
+        "Bearer token",
+        "OAuth 2.0",
+        "Access token",
+        "Scopes"
+      ]
+    },
+    {
+      "id": 26,
+      "level": "Advanced",
+      "topic": "API Fundamentals",
+      "question": "What is the difference between OAuth 1.0 and OAuth 2.0, and what content type does the OAuth 2.0 token request use?",
+      "answer": "OAuth 1.0 (commonly OAuth 1.0a) uses signed requests, typically with a consumer key/secret and token key/secret, and includes request-signing details such as nonce and timestamp. OAuth 2.0 is a redesigned authorization framework based primarily on bearer access tokens and defined grant types/flows; it does not require the OAuth 1.0 signature mechanism. OAuth 2.0 is not an authentication protocol by itself; OpenID Connect adds an identity layer. For a standard OAuth 2.0 token request, the client sends parameters using application/x-www-form-urlencoded, usually in the POST body; client authentication may be provided using HTTP Basic or another method required by the authorization server. The response is commonly JSON (application/json). Always follow the provider's token endpoint specification; do not assume JSON request content.",
+      "realTimeExample": "A test obtains a token by POSTing grant_type=client_credentials and scope=orders.read as form-encoded data to the authorization server, then validates the JSON token response and uses the access_token in an API request.",
+      "javaCode": "// REST Assured: form-encoded token request\n Response response = given()\n     .contentType(\"application/x-www-form-urlencoded\")\n     .formParam(\"grant_type\", \"client_credentials\")\n     .formParam(\"scope\", \"orders.read\")\n     .auth().preemptive().basic(clientId, clientSecret)\n .when().post(tokenUrl);\n String token = response.jsonPath().getString(\"access_token\");",
+      "buzzWords": [
+        "OAuth 1.0a",
+        "OAuth 2.0",
+        "Request signing",
+        "Bearer token",
+        "Grant type",
+        "application/x-www-form-urlencoded",
+        "OpenID Connect"
+      ]
+    },
+    {
+      "id": 27,
+      "level": "Intermediate",
+      "topic": "API Fundamentals",
+      "question": "What is the difference between API testing and unit testing?",
+      "answer": "Unit testing verifies a small, isolated unit of code, such as a method or class, usually with dependencies mocked or stubbed. It is commonly written and run by developers and gives fast feedback about internal logic. API testing verifies the externally exposed interface and its contract, including request handling, authentication, status codes, headers, payloads, business rules, persistence and integrations. API tests may run at integration or service level and can involve real dependencies or controlled test doubles. The two complement each other: unit tests localize logic defects, while API tests validate behaviour across component boundaries.",
+      "realTimeExample": "A unit test checks that a tax-calculation method returns the correct amount for a given input. An API test sends POST /orders and verifies the response, persisted order and inventory effect.",
+      "javaCode": "",
+      "buzzWords": [
+        "Unit testing",
+        "API testing",
+        "Isolation",
+        "Integration testing",
+        "Contract testing",
+        "Business behaviour"
+      ]
+    },
+    {
+      "id": 28,
+      "level": "Intermediate",
+      "topic": "API Test Strategy & Validation",
+      "question": "What tests/validations do you perform on a REST API (including a standalone API)?",
+      "answer": "I start by understanding the API contract, business purpose, dependencies and data setup. I cover: (1) functional behaviour for each method and business rule; (2) positive, negative, boundary and equivalence-partition inputs; (3) request validation for path/query parameters, headers, content type and body; (4) response status, headers, schema, field values and error format; (5) authentication, authorization, ownership and data exposure; (6) CRUD, persistence and state transitions; (7) idempotency, concurrency and duplicate requests where relevant; (8) pagination, sorting, filtering and rate limits; (9) integration failures, timeouts and retries; and (10) performance, reliability and observability. For a standalone API with no UI, I can call it directly using Postman, curl or an automated client. I still validate the business outcome, not just a successful HTTP status.",
+      "realTimeExample": "For a customer API, I test creating a valid customer, rejecting invalid email and missing fields, preventing an unauthorized user from reading another customer's record, checking persistence with a trusted data source, and measuring response time under expected load.",
+      "javaCode": "",
+      "buzzWords": [
+        "API contract",
+        "Positive and negative testing",
+        "Boundary value analysis",
+        "Schema validation",
+        "Authorization",
+        "Persistence",
+        "Idempotency",
+        "Performance"
+      ]
+    },
+    {
+      "id": 29,
+      "level": "Intermediate",
+      "topic": "API Test Strategy & Validation",
+      "question": "What do you test in third-party integrated APIs?",
+      "answer": "I validate the integration contract and the behaviour at our system boundary. I check endpoint, method, authentication, scopes, headers, request mapping, response mapping, field types, mandatory/optional fields, status-code handling, error mapping, timeouts, retries, rate limits, pagination, version compatibility and data correctness. I also test unavailable, slow, malformed and unexpected upstream responses, duplicate delivery and recovery. Use a sandbox or approved test tenant, synthetic data and provider documentation. Do not assume a third-party service is always available or deterministic; isolate tests with mocks where appropriate and run a smaller set of real sandbox contract tests.",
+      "realTimeExample": "Our checkout service calls a payment provider. I verify successful authorization, declined card, timeout, provider 5xx, invalid signature/webhook, duplicate webhook and reconciliation of payment status.",
+      "javaCode": "",
+      "buzzWords": [
+        "Third-party integration",
+        "Contract testing",
+        "Sandbox",
+        "Timeout",
+        "Retry policy",
+        "Webhook",
+        "Error mapping",
+        "Reconciliation"
+      ]
+    },
+    {
+      "id": 30,
+      "level": "Advanced",
+      "topic": "API Test Strategy & Validation",
+      "question": "What is your end-to-end approach to API testing and automation, especially when there is no UI?",
+      "answer": "I begin with requirements, API specifications, sequence diagrams and dependency mapping. I identify critical business journeys and define test data, environment, credentials and cleanup strategy. I use Postman or curl for exploration, then automate stable scenarios with REST Assured or an equivalent client. Tests cover authentication, request validation, response contract, business rules, persistence and downstream side effects. When there is no UI, I trigger workflows directly through API calls and verify outcomes through subsequent API reads, event consumers, audit records or approved database checks. I separate smoke, regression, negative, contract and performance suites; keep tests independent where possible; parameterize environment configuration; protect secrets; and publish useful logs and reports in CI. I avoid relying on internal database state as the only proof of externally observable behaviour.",
+      "realTimeExample": "For a shipment workflow without a UI, the test creates an order, confirms the response, retrieves the order, triggers shipment creation, consumes or queries the shipment status, and verifies that the order reaches the expected state.",
+      "javaCode": "// REST Assured workflow sketch\nString orderId = given().contentType(ContentType.JSON).body(orderPayload)\n    .when().post(\"/orders\").then().statusCode(201)\n    .extract().path(\"id\");\n\ngiven().pathParam(\"id\", orderId).when().get(\"/orders/{id}\")\n    .then().statusCode(200).body(\"status\", equalTo(\"CREATED\"));",
+      "buzzWords": [
+        "API-first testing",
+        "End-to-end workflow",
+        "Test data management",
+        "REST Assured",
+        "CI pipeline",
+        "Observability",
+        "Independent tests"
+      ]
+    },
+    {
+      "id": 31,
+      "level": "Advanced",
+      "topic": "API Test Strategy & Validation",
+      "question": "How do you decide which scenarios to automate through the UI and which through the API?",
+      "answer": "I choose the lowest test layer that can reliably prove the requirement. API tests are preferred for broad data combinations, business rules, validation, authorization, service integrations and fast repeatable regression. UI tests are reserved for user-visible behaviour such as navigation, rendering, client-side validation, accessibility, browser compatibility and a small number of critical end-to-end journeys. I keep a balanced test pyramid: many unit and API tests, fewer UI tests. A scenario that specifically depends on browser behaviour must be tested through the UI; a backend rule should not be tested only through a slow UI path. Some critical workflows need both layers.",
+      "realTimeExample": "For checkout, I use API tests for discounts, stock rules and payment error handling, then a smaller UI test verifies that a shopper can add an item, see the correct total and complete checkout.",
+      "javaCode": "",
+      "buzzWords": [
+        "Test pyramid",
+        "Right test layer",
+        "API regression",
+        "UI validation",
+        "Risk-based testing",
+        "Maintainability"
+      ]
+    },
+    {
+      "id": 32,
+      "level": "Intermediate",
+      "topic": "API Test Strategy & Validation",
+      "question": "How do you test 'Add to Cart' through both UI and API?",
+      "answer": "Through the UI, I verify that the product can be selected, quantity changed, Add to Cart feedback displayed, cart count updated, correct product/price/quantity shown, and errors handled for unavailable or invalid items. Through the API, I call the cart endpoint with valid and invalid product IDs, quantities and authentication; assert status, schema, cart contents, calculated totals, currency, stock rules and persistence; and verify duplicate-add behaviour according to the contract. I also test concurrent updates, session/user isolation and that the UI displays the backend's authoritative cart state. Price and discount calculations should be validated against trusted business rules, not merely copied from the same response under test.",
+      "realTimeExample": "I add product 501 with quantity 2 through the UI and confirm two units appear. Separately, I POST the same cart operation through the API and GET the cart to verify product 501, quantity 2 and the expected subtotal.",
+      "javaCode": "// REST Assured sketch\nString cartId = given().auth().oauth2(token)\n    .contentType(ContentType.JSON)\n    .body(\"{\\\"productId\\\":501,\\\"quantity\\\":2}\")\n    .when().post(\"/cart/items\").then().statusCode(201)\n    .extract().path(\"cartId\");\n\ngiven().auth().oauth2(token).pathParam(\"id\", cartId)\n    .when().get(\"/carts/{id}\").then().statusCode(200)\n    .body(\"items.find { it.productId == 501 }.quantity\", equalTo(2));",
+      "buzzWords": [
+        "UI and API coverage",
+        "Cart state",
+        "Price calculation",
+        "Inventory validation",
+        "Persistence",
+        "User isolation"
+      ]
+    },
+    {
+      "id": 33,
+      "level": "Intermediate",
+      "topic": "API Test Strategy & Validation",
+      "question": "How do you validate status code, headers, cookies, content-type and response body?",
+      "answer": "I assert each part against the API contract. Check the exact expected status code; required headers such as Content-Type, Cache-Control, Location and correlation ID; cookies for expected name, value attributes, Secure, HttpOnly and SameSite where applicable; media type and charset; and body fields, types, values, schema and business rules. For cookies, avoid exposing session values in logs. Also validate absent or inappropriate headers and ensure sensitive data is not returned. A status code alone is insufficient.",
+      "realTimeExample": "For a successful login, I assert 200, JSON content type, a secure session cookie if cookie-based authentication is used, and the expected user identity without asserting or printing the raw session secret.",
+      "javaCode": "// REST Assured\n given().when().get(\"/profile\").then()\n    .statusCode(200)\n    .contentType(ContentType.JSON)\n    .header(\"Cache-Control\", notNullValue())\n    .body(\"userId\", equalTo(42));\n// Cookie assertions can use then().cookie(\"session\", notNullValue())",
+      "buzzWords": [
+        "Status assertion",
+        "Header validation",
+        "Cookie attributes",
+        "Content-Type",
+        "Schema assertion",
+        "Business validation"
+      ]
+    },
+    {
+      "id": 34,
+      "level": "Advanced",
+      "topic": "API Test Strategy & Validation",
+      "question": "How do you validate complex, deeply nested JSON responses (JSONPath, dynamic array-length assertions, in Java)?",
+      "answer": "I first identify the contract and important business invariants, then navigate nested fields with JSONPath rather than comparing a large response as raw text. I assert field existence, nullability, types, values, array contents, uniqueness and relationships between fields. For dynamic arrays, I assert meaningful conditions such as non-empty, expected count based on request/page metadata, or every element meeting a rule; I avoid hardcoding an array size that legitimately changes. In Java, REST Assured's JsonPath can extract lists and values, while Jackson's JsonNode is useful for strongly controlled traversal. Use defensive checks for optional fields and clear failure messages.",
+      "realTimeExample": "For an order response, I assert order.id, customer.id, each items[*].quantity is positive, each item has a SKU, and the sum of item totals matches the order subtotal according to the documented rounding rules.",
+      "javaCode": "// REST Assured + JsonPath\nResponse response = given().when().get(\"/orders/501\");\nList<Integer> quantities = response.jsonPath().getList(\"items.quantity\");\nassertFalse(quantities.isEmpty());\nassertTrue(quantities.stream().allMatch(qty -> qty != null && qty > 0));\nassertNotNull(response.jsonPath().getString(\"customer.id\"));",
+      "buzzWords": [
+        "JSONPath",
+        "Nested JSON",
+        "Dynamic arrays",
+        "JsonPath",
+        "Jackson JsonNode",
+        "Business invariants"
+      ]
+    },
+    {
+      "id": 35,
+      "level": "Advanced",
+      "topic": "API Test Strategy & Validation",
+      "question": "How do you validate a response against a JSON schema, including a dynamic schema file?",
+      "answer": "I keep schemas as version-controlled test resources and validate the response against the schema appropriate to that endpoint and API version. A schema can check required properties, types, formats, allowed values, array item structure and additional-property rules. With REST Assured, the json-schema-validator module provides matchesJsonSchemaInClasspath for a classpath resource; for a dynamic file path, load the schema content or use the library's supported file/resource matcher. Avoid weakening schemas just to make tests pass, and distinguish structural validation from business-value assertions. The schema file should be selected based on a controlled environment/configuration or response version, not an arbitrary untrusted path.",
+      "realTimeExample": "An API v1 test loads schemas/order-v1.json, while an API v2 test loads schemas/order-v2.json. Both validate the response structure and separately assert the order's actual status and total.",
+      "javaCode": "// Dependency: io.rest-assured:json-schema-validator\n// Static classpath schema\n given().when().get(\"/orders/501\").then()\n    .body(matchesJsonSchemaInClasspath(\"schemas/order-schema.json\"));\n\n// Dynamic schema path: read a trusted configured file, then pass its contents\nString schema = Files.readString(Path.of(schemaPath));\ngiven().when().get(\"/orders/501\").then()\n    .body(matchesJsonSchema(schema));",
+      "buzzWords": [
+        "JSON Schema",
+        "Schema validation",
+        "Required properties",
+        "Versioned contract",
+        "matchesJsonSchemaInClasspath",
+        "Dynamic resource"
+      ]
+    },
+    {
+      "id": 36,
+      "level": "Advanced",
+      "topic": "API Test Strategy & Validation",
+      "question": "How do you verify that the data returned by an API is actually correct — e.g. it returns HTTP 200 but the business data is wrong — and how do you report it?",
+      "answer": "I treat HTTP 200 as transport-level success, not proof of business correctness. I compare returned values with an independent expected result derived from requirements, controlled test data, a trusted source of truth or a separately verified workflow. I check relationships, calculations, status transitions, ownership, timestamps, currency and persistence. I avoid using the same potentially faulty service response as both actual and expected data. When reporting, include environment, endpoint, method, sanitized request, correlation ID, expected versus actual values, reproduction steps, timestamp and evidence, while masking credentials and personal data. Classify it as a functional/business-data defect rather than a status-code defect.",
+      "realTimeExample": "The order API returns 200 but reports a total of ₹900 when the independently calculated total after the documented discount is ₹800. I report the incorrect total, attach sanitized payload and order ID, and include the calculation rule.",
+      "javaCode": "",
+      "buzzWords": [
+        "Business validation",
+        "Source of truth",
+        "Expected vs actual",
+        "Data integrity",
+        "Correlation ID",
+        "Defect evidence"
+      ]
+    },
+    {
+      "id": 37,
+      "level": "Intermediate",
+      "topic": "API Test Strategy & Validation",
+      "question": "How do you perform positive and negative API testing, and how do you assert 400 Bad Request and 500 Server Error responses?",
+      "answer": "Positive tests use valid credentials, valid input and valid state to verify successful behaviour and side effects. Negative tests vary one invalid condition at a time: malformed JSON, missing required fields, invalid types, boundary violations, invalid credentials, insufficient permissions, unknown resources and conflicting state. For a 400, assert the documented client-error code and error body, and verify that no unintended state change occurred. A 500 is a server failure; do not deliberately cause production 500s or treat every 500 as an expected negative response. In a controlled test environment, reproduce a known server-failure path or inject a dependency failure, then assert safe error handling, no sensitive stack trace, correlation ID and correct recovery. If invalid client input causes 500, that is generally a defect.",
+      "realTimeExample": "A missing mandatory customer name should return the documented 400/422 and create no customer. A controlled downstream failure may cause a documented 500/502/503 response; the test checks that the response is safe and the transaction is not partially committed.",
+      "javaCode": "// REST Assured negative assertion\n given().contentType(ContentType.JSON)\n    .body(\"{\\\"email\\\":\\\"not-an-email\\\"}\")\n .when().post(\"/customers\").then()\n    .statusCode(400)\n    .body(\"error.code\", equalTo(\"INVALID_REQUEST\"));",
+      "buzzWords": [
+        "Positive testing",
+        "Negative testing",
+        "400 Bad Request",
+        "5xx",
+        "No side effects",
+        "Error contract"
+      ]
+    },
+    {
+      "id": 38,
+      "level": "Intermediate",
+      "topic": "API Test Strategy & Validation",
+      "question": "How do you test an API when a new field is added to the response?",
+      "answer": "I first clarify whether the API change is additive and whether clients are expected to tolerate unknown fields. I check the updated contract, field name, type, nullability, default behaviour, allowed values, authorization and data source. I verify the field for normal, boundary, missing and role-specific cases, and check that existing fields and behaviour remain unchanged. I run backward-compatibility and regression tests against representative consumers. For schema validation, allow additional properties only if the contract intends that; do not silently ignore breaking changes. If the field is optional, test both present and absent cases.",
+      "realTimeExample": "A new loyaltyTier field is added to the customer response. I verify its value for eligible and ineligible customers, confirm it is not exposed to unauthorized users, and ensure existing mobile clients still parse the response.",
+      "javaCode": "",
+      "buzzWords": [
+        "Backward compatibility",
+        "Additive change",
+        "Schema evolution",
+        "Optional field",
+        "Consumer regression",
+        "Contract testing"
+      ]
+    },
+    {
+      "id": 39,
+      "level": "Intermediate",
+      "topic": "API Test Strategy & Validation",
+      "question": "The API has no documentation yet. How do you test it?",
+      "answer": "I do not guess the contract and treat assumptions as facts. I gather information from the product owner, developers, code or route definitions where permitted, logs, example requests, existing consumers and database/domain rules. I explore safely in a non-production environment using known test data, inspect methods, headers, authentication and response patterns, and record observed behaviour as provisional. I ask the team to confirm expected behaviour and error semantics, then create an agreed contract or OpenAPI specification. I build exploratory tests first, followed by repeatable positive, negative and boundary tests. Any undocumented behaviour remains an assumption until confirmed.",
+      "realTimeExample": "A developer provides a staging base URL but no API specification. I inspect available routes with the team, send a valid known request, record the response and errors, then review the inferred contract with the developer before automating it.",
+      "javaCode": "",
+      "buzzWords": [
+        "Exploratory testing",
+        "OpenAPI",
+        "Contract discovery",
+        "Assumptions",
+        "Staging environment",
+        "Risk-based testing"
+      ]
+    },
+    {
+      "id": 40,
+      "level": "Intermediate",
+      "topic": "API Test Strategy & Validation",
+      "question": "How do you test API idempotency?",
+      "answer": "Idempotency means repeating the same operation has the same intended effect as performing it once. I identify which methods or business operations promise idempotency, then repeat the same request and compare final state, side effects and response semantics. For a payment or create operation, I test the documented idempotency-key mechanism: same key and same payload should not create a second transaction; same key with a different payload should be rejected or handled according to the contract. I also test concurrent duplicate requests, key expiry/retention, retries after timeout and whether keys are scoped to the correct user or operation. HTTP PUT and DELETE are defined as idempotent in intended effect; POST is not inherently idempotent.",
+      "realTimeExample": "I submit the same payment POST twice with the same Idempotency-Key. The system should create one charge and return the original or equivalent result for the retry, according to the provider's contract.",
+      "javaCode": "// REST Assured\nString key = UUID.randomUUID().toString();\nfor (int i = 0; i < 2; i++) {\n    given().header(\"Idempotency-Key\", key)\n        .contentType(ContentType.JSON).body(paymentPayload)\n        .when().post(\"/payments\").then().statusCode(anyOf(is(200), is(201)));\n}\n// Then query the payment ledger/test API and assert exactly one charge.",
+      "buzzWords": [
+        "Idempotency",
+        "Idempotency-Key",
+        "Retry safety",
+        "Duplicate request",
+        "Concurrency",
+        "Exactly-once effect"
+      ]
+    },
+    {
+      "id": 41,
+      "level": "Advanced",
+      "topic": "API Test Strategy & Validation",
+      "question": "A payment is processed twice when the user double-clicks Pay. How do you test it and prevent duplicate transactions?",
+      "answer": "I reproduce the issue with rapid sequential clicks and concurrent requests, then inspect whether the UI disables the button and whether the backend independently protects the transaction. UI prevention improves experience but is not sufficient because retries, network duplication and malicious clients can bypass it. The backend should use an idempotency key or unique transaction/order constraint, atomically associate the key with the result, and return the same result for a valid retry. I test same key/same payload, same key/different payload, simultaneous requests, timeout followed by retry, key expiry and cross-user isolation. I verify the payment provider ledger and internal order state to prove only one charge occurred.",
+      "realTimeExample": "I send two simultaneous POST /payments requests with the same idempotency key and assert that one payment is created, both callers receive a consistent outcome, and the order is not marked paid twice.",
+      "javaCode": "// Concurrent test sketch\nString key = UUID.randomUUID().toString();\nCompletableFuture<Response> first = CompletableFuture.supplyAsync(() -> pay(key));\nCompletableFuture<Response> second = CompletableFuture.supplyAsync(() -> pay(key));\nCompletableFuture.allOf(first, second).join();\n// Verify one transaction using an approved payment test/ledger endpoint.",
+      "buzzWords": [
+        "Idempotency key",
+        "Atomic operation",
+        "Unique constraint",
+        "Race condition",
+        "Concurrent requests",
+        "Payment ledger"
+      ]
+    },
+    {
+      "id": 42,
+      "level": "Advanced",
+      "topic": "API Test Strategy & Validation",
+      "question": "How do you test an API when a downstream service is unavailable, including timeouts and retries?",
+      "answer": "I use a controlled stub, mock server or fault-injection capability to simulate connection refusal, slow response, timeout, 5xx, malformed response and recovery. I verify configured connection/read timeouts, retry count, backoff, jitter, retryable status/exception policy, circuit-breaker behaviour, fallback response and logs/metrics. I check that non-idempotent operations are not blindly retried unless protected by idempotency. I assert an overall time budget, no duplicate side effects, correct error mapping and successful recovery after the dependency returns. Tests should be deterministic and run in a controlled environment.",
+      "realTimeExample": "I make the inventory stub delay beyond the configured read timeout. The order service should fail or return a documented pending/unavailable state within its deadline, log a correlation ID and avoid confirming an order with unverified stock.",
+      "javaCode": "",
+      "buzzWords": [
+        "Fault injection",
+        "Timeout",
+        "Retry with backoff",
+        "Circuit breaker",
+        "Fallback",
+        "Idempotency",
+        "Recovery"
+      ]
+    },
+    {
+      "id": 43,
+      "level": "Advanced",
+      "topic": "API Test Strategy & Validation",
+      "question": "How do you test API rate limiting, and how do you manage 429 Too Many Requests in your own test runs?",
+      "answer": "I confirm the documented limit, scope (user, token, IP or endpoint), time window and burst policy. I send requests at, below and above the threshold, including concurrent bursts, and verify the allowed requests, 429 response, error format and headers such as Retry-After or rate-limit metadata where provided. I test that limits reset correctly and that one user does not unintentionally affect another. In automated suites, I avoid accidental throttling by controlling request volume, using dedicated test credentials, pacing tests, isolating rate-limit tests and respecting Retry-After. I do not automatically retry 429 in a tight loop; use bounded backoff and report throttling separately from functional failure.",
+      "realTimeExample": "If a test tenant allows 100 requests per minute, I verify requests 1–100, then the documented behaviour on request 101, and wait according to Retry-After before continuing.",
+      "javaCode": "// Simple bounded wait when Retry-After is seconds\nint retryAfter = Integer.parseInt(response.getHeader(\"Retry-After\"));\nThread.sleep(Math.min(retryAfter, 30) * 1000L);",
+      "buzzWords": [
+        "Rate limiting",
+        "429 Too Many Requests",
+        "Retry-After",
+        "Burst limit",
+        "Backoff",
+        "Test isolation"
+      ]
+    },
+    {
+      "id": 44,
+      "level": "Intermediate",
+      "topic": "API Test Strategy & Validation",
+      "question": "A POST request returns 500 Internal Server Error. How do you tell whether it is a test issue or a server issue?",
+      "answer": "I first verify the test itself: correct base URL and environment, method/path, headers, authentication, content type, payload syntax, required fields, test data state and recent contract changes. I reproduce with the same sanitized request in Postman or curl and compare with a known-good request. I check whether the failure is consistent, limited to one data set or environment, and whether other endpoints work. Then I use timestamp and correlation/request ID to ask developers to inspect gateway and service logs, dependency health and traces. A 500 generally indicates server-side failure, but a malformed test request can expose a server bug if validation incorrectly throws an exception. I report evidence without prematurely blaming either side.",
+      "realTimeExample": "The same POST works in QA's Postman but fails in automation because the test omitted Content-Type. After fixing the test header, it succeeds. If both clients send identical requests and only the service returns 500, I escalate with correlation ID and logs.",
+      "javaCode": "",
+      "buzzWords": [
+        "Reproduction",
+        "Request comparison",
+        "Environment",
+        "Correlation ID",
+        "Server logs",
+        "Root-cause analysis"
+      ]
+    },
+    {
+      "id": 45,
+      "level": "Advanced",
+      "topic": "API Test Strategy & Validation",
+      "question": "How do you debug failing APIs across logs, payloads and environments, and what common errors do you see?",
+      "answer": "I capture the environment, timestamp, endpoint, method, sanitized request/response, status, headers and correlation ID. I compare the failing request with a known-good one, validate JSON syntax and types, verify token expiry/scopes, check environment configuration and test-data state, and trace the request across gateway and downstream services. I inspect logs, distributed traces and metrics where access is authorized. Common issues include 400 from malformed or invalid data, 401/403 from credentials or permissions, 404 from wrong route/resource, 409 from state conflicts, 415 from content type, 429 from throttling, 500 from unhandled exceptions, 502/503/504 from dependency or availability problems, and TLS/DNS/network errors. I redact secrets and personal data before sharing evidence.",
+      "realTimeExample": "A staging call fails with 401. I verify the token audience, issuer, expiry and scope, then confirm that the automation job uses the staging secret rather than a production or expired token.",
+      "javaCode": "",
+      "buzzWords": [
+        "Correlation ID",
+        "Distributed tracing",
+        "Sanitized payload",
+        "Environment configuration",
+        "Token claims",
+        "Root-cause analysis"
+      ]
+    },
+    {
+      "id": 46,
+      "level": "Intermediate",
+      "topic": "API Test Strategy & Validation",
+      "question": "How do you handle a delayed API response in tests?",
+      "answer": "I first determine whether the delay is expected, transient or a defect. I set explicit connection and response timeouts based on the service's agreed SLA, rather than using an unlimited wait. For asynchronous workflows, I poll a status endpoint or wait for an event with a bounded deadline and interval, instead of sleeping for a fixed long period. I record elapsed time and assert both eventual outcome and the latency threshold. Retries should be bounded and used only when safe; a slow response must not cause duplicate non-idempotent operations.",
+      "realTimeExample": "After POST /reports returns 202 Accepted with a job ID, the test polls GET /reports/{id} until status becomes COMPLETED or a 90-second deadline expires.",
+      "javaCode": "// Bounded polling sketch\nlong deadline = System.nanoTime() + Duration.ofSeconds(90).toNanos();\nString status = \"PENDING\";\nwhile (System.nanoTime() < deadline && !\"COMPLETED\".equals(status)) {\n    status = given().get(\"/reports/{id}\", jobId).then()\n        .extract().path(\"status\");\n    if (!\"COMPLETED\".equals(status)) Thread.sleep(2000);\n}\nassertEquals(\"COMPLETED\", status);",
+      "buzzWords": [
+        "Timeout",
+        "SLA",
+        "Bounded polling",
+        "Eventual consistency",
+        "Async job",
+        "Elapsed time"
+      ]
+    },
+    {
+      "id": 47,
+      "level": "Advanced",
+      "topic": "API Test Strategy & Validation",
+      "question": "The API returns partial data and the UI is stuck. How do you test this?",
+      "answer": "I clarify whether partial data is an intended response or a failure. I inspect status code, response schema, completeness indicators, pagination metadata, errors and any documented partial-success contract. I test missing/null fields, incomplete nested objects, truncated payloads, downstream partial failure and pagination continuation. I verify that the UI handles loading, empty, partial, retry and error states without hanging, and that it does not present incomplete data as complete. I check browser/network logs and correlate the UI request with backend traces. If the API promises a complete response but omits required data, it is an API defect; if partial success is documented, the UI must render it appropriately.",
+      "realTimeExample": "A dashboard API returns account details but one downstream service times out, leaving transactions absent. I verify whether the response flags the transactions section as unavailable and ensure the UI displays a recoverable partial state instead of an endless spinner.",
+      "javaCode": "",
+      "buzzWords": [
+        "Partial response",
+        "Completeness contract",
+        "Partial failure",
+        "Loading state",
+        "Eventual consistency",
+        "UI/API boundary"
+      ]
+    },
+    {
+      "id": 48,
+      "level": "Intermediate",
+      "topic": "API Test Strategy & Validation",
+      "question": "What is your metric for validating API performance?",
+      "answer": "I select metrics based on the service's SLO and workload. Key metrics include latency (average is not enough; use p50, p90, p95 and p99), throughput (requests per second), error rate, timeout rate, saturation/resource use (CPU, memory, thread/connection pools), and dependency latency. I measure under representative load, warm-up and steady-state conditions, with realistic payloads and concurrency. I compare results against agreed thresholds and monitor trends. For asynchronous APIs, I also measure queue delay and end-to-end processing time. A single response-time measurement from a functional test is not a performance test.",
+      "realTimeExample": "For a search API with a p95 target below 500 ms at 200 requests/second, I run a representative load test and report p95/p99 latency, throughput, errors and resource saturation.",
+      "javaCode": "",
+      "buzzWords": [
+        "Latency percentiles",
+        "p95",
+        "p99",
+        "Throughput",
+        "RPS",
+        "Error rate",
+        "SLO",
+        "Saturation"
+      ]
+    },
+    {
+      "id": 49,
+      "level": "Advanced",
+      "topic": "API Test Strategy & Validation",
+      "question": "The backend changed an API without telling QA. How do you make sure that does not happen again?",
+      "answer": "I establish an agreed API change process: maintain an OpenAPI or equivalent contract in version control, require contract updates in pull requests, review compatibility, and notify QA and consumers before deployment. Add automated schema/contract checks to CI, compare API specifications between releases, and run consumer-driven contract tests where appropriate. Use semantic versioning or an explicit deprecation policy for breaking changes, release notes and feature flags when needed. QA should be included in refinement and change review, but automation and governance should catch unannounced changes even if communication fails.",
+      "realTimeExample": "A CI job compares the new OpenAPI document with the released contract and fails if a required field is removed or a response type changes without an approved versioning decision.",
+      "javaCode": "",
+      "buzzWords": [
+        "OpenAPI",
+        "Contract versioning",
+        "Breaking change detection",
+        "Consumer-driven contract testing",
+        "CI quality gate",
+        "Deprecation policy"
+      ]
+    },
+    {
+      "id": 50,
+      "level": "Expert",
+      "topic": "API Test Strategy & Validation",
+      "question": "How would you design an end-to-end test framework for a microservice processing thousands of messages per second, covering correctness and performance at scale?",
+      "answer": "I would separate functional correctness, contract compatibility, resilience and load testing. Map producers, brokers, partitions, consumers, storage and downstream dependencies; define message schemas, ordering guarantees, delivery semantics and business invariants. Build reusable producers/consumers with correlation IDs and deterministic test data, then verify schema, routing, ordering where promised, duplicate handling, retries, dead-letter queues and eventual state. For load, use a distributed load generator and realistic message-size/key distributions to ramp to target throughput and beyond, measuring publish/consume rates, end-to-end lag, p95/p99 processing latency, error/duplicate/loss rates, queue depth, consumer lag, CPU, memory and broker saturation. Inject broker/node/network failures and slow consumers; verify backpressure, recovery and no unacceptable data loss. Keep high-volume performance tests separate from normal CI, use controlled environments, and define pass/fail SLOs. Do not claim exactly-once delivery unless the platform and application semantics actually guarantee the required end-to-end effect.",
+      "realTimeExample": "A checkout event stream is tested at 5,000 messages/second. Each event has a unique ID; the framework publishes a known workload, consumes results, checks counts and business totals, tracks lag and duplicates, then kills a consumer to verify rebalancing and recovery.",
+      "javaCode": "",
+      "buzzWords": [
+        "Message broker",
+        "Throughput",
+        "Consumer lag",
+        "End-to-end latency",
+        "Backpressure",
+        "Dead-letter queue",
+        "Delivery semantics",
+        "Fault injection",
+        "Data integrity"
+      ]
+    },
+    {
+      "id": 51,
+      "level": "Advanced",
+      "topic": "API Test Strategy & Validation",
+      "question": "How do you validate real-time WebSocket event frames in automation?",
+      "answer": "I test the WebSocket handshake (including authentication, origin and expected 101 Switching Protocols response for HTTP/1.1), subscription or channel setup, message schema, event type, payload values, ordering guarantees, correlation IDs, heartbeat/ping-pong, reconnect behaviour and authorization. I use an asynchronous WebSocket client and a bounded wait for expected events rather than fixed sleeps. I verify that unrelated events are ignored, duplicate events are handled according to the contract, malformed frames are rejected safely and disconnects recover without losing or duplicating business effects. For binary frames, validate encoding and content format. WebSocket itself does not guarantee application-level delivery or ordering across reconnects; assert only what the service promises.",
+      "realTimeExample": "A test connects to /events, subscribes to order 501, triggers a shipment update through the REST API, then waits up to five seconds for an ORDER_SHIPPED event with the correct order ID and event version.",
+      "javaCode": "",
+      "buzzWords": [
+        "WebSocket handshake",
+        "101 Switching Protocols",
+        "Frames",
+        "Subscription",
+        "Async assertion",
+        "Correlation ID",
+        "Reconnect",
+        "Heartbeat"
+      ]
+    },
+    {
+      "id": 52,
       "level": "Intermediate",
       "topic": "REST Assured",
-      "question": "What is the use of Request Specification and Response Specification in Rest Assured?",
-      "answer": "They remove repetition from API tests. Most requests to one API share the same settings, and most responses share the same basic expectations; specifications let you define these once and reuse them. RequestSpecification holds the common parts of a request: base URI and base path, headers, content type, authentication, query or path parameters, cookies and logging. It is built with RequestSpecBuilder and applied with given().spec(requestSpec). ResponseSpecification holds the common checks on a response: expected status code, content type, headers, a maximum response time and body assertions. It is built with ResponseSpecBuilder and applied with then().spec(responseSpec). Benefits: tests become shorter and show only what is specific to them; a change such as a new base URL or token is made in one place; and all tests apply the same standard checks. A test can still add its own headers, parameters or assertions on top of a specification. Specifications can also be set globally through RestAssured.requestSpecification and RestAssured.responseSpecification, though passing them explicitly is clearer and safer when tests run in parallel. Different specifications can be kept for different purposes, for example one with an admin token and one without authentication.",
-      "realTimeExample": "Forty tests call the same API with the same base URL, a JSON content type and a bearer token, and all expect JSON back within two seconds. Those settings live in two specification objects created in a base class, so each test contains only its endpoint, its payload and its own assertions. When the token header name changed, one line was edited.",
-      "javaCode": "import static io.restassured.RestAssured.given;\nimport static org.hamcrest.Matchers.*;\n\npublic class UserApiTest {\n    private static RequestSpecification requestSpec;\n    private static ResponseSpecification responseSpec;\n\n    @BeforeClass\n    public void setUp() {\n        requestSpec = new RequestSpecBuilder()\n                .setBaseUri(\"https://api.example.com\")\n                .setBasePath(\"/v1\")\n                .setContentType(ContentType.JSON)\n                .addHeader(\"Authorization\", \"Bearer \" + System.getenv(\"API_TOKEN\"))\n                .log(LogDetail.URI)\n                .build();\n\n        responseSpec = new ResponseSpecBuilder()\n                .expectStatusCode(200)\n                .expectContentType(ContentType.JSON)\n                .expectResponseTime(lessThan(2000L))\n                .build();\n    }\n\n    @Test\n    public void getUser() {\n        given()\n                .spec(requestSpec)\n                .pathParam(\"id\", 7)                 // test-specific addition\n        .when()\n                .get(\"/users/{id}\")\n        .then()\n                .spec(responseSpec)\n                .body(\"id\", equalTo(7))             // test-specific assertion\n                .body(\"email\", notNullValue());\n    }\n\n    @Test\n    public void listUsers() {\n        given()\n                .spec(requestSpec)\n                .queryParam(\"page\", 1)\n        .when()\n                .get(\"/users\")\n        .then()\n                .spec(responseSpec)\n                .body(\"data.size()\", greaterThan(0));\n    }\n}",
+      "question": "Have you worked with REST Assured or Postman for API automation? Describe your experience testing REST services.",
+      "answer": "Answer this honestly based on your actual experience. A strong structure is: name the tool you used, explain what you tested, describe the assertions and test-data handling, and state how the tests were executed and reported. For example: 'I have used Postman to explore REST endpoints, configure environments and authentication, send GET/POST/PUT/DELETE requests, and validate status codes, headers and response bodies. I am building automation with REST Assured in Java, using reusable request specifications, JSONPath assertions and TestNG.' Do not claim production framework experience if you have only practised it. Explain the distinction between exploratory API testing and repeatable automated regression.",
+      "realTimeExample": "I use Postman during initial API exploration, then convert stable scenarios into REST Assured tests so they can run repeatedly in the CI pipeline.",
+      "javaCode": "",
       "buzzWords": [
+        "REST Assured",
+        "Postman",
+        "REST API",
+        "Assertions",
+        "TestNG",
+        "CI regression"
+      ]
+    },
+    {
+      "id": 53,
+      "level": "Advanced",
+      "topic": "REST Assured",
+      "question": "How would you design a reusable API automation framework (REST Assured or Playwright) that scales to hundreds of endpoints?",
+      "answer": "I organize the framework by layers: configuration/environment management, HTTP client or REST Assured setup, authentication/token provider, request/response specifications, endpoint or service clients, POJOs/schema resources, test data builders, assertions, logging/reporting and test suites. Keep endpoint methods reusable but avoid building one giant generic abstraction that hides the request. Use configuration files or environment variables for base URLs and secrets; never commit credentials. Separate smoke, regression, contract and negative suites; tag tests; support parallel execution with thread-safe state and isolated data. Add retries only for known transient infrastructure conditions, not to hide product defects. Run tests in CI, publish reports and capture sanitized request/response details with correlation IDs.",
+      "realTimeExample": "A UserApiClient exposes getUser(id), createUser(request) and updateUser(id, request). Tests reuse a common authenticated RequestSpecification but supply independent test data and assertions.",
+      "javaCode": "// Reusable client sketch\npublic class UserApiClient {\n    private final RequestSpecification spec;\n    public UserApiClient(RequestSpecification spec) { this.spec = spec; }\n    public Response getUser(int id) {\n        return given().spec(spec).pathParam(\"id\", id).when().get(\"/users/{id}\");\n    }\n    public Response createUser(Object body) {\n        return given().spec(spec).body(body).when().post(\"/users\");\n    }\n}",
+      "buzzWords": [
+        "Layered framework",
+        "Configuration",
+        "RequestSpecification",
+        "Service client",
+        "POJO",
+        "Test data builder",
+        "Thread safety",
+        "CI/CD"
+      ]
+    },
+    {
+      "id": 54,
+      "level": "Advanced",
+      "topic": "REST Assured",
+      "question": "How are API tests integrated into your UI automation framework?",
+      "answer": "I keep API and UI tests logically separated but allow them to share configuration, test data utilities, reporting and CI execution. API calls can create preconditions, such as users or orders, and clean up test data, reducing slow UI setup. UI tests then validate user-visible behaviour. I avoid using API setup to bypass the very UI flow that the test is supposed to verify. Shared code should be modular, and parallel tests must not share mutable tokens or test records unsafely. The combined pipeline can run API smoke tests first, then selected UI journeys, with clear reporting by layer.",
+      "realTimeExample": "Before a UI test checks the order-history page, an API helper creates a known order for the test user. The browser opens the page and verifies that the order is rendered correctly.",
+      "javaCode": "// Test setup sketch\n@BeforeMethod\npublic void createTestData() {\n    orderId = orderApi.createOrder(testOrder).then()\n        .statusCode(201).extract().path(\"id\");\n}",
+      "buzzWords": [
+        "API test integration",
+        "Test data setup",
+        "UI verification",
+        "Shared utilities",
+        "Test isolation",
+        "Layer separation"
+      ]
+    },
+    {
+      "id": 55,
+      "level": "Intermediate",
+      "topic": "REST Assured",
+      "question": "How would you build REST API automation for CRUD workflows?",
+      "answer": "I identify the resource contract and implement create, read, update and delete tests with controlled data. Create with POST and assert 201/appropriate response, Location or generated ID and returned values. Read with GET and assert the stored representation. Update using PUT for full replacement or PATCH for partial change and verify the updated state with another GET. Delete with DELETE and assert the documented success response, then verify the resource is no longer available or is in the documented deleted state. Include invalid IDs, invalid fields, authorization, duplicate/conflict, boundary and cleanup scenarios. Tests should not depend on execution order; create their own data and clean up safely.",
+      "realTimeExample": "A CRUD suite creates a customer, retrieves it, changes the phone number, retrieves it again to verify the update, deletes it and confirms it is no longer accessible.",
+      "javaCode": "// CRUD sketch\nint id = given().contentType(ContentType.JSON).body(createBody)\n    .post(\"/customers\").then().statusCode(201).extract().path(\"id\");\n\n given().get(\"/customers/{id}\", id).then().statusCode(200);\n given().contentType(ContentType.JSON).body(updateBody)\n    .put(\"/customers/{id}\", id).then().statusCode(200);\n given().delete(\"/customers/{id}\", id).then().statusCode(anyOf(is(200), is(204)));\n given().get(\"/customers/{id}\", id).then().statusCode(404);",
+      "buzzWords": [
+        "CRUD",
+        "POST",
+        "GET",
+        "PUT",
+        "PATCH",
+        "DELETE",
+        "Test data cleanup",
+        "State verification"
+      ]
+    },
+    {
+      "id": 56,
+      "level": "Intermediate",
+      "topic": "REST Assured",
+      "question": "Write a basic REST Assured script for GET/POST calls with status and body assertions.",
+      "answer": "REST Assured uses a readable given-when-then pattern. given() defines request details such as base URI, headers, authentication, parameters and body; when() sends the HTTP request; then() validates status, headers and response content. For GET, assert a successful status and selected response fields. For POST, set Content-Type, provide a JSON body, assert the creation status and verify returned fields or generated ID. The example uses a public placeholder host and is illustrative; replace it with an approved test environment and valid endpoint/data.",
+      "realTimeExample": "A smoke test calls GET /users/1 and checks the returned ID, then posts a test user and checks the creation response.",
+      "javaCode": "// Maven dependency: io.rest-assured:rest-assured\nimport static io.restassured.RestAssured.given;\nimport static org.hamcrest.Matchers.*;\nimport io.restassured.http.ContentType;\n\npublic class UserApiTest {\n    @Test\n    public void getUser() {\n        given().baseUri(\"https://api.example.com\")\n        .when().get(\"/users/1\")\n        .then().statusCode(200).body(\"id\", equalTo(1));\n    }\n\n    @Test\n    public void createUser() {\n        String body = \"{\\\"name\\\":\\\"Maya\\\",\\\"job\\\":\\\"QA\\\"}\";\n        given().baseUri(\"https://api.example.com\")\n            .contentType(ContentType.JSON).body(body)\n        .when().post(\"/users\")\n        .then().statusCode(201).body(\"name\", equalTo(\"Maya\"));\n    }\n}",
+      "buzzWords": [
+        "given-when-then",
+        "given()",
+        "when()",
+        "then()",
+        "statusCode()",
+        "body()",
+        "ContentType.JSON"
+      ]
+    },
+    {
+      "id": 57,
+      "level": "Intermediate",
+      "topic": "REST Assured",
+      "question": "What are RequestSpecification and ResponseSpecification, and how do they differ? Write code.",
+      "answer": "RequestSpecification stores reusable request configuration such as base URI/path, headers, authentication, content type, parameters, cookies and filters. ResponseSpecification stores reusable response expectations such as status code, content type, headers, response-time matcher and common body assertions. Build them with RequestSpecBuilder and ResponseSpecBuilder, then apply them with given().spec(requestSpec) and then().spec(responseSpec). They reduce duplication and centralize standards; individual tests can still add test-specific details. Be careful with shared mutable global specifications in parallel execution; explicit immutable or safely managed specifications are clearer.",
+      "realTimeExample": "Forty tests share a base URL, JSON content type and bearer token. A request specification holds those settings; a response specification enforces JSON and common status expectations.",
+      "javaCode": "RequestSpecification requestSpec = new RequestSpecBuilder()\n    .setBaseUri(\"https://api.example.com\")\n    .setContentType(ContentType.JSON)\n    .addHeader(\"Authorization\", \"Bearer \" + token)\n    .build();\n\nResponseSpecification responseSpec = new ResponseSpecBuilder()\n    .expectStatusCode(200)\n    .expectContentType(ContentType.JSON)\n    .build();\n\ngiven().spec(requestSpec).pathParam(\"id\", 7)\n.when().get(\"/users/{id}\")\n.then().spec(responseSpec).body(\"id\", equalTo(7));",
+      "buzzWords": [
+        "RequestSpecification",
+        "ResponseSpecification",
         "RequestSpecBuilder",
         "ResponseSpecBuilder",
-        "given().spec() / then().spec()",
-        "Reuse Common Settings",
-        "Single Point of Change"
+        "given().spec()",
+        "then().spec()",
+        "Reuse common settings"
+      ]
+    },
+    {
+      "id": 58,
+      "level": "Advanced",
+      "topic": "REST Assured",
+      "question": "What is dependency injection in REST Assured, and how does it enhance API testing?",
+      "answer": "Dependency injection (DI) is a design technique in which a class receives the dependencies it needs rather than creating them internally. REST Assured itself is an HTTP testing library, not a dependency-injection container. In an API framework, DI can provide a configured API client, token provider, environment configuration, clock or test-data service to test classes. This improves testability, reuse and separation of concerns, and makes it easier to replace a real dependency with a mock or test implementation. DI is commonly supplied by frameworks such as Spring or a test framework's setup mechanism; it is not a special REST Assured feature.",
+      "realTimeExample": "A test class receives an ApiClient configured for the QA environment. In a unit test, the token provider can be replaced with a fake provider without changing the API test logic.",
+      "javaCode": "// Constructor injection example\npublic class OrderSteps {\n    private final OrderApiClient orderClient;\n    public OrderSteps(OrderApiClient orderClient) {\n        this.orderClient = orderClient;\n    }\n}",
+      "buzzWords": [
+        "Dependency injection",
+        "Inversion of control",
+        "Constructor injection",
+        "Testability",
+        "Loose coupling",
+        "Mock dependency"
+      ]
+    },
+    {
+      "id": 59,
+      "level": "Advanced",
+      "topic": "REST Assured",
+      "question": "How do you serialize objects to JSON and deserialize nested JSON responses into POJOs (e.g. with Jackson)? Write the request/response logic.",
+      "answer": "Serialization converts a Java object into JSON for a request; deserialization converts JSON into Java objects for typed response handling. REST Assured can use Jackson when the Jackson databind dependency is on the classpath and the request/response content type is JSON. Create POJOs with fields, constructors/getters/setters or records as appropriate. For nested JSON, model nested objects and collections with matching Java types. Assert important values after deserialization and handle unknown fields according to the compatibility policy. Avoid logging sensitive POJO fields.",
+      "realTimeExample": "A CreateOrderRequest contains a customerId and a list of OrderItem objects. The API returns an OrderResponse with an address object and a list of items, which Jackson maps into nested POJOs.",
+      "javaCode": "// POJO sketch\npublic class CreateOrderRequest {\n    public int customerId;\n    public List<OrderItem> items;\n}\npublic class OrderItem {\n    public int productId;\n    public int quantity;\n}\npublic class OrderResponse {\n    public int id;\n    public String status;\n    public List<OrderItem> items;\n}\n\nCreateOrderRequest request = new CreateOrderRequest();\nrequest.customerId = 42;\nrequest.items = List.of(new OrderItem());\n\nOrderResponse response = given().contentType(ContentType.JSON)\n    .body(request).when().post(\"/orders\")\n    .then().statusCode(201).extract().as(OrderResponse.class);\nassertEquals(\"CREATED\", response.status);",
+      "buzzWords": [
+        "Serialization",
+        "Deserialization",
+        "Jackson",
+        "POJO",
+        "Nested object",
+        "ObjectMapper",
+        "Content-Type"
+      ]
+    },
+    {
+      "id": 60,
+      "level": "Intermediate",
+      "topic": "REST Assured",
+      "question": "What is API chaining, and how do you pass a value from one response into the next request?",
+      "answer": "API chaining means using data returned by one API call as input to a later call in a workflow. Extract only the required value, such as an ID, token or reference number, then pass it as a path parameter, query parameter, header or request-body field to the next request. Validate the first response before using the extracted value, keep the chain's data scoped to the test, and clean up created records. Avoid static shared variables because parallel tests can overwrite one another.",
+      "realTimeExample": "A test creates a customer, extracts customerId from the response, then calls GET /customers/{customerId} to verify the record.",
+      "javaCode": "int customerId = given().contentType(ContentType.JSON).body(customerBody)\n    .post(\"/customers\").then().statusCode(201)\n    .extract().path(\"id\");\n\ngiven().pathParam(\"id\", customerId)\n.when().get(\"/customers/{id}\")\n.then().statusCode(200).body(\"id\", equalTo(customerId));",
+      "buzzWords": [
+        "API chaining",
+        "Response extraction",
+        "Path parameter",
+        "Dynamic test data",
+        "Workflow",
+        "Test isolation"
+      ]
+    },
+    {
+      "id": 61,
+      "level": "Intermediate",
+      "topic": "REST Assured",
+      "question": "How do you extract an auth/JWT token from a login response (body or headers) and pass it as a dynamic Bearer token to downstream calls?",
+      "answer": "Send the login request with valid test credentials, assert the expected success status and response contract, then extract the access token from its documented location. It may be in a JSON field such as access_token or in a response header, depending on the API. Pass it to subsequent requests using Authorization: Bearer <token> or REST Assured's oauth2(token). Do not hardcode tokens, print them in logs or commit them. Verify token expiry, audience, issuer and scopes when relevant; distinguish access tokens from refresh tokens.",
+      "realTimeExample": "A login test extracts access_token from the JSON response and uses it to retrieve /profile. The token is stored only in the test's local scope.",
+      "javaCode": "Response login = given().contentType(ContentType.JSON)\n    .body(loginPayload).post(\"/auth/login\");\nlogin.then().statusCode(200);\nString token = login.jsonPath().getString(\"access_token\");\n\n given().auth().oauth2(token)\n.when().get(\"/profile\")\n.then().statusCode(200);",
+      "buzzWords": [
+        "JWT",
+        "Access token",
+        "Bearer authentication",
+        "Response extraction",
+        "oauth2(token)",
+        "Secret handling"
+      ]
+    },
+    {
+      "id": 62,
+      "level": "Advanced",
+      "topic": "REST Assured",
+      "question": "How do you handle OAuth/Bearer tokens that expire mid-run (e.g. every 10 minutes) with automatic refresh?",
+      "answer": "I centralize token acquisition in a token provider rather than letting each test manage tokens independently. The provider stores the access token and its expiry time, obtains a new token before expiry with a safety buffer, and refreshes using the approved OAuth flow and refresh token where one is issued. If a request returns 401 due to expiry, a controlled single refresh-and-retry may be appropriate for safe/idempotent operations; do not blindly replay non-idempotent requests. Protect refresh tokens, synchronize refresh in parallel runs to avoid a token-refresh stampede, and avoid logging secrets. Follow the identity provider's rules for refresh-token rotation and revocation.",
+      "realTimeExample": "A long regression run starts at 9:00. The token provider refreshes at 9:09 rather than waiting for a 401 at 9:10, so later tests continue with a valid token.",
+      "javaCode": "public class TokenProvider {\n    private String accessToken;\n    private Instant expiresAt;\n\n    public synchronized String getToken() {\n        if (accessToken == null || Instant.now().isAfter(expiresAt.minusSeconds(60))) {\n            Response r = requestNewToken();\n            accessToken = r.jsonPath().getString(\"access_token\");\n            long seconds = r.jsonPath().getLong(\"expires_in\");\n            expiresAt = Instant.now().plusSeconds(seconds);\n        }\n        return accessToken;\n    }\n}",
+      "buzzWords": [
+        "Token provider",
+        "expires_in",
+        "Refresh token",
+        "Token rotation",
+        "Expiry buffer",
+        "Thread safety",
+        "OAuth 2.0"
+      ]
+    },
+    {
+      "id": 63,
+      "level": "Intermediate",
+      "topic": "REST Assured",
+      "question": "How do you change the JSON payload and add authentication to an API request?",
+      "answer": "Set the request's content type to application/json, provide the modified JSON body using body() or a Java object, and add authentication through the mechanism required by the API: auth().basic(), auth().oauth2(token), or an Authorization header. For small changes, build a Map/POJO or parse and update JSON rather than fragile string replacement. Keep credentials in environment variables or a secret store, and assert that the server accepted the intended changed field.",
+      "realTimeExample": "I change a customer's phone number in the update payload and send the request with a bearer token. I then GET the customer and verify the new phone number.",
+      "javaCode": "Map<String,Object> payload = new HashMap<>();\npayload.put(\"phone\", \"+919876543210\");\n\ngiven().auth().oauth2(token)\n    .contentType(ContentType.JSON).body(payload)\n.when().patch(\"/customers/42\")\n.then().statusCode(200).body(\"phone\", equalTo(\"+919876543210\"));",
+      "buzzWords": [
+        "JSON payload",
+        "body()",
+        "Content-Type",
+        "Bearer token",
+        "POJO or Map",
+        "Secret management"
+      ]
+    },
+    {
+      "id": 64,
+      "level": "Intermediate",
+      "topic": "REST Assured",
+      "question": "How do you handle SSL certificates in API automation?",
+      "answer": "First determine whether the certificate is trusted, expired, mismatched, self-signed or issued by an internal CA. The preferred fix is to configure the test JVM truststore with the correct CA/certificate chain and verify hostname validation. REST Assured can be configured with a truststore or, for controlled non-production testing only, relaxed HTTPS validation. Never disable certificate validation in production or use relaxed validation as a permanent workaround because it removes protection against man-in-the-middle attacks. Also verify TLS protocol and certificate expiry where those are in scope.",
+      "realTimeExample": "A QA environment uses an internal CA certificate. The test JVM is configured with the organization's approved truststore rather than disabling SSL checks.",
+      "javaCode": "// Preferred: configure a JVM truststore at test launch\n// -Djavax.net.ssl.trustStore=/path/qa-truststore.jks\n// -Djavax.net.ssl.trustStorePassword=<provided securely>\n\n// Non-production only, temporary diagnostic option:\ngiven().relaxedHTTPSValidation().when().get(\"https://qa.example.com\");",
+      "buzzWords": [
+        "TLS",
+        "Truststore",
+        "Certificate chain",
+        "Hostname verification",
+        "Self-signed certificate",
+        "MITM protection"
+      ]
+    },
+    {
+      "id": 65,
+      "level": "Intermediate",
+      "topic": "REST Assured",
+      "question": "How do you send multipart file-upload requests in REST Assured?",
+      "answer": "Use multipart() to send one or more parts. Provide the file or byte content, the form field name, and the media type where required. Add ordinary form fields and authentication as needed. Assert the response status, uploaded file metadata, content type, size and integrity using a checksum or download/read-back where supported. Use small synthetic files, clean up uploaded data, and do not place confidential files in logs. The server may impose size, extension, MIME type and malware-scanning rules, which should also be tested.",
+      "realTimeExample": "A test uploads a PDF invoice as the document part and an orderId as a form field, then verifies that the API returns a file reference and correct metadata.",
+      "javaCode": "File file = new File(\"src/test/resources/sample.pdf\");\ngiven().auth().oauth2(token)\n    .multiPart(\"file\", file, \"application/pdf\")\n    .multiPart(\"orderId\", \"501\")\n.when().post(\"/documents\")\n.then().statusCode(201)\n    .body(\"fileName\", equalTo(\"sample.pdf\"));",
+      "buzzWords": [
+        "multipart/form-data",
+        "multiPart()",
+        "MIME type",
+        "File size",
+        "Checksum",
+        "Upload validation"
+      ]
+    },
+    {
+      "id": 66,
+      "level": "Intermediate",
+      "topic": "REST Assured",
+      "question": "The UI is not ready and you must test file upload. What API checks should be in place?",
+      "answer": "I test the upload endpoint directly: authentication and authorization; required multipart fields; allowed extensions and MIME types; content signature where applicable; file size limits; empty, corrupt and malformed files; duplicate names; path traversal and unsafe filenames; virus/malware scanning integration; storage metadata; access control on download; and error handling for storage-service failures. I verify that the uploaded bytes can be retrieved unchanged, ideally with a checksum, and that unauthorized users cannot access another user's file. Security tests should be performed only with approved safe test files and environments.",
+      "realTimeExample": "Before the UI is built, I upload a valid sample PDF and confirm it is stored and downloadable by its owner, then test an oversized file, an executable renamed as PDF and an unauthorized download.",
+      "javaCode": "given().multiPart(\"file\", new File(\"src/test/resources/sample.pdf\"), \"application/pdf\")\n.when().post(\"/uploads\").then().statusCode(201);\n\n// Negative case: unsupported type\n given().multiPart(\"file\", new File(\"src/test/resources/sample.txt\"), \"text/plain\")\n.when().post(\"/uploads\").then().statusCode(415);",
+      "buzzWords": [
+        "Upload endpoint",
+        "Multipart",
+        "File signature",
+        "Size limit",
+        "Path traversal",
+        "Malware scanning",
+        "Access control",
+        "Checksum"
+      ]
+    },
+    {
+      "id": 67,
+      "level": "Advanced",
+      "topic": "REST Assured",
+      "question": "How do you automate GraphQL API requests and validate fields?",
+      "answer": "GraphQL requests are commonly sent as HTTP POST with a JSON body containing query, optional variables and optionally operationName; some servers also support GET for queries. I send the query and variables, then validate both the HTTP response and the GraphQL response structure. A GraphQL response can contain data and errors together, so HTTP 200 does not guarantee the requested operation succeeded. Assert the requested data fields, types and values, check the errors array and extensions where relevant, and test schema validation, authorization at field level, invalid queries, null propagation, pagination and query complexity limits. Use variables rather than concatenating untrusted values into query strings.",
+      "realTimeExample": "A test queries a product by ID using a GraphQL variable and asserts product.name and product.price, while separately asserting that errors is absent or empty.",
+      "javaCode": "String body = \"{\\\"query\\\":\\\"query Product($id: ID!) { product(id: $id) { id name price } }\\\",\"\n    + \"\\\"variables\\\":{\\\"id\\\":\\\"501\\\"}}\";\n\ngiven().contentType(ContentType.JSON).body(body)\n.when().post(\"/graphql\")\n.then().statusCode(200)\n    .body(\"data.product.id\", equalTo(\"501\"))\n    .body(\"data.product.name\", notNullValue())\n    .body(\"errors\", nullValue());",
+      "buzzWords": [
+        "GraphQL",
+        "Query",
+        "Variables",
+        "operationName",
+        "data",
+        "errors",
+        "Field-level authorization",
+        "HTTP 200"
+      ]
+    },
+    {
+      "id": 68,
+      "level": "Intermediate",
+      "topic": "API Mocking",
+      "question": "How can you mock a payment API when the endpoints are the same?",
+      "answer": "Use a mock server or service virtualization tool to match requests by more than the URL: HTTP method, headers, query parameters, request-body fields, scenario state or a correlation/idempotency key. Configure different responses for the same endpoint based on the request conditions. If the application needs a deterministic scenario, use explicit test data or a controlled header in a non-production environment. Avoid relying on random responses because they make tests flaky. Keep the mock contract aligned with the real provider and retain a smaller set of sandbox integration tests.",
+      "realTimeExample": "The mock payment endpoint /payments returns 201 for a valid test card token, 402 or a documented decline response for a declined token, and a simulated timeout when a test-only scenario header requests it.",
+      "javaCode": "",
+      "buzzWords": [
+        "Service virtualization",
+        "Request matching",
+        "Method and body matching",
+        "Scenario state",
+        "Deterministic mock",
+        "Contract fidelity"
+      ]
+    },
+    {
+      "id": 69,
+      "level": "Beginner",
+      "topic": "API Mocking",
+      "question": "How do you introduce a delay in mocks?",
+      "answer": "Configure the mock server to add a fixed or variable response delay for a matching request. Use this to test loading indicators, client timeouts, retry policies and resilience. Keep the delay controlled and bounded, and make sure the test's timeout is intentionally longer or shorter depending on the scenario being verified. For deterministic tests, prefer a fixed delay; for resilience testing, use a defined range or latency distribution. Record whether the mock delayed before responding or simulated a connection timeout, because those exercise different behaviours.",
+      "realTimeExample": "I configure the inventory mock to respond after five seconds and verify that the order service returns its documented timeout response within its configured deadline.",
+      "javaCode": "",
+      "buzzWords": [
+        "Response delay",
+        "Latency simulation",
+        "Timeout testing",
+        "Retry behaviour",
+        "Deterministic test"
+      ]
+    },
+    {
+      "id": 70,
+      "level": "Intermediate",
+      "topic": "API Mocking",
+      "question": "Can you mock events? If yes, how?",
+      "answer": "Yes. Events can be mocked by publishing synthetic messages to a test broker/topic, using a broker emulator, or using a service-virtualization tool that emits events when a matching request occurs. Define the event schema, key, headers, timestamps and correlation ID, then verify the consumer's handling of valid, invalid, duplicate, delayed and out-of-order events according to the contract. For WebSockets or server-sent events, a test server can emit controlled frames/events. Use isolated topics/queues and synthetic data so test messages do not affect real consumers.",
+      "realTimeExample": "A test publishes an OrderShipped event with orderId 501 to a test topic and verifies that the notification consumer updates the order's delivery status.",
+      "javaCode": "",
+      "buzzWords": [
+        "Event mocking",
+        "Message broker",
+        "Test topic",
+        "Synthetic event",
+        "Schema",
+        "Correlation ID",
+        "Duplicate delivery"
+      ]
+    },
+    {
+      "id": 71,
+      "level": "Beginner",
+      "topic": "Postman & SoapUI",
+      "question": "When do you use collections, environment variables and global variables in Postman?",
+      "answer": "A collection groups related requests and can hold collection-level scripts and shared authorization. I use it to organize an API workflow or regression suite. Environment variables store values for a selected environment, such as baseUrl, test user or token, so the same collection can run against QA or staging. Global variables are available across collections and environments in the workspace, so I use them sparingly for genuinely shared, non-sensitive values. Prefer the narrowest scope that works: local, data, environment, collection and global scopes have precedence rules. Store secrets using Postman's sensitive/secret variable features or an approved secret manager, and do not export them into shared files.",
+      "realTimeExample": "A Users collection contains login and profile requests. The QA environment defines baseUrl and test credentials; the login script stores an access token in the environment for subsequent requests.",
+      "javaCode": "",
+      "buzzWords": [
+        "Collections",
+        "Environment variables",
+        "Global variables",
+        "Variable scope",
+        "baseUrl",
+        "Secret management"
+      ]
+    },
+    {
+      "id": 72,
+      "level": "Beginner",
+      "topic": "Postman & SoapUI",
+      "question": "How do you execute a Postman collection end to end?",
+      "answer": "I prepare the collection with requests in the required workflow order, configure the correct environment and test data, and add pre-request and post-response scripts for setup and assertions. I run it in Collection Runner, choose the environment and iteration data, set any required delay, and review pass/fail results. For command-line or CI execution, use Newman or Postman's supported CLI workflow with secure environment injection. Ensure cleanup, avoid production data, and publish reports without exposing tokens or personal information.",
+      "realTimeExample": "I run login, create customer, retrieve customer, update customer and delete customer requests in sequence using Collection Runner, then run the same suite in CI against staging.",
+      "javaCode": "",
+      "buzzWords": [
+        "Collection Runner",
+        "Newman",
+        "Environment",
+        "Iterations",
+        "Pre-request script",
+        "Post-response test",
+        "CI"
+      ]
+    },
+    {
+      "id": 73,
+      "level": "Beginner",
+      "topic": "Postman & SoapUI",
+      "question": "How do you add validation points in Postman, such as checking the status code?",
+      "answer": "Use the Post-response (Tests) script tab and the pm.test() function. Assertions can check status, response time, headers, JSON fields and schema. Keep each test focused and give it a descriptive name so failures are easy to understand. For example, pm.response.to.have.status(200) checks the status, while pm.response.json() parses a JSON response. Avoid assuming every response is JSON; first check the content type or use appropriate parsing.",
+      "realTimeExample": "A GET /users/42 request has a test that asserts status 200 and verifies that the response body's id equals 42.",
+      "javaCode": "// Postman Tests script\npm.test(\"Status is 200\", function () {\n    pm.response.to.have.status(200);\n});\npm.test(\"User id is correct\", function () {\n    const body = pm.response.json();\n    pm.expect(body.id).to.eql(42);\n});",
+      "buzzWords": [
+        "pm.test()",
+        "pm.response",
+        "Status assertion",
+        "Response body",
+        "Chai assertions",
+        "Post-response script"
+      ]
+    },
+    {
+      "id": 74,
+      "level": "Intermediate",
+      "topic": "Postman & SoapUI",
+      "question": "What happens when a response returns form data instead of JSON, and how do you validate it?",
+      "answer": "First inspect the response Content-Type. Form-encoded data (application/x-www-form-urlencoded) is a key-value representation; multipart/form-data contains separate parts and boundaries. Do not call pm.response.json() unless the body is actually JSON. For URL-encoded text, parse the key-value pairs or use a suitable parser; for multipart responses, inspect the parts with tooling that supports multipart parsing or validate the raw response and headers carefully. Also verify content disposition, field names, values, encoding and boundary handling where applicable. The server's response format should match the contract.",
+      "realTimeExample": "If an endpoint returns application/x-www-form-urlencoded with status=approved&reference=123, I assert the content type and parse the key-value pairs instead of treating it as JSON.",
+      "javaCode": "// For a simple URL-encoded response body\nconst raw = pm.response.text();\nconst params = new URLSearchParams(raw);\npm.test(\"Status is approved\", function () {\n    pm.expect(params.get(\"status\")).to.eql(\"approved\");\n});",
+      "buzzWords": [
+        "Content-Type",
+        "application/x-www-form-urlencoded",
+        "multipart/form-data",
+        "URLSearchParams",
+        "Form fields",
+        "Response parsing"
+      ]
+    },
+    {
+      "id": 75,
+      "level": "Beginner",
+      "topic": "Postman & SoapUI",
+      "question": "How do you set up Basic Auth in Postman?",
+      "answer": "Open the request's Authorization tab, choose Basic Auth, and enter the username and password. Postman constructs the Authorization header using the Basic scheme and Base64-encoded credentials. Alternatively, set the header manually, but the Authorization tab reduces mistakes. Basic authentication is not encryption: always use HTTPS, store credentials securely, and do not share or commit them in exported collections.",
+      "realTimeExample": "For a protected test endpoint, I select Basic Auth, enter a dedicated QA account, send the request over HTTPS and verify the expected response.",
+      "javaCode": "",
+      "buzzWords": [
+        "Authorization tab",
+        "Basic Auth",
+        "Base64",
+        "Authorization header",
+        "HTTPS",
+        "Credential protection"
+      ]
+    },
+    {
+      "id": 76,
+      "level": "Beginner",
+      "topic": "Postman & SoapUI",
+      "question": "Where do you store environment credentials?",
+      "answer": "Use Postman's sensitive/secret variable support and, for team or CI use, an approved secret manager or secure CI secret store. Keep credentials out of request URLs, scripts, screenshots, exported collection files and source control. Use separate least-privilege credentials for each environment, rotate them and revoke them when no longer needed. Environment variables can reference secrets, but simply naming a variable 'secret' does not make its value secure; use the platform's appropriate secret controls.",
+      "realTimeExample": "QA credentials are stored as sensitive variables or injected by the CI secret store at runtime. The shared collection contains variable names, not actual passwords or tokens.",
+      "javaCode": "",
+      "buzzWords": [
+        "Sensitive variables",
+        "Secret manager",
+        "CI secrets",
+        "Least privilege",
+        "Credential rotation",
+        "No hardcoded secrets"
+      ]
+    },
+    {
+      "id": 77,
+      "level": "Beginner",
+      "topic": "Postman & SoapUI",
+      "question": "How do you save a demo (example) response for a request?",
+      "answer": "Send the request, confirm that the response is suitable and contains no real secrets or personal data, then use Save Response or Save as Example in Postman, depending on the UI version. The saved example can document the expected status, headers and body for teammates. Examples are documentation/mock examples, not proof that the live API will always return the same dynamic values. Sanitize tokens, IDs and personal information before saving or sharing.",
+      "realTimeExample": "I save a sanitized 201 Created response example for POST /customers, showing the response structure but replacing real customer details with synthetic values.",
+      "javaCode": "",
+      "buzzWords": [
+        "Save Response",
+        "Save as Example",
+        "Example response",
+        "Sanitization",
+        "Mock documentation"
+      ]
+    },
+    {
+      "id": 78,
+      "level": "Intermediate",
+      "topic": "Postman & SoapUI",
+      "question": "How do you validate an API request that only works over VPN?",
+      "answer": "Connect to the organization's approved VPN and verify that the machine has the required network route and DNS resolution. Use the approved base URL, certificate trust and credentials, then send the request from Postman or the command line. If it fails, distinguish DNS, routing, firewall, proxy, TLS and authentication errors rather than changing security settings. In CI, use an approved self-hosted runner or network path with least privilege. Do not bypass VPN controls or expose private endpoints publicly.",
+      "realTimeExample": "I connect to the corporate VPN, confirm the internal QA hostname resolves, then call the endpoint using the approved certificate and test token. The CI suite runs on an authorized runner inside the network.",
+      "javaCode": "",
+      "buzzWords": [
+        "VPN",
+        "Internal DNS",
+        "Network route",
+        "Firewall",
+        "TLS trust",
+        "Self-hosted runner"
+      ]
+    },
+    {
+      "id": 79,
+      "level": "Beginner",
+      "topic": "Postman & SoapUI",
+      "question": "How do you filter results in an API request using Postman?",
+      "answer": "Use the query parameters section or add query parameters to the request URL according to the API contract. Common filters include status, category, date range, sort, page and pageSize. Postman URL-encodes values when entered through the Params tab. Validate that the server actually applies each filter, combines multiple filters correctly, handles empty/no-match results and enforces pagination limits. A client-side display filter is not the same as a server-side API filter.",
+      "realTimeExample": "I request GET /orders with status=PAID and page=2, then verify every returned order is paid and the pagination metadata identifies the correct page.",
+      "javaCode": "",
+      "buzzWords": [
+        "Params tab",
+        "Query parameters",
+        "Filtering",
+        "Sorting",
+        "Pagination",
+        "URL encoding"
+      ]
+    },
+    {
+      "id": 80,
+      "level": "Beginner",
+      "topic": "Postman & SoapUI",
+      "question": "How do you set up custom headers in Postman?",
+      "answer": "Open the Headers tab and add each header name and value, or configure them at collection/folder level when they are common to many requests. Common examples are Authorization, Accept, Content-Type and correlation IDs. Ensure Content-Type describes the request body, while Accept describes the response formats the client can accept. Avoid duplicate or conflicting headers and do not expose secret values in shared collections.",
+      "realTimeExample": "I add Accept: application/json and Content-Type: application/json to a POST request, and a bearer token through the Authorization tab.",
+      "javaCode": "",
+      "buzzWords": [
+        "Headers tab",
+        "Accept",
+        "Content-Type",
+        "Authorization",
+        "Collection-level header",
+        "Correlation ID"
+      ]
+    },
+    {
+      "id": 81,
+      "level": "Intermediate",
+      "topic": "Postman & SoapUI",
+      "question": "How do you delete a variable after test execution finishes in Postman?",
+      "answer": "Use the Postman scripting API to unset a variable at the correct scope. For an environment variable, call pm.environment.unset('variableName'); for a collection variable use pm.collectionVariables.unset('variableName'); and for a global variable use pm.globals.unset('variableName'). Place cleanup in a final request's post-response script or a controlled teardown step. A collection that stops early may not execute that final cleanup, so avoid storing sensitive short-lived credentials unnecessarily and use token expiry/rotation as an additional safeguard.",
+      "realTimeExample": "At the end of a collection workflow, a cleanup request removes the temporary customerId environment variable and any non-secret workflow state.",
+      "javaCode": "// Postman Tests script in a final cleanup request\npm.environment.unset(\"temporaryCustomerId\");\npm.collectionVariables.unset(\"workflowReference\");",
+      "buzzWords": [
+        "pm.environment.unset()",
+        "pm.collectionVariables.unset()",
+        "pm.globals.unset()",
+        "Teardown",
+        "Variable scope",
+        "Cleanup"
+      ]
+    },
+    {
+      "id": 82,
+      "level": "Beginner",
+      "topic": "Postman & SoapUI",
+      "question": "Why do we use SoapUI for testing?",
+      "answer": "SoapUI is a tool for testing SOAP and REST services. It is especially useful for SOAP because it can import WSDL definitions, generate operation requests and validate XML messages. It supports assertions, environments, properties, data-driven testing and test suites. It can also be used for REST API checks and service-level automation. The tool does not replace understanding the contract: testers still need to validate business rules, security, error handling and integration behaviour.",
+      "realTimeExample": "I import a payment service WSDL into SoapUI, generate a request for the SubmitPayment operation, provide test data and add assertions for the SOAP response and fault behaviour.",
+      "javaCode": "",
+      "buzzWords": [
+        "SoapUI",
+        "SOAP",
+        "WSDL",
+        "XML",
+        "Assertions",
+        "TestSuite",
+        "Data-driven testing"
+      ]
+    },
+    {
+      "id": 83,
+      "level": "Intermediate",
+      "topic": "Postman & SoapUI",
+      "question": "Which assertions are commonly used in SoapUI?",
+      "answer": "Common SoapUI assertions include Valid HTTP Status Codes, Response SLA, Contains, Not Contains, XPath Match, XQuery Match, Schema Compliance, SOAP Fault, WS-Security Status and Script Assertion. For REST/JSON responses, JSONPath Match and scripting assertions can validate selected fields. Choose assertions based on the contract: status and SLA for transport behaviour, schema/XPath/JSONPath for structure and values, and script assertions for cross-field or business rules. Assertions should be precise and should not merely check that a response contains a generic word.",
+      "realTimeExample": "For a SOAP GetCustomer operation, I use Schema Compliance to validate the XML structure, XPath Match to assert the customer ID, and Valid HTTP Status Codes to check the transport status.",
+      "javaCode": "",
+      "buzzWords": [
+        "Valid HTTP Status Codes",
+        "Response SLA",
+        "XPath Match",
+        "XQuery Match",
+        "JSONPath Match",
+        "Schema Compliance",
+        "SOAP Fault",
+        "Script Assertion"
       ]
     }
   ]

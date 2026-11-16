@@ -49,6 +49,13 @@
             description: "Modern browser automation",
             icon: "🎭",
             type: "questions"
+        },
+        {
+            id: "api",
+            name: "API Testing",
+            description: "API Fundamentals, REST, HTTP Methods, Authentication, API Test Strategy, REST Assured, Mocking, Postman & SoapUI",
+            icon: "🔌",
+            type: "questions"
         }
     ];
 
