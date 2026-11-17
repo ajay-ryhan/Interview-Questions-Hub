@@ -1,0 +1,461 @@
+Hexaware Interview – Master Question Bank
+
+1. Project Explanation & Responsibilities
+P0 – Highest priority
+This is where you need to be particularly confident. Your project experience will determine how deeply the interviewer explores your knowledge.
+1. Tell me about yourself.
+2. Explain your current or most recent project.
+3. What is the application about?
+4. Explain the complete immigration form application workflow.
+5. What are your day-to-day responsibilities?
+6. What types of testing have you performed?
+7. What is your role in End-to-End testing?
+8. How do you independently manage QA activities for a product?
+9. How do you maintain existing Selenium automation scripts?
+10. Have you developed automation scripts from scratch?
+11. How do you identify which test cases should be automated?
+12. How do you handle automation script failures?
+13. What challenges did you face in your project?
+14. What was the most critical defect you identified?
+15. What was your involvement in new website launch planning?
+16. How do you prepare test scenarios for a new website?
+17. How do you coordinate with developers and business analysts?
+18. How do you ensure product quality before release?
+19. What improvements have you introduced in your QA process?
+20. Why are you looking for a new opportunity?
+Prepare one complete project explanation covering: Application overview → Business workflow → Your responsibilities → Testing approach → Automation → Challenges → Achievements.
+
+2. Functional Testing Fundamentals
+P0 – Must prepare
+1. What is software testing?
+2. What is the difference between QA and QC?
+3. What is the difference between verification and validation?
+4. Explain SDLC and its phases.
+5. Explain STLC and its phases.
+6. What is the difference between functional and non-functional testing?
+7. What is the difference between smoke and sanity testing?
+8. What is the difference between retesting and regression testing?
+9. What is the difference between positive and negative testing?
+10. What is the difference between system testing and integration testing?
+11. What is User Acceptance Testing?
+12. What is exploratory testing?
+13. What is ad-hoc testing?
+14. What is end-to-end testing?
+15. What is compatibility testing?
+16. What is cross-browser testing?
+17. What is usability testing?
+18. What is the difference between alpha and beta testing?
+19. What is the difference between severity and priority?
+20. Explain the defect life cycle.
+3. Test Design Techniques & Test Management
+P0 – Must prepare
+1. What is a test scenario?
+2. What is a test case?
+3. What is a test suite?
+4. Difference between test scenario and test case?
+5. How do you write effective test cases?
+6. What is Boundary Value Analysis?
+7. What is Equivalence Partitioning?
+8. What is Decision Table Testing?
+9. What is State Transition Testing?
+10. What is error guessing?
+11. What is requirement traceability?
+12. What is an RTM?
+13. How do you ensure test coverage?
+14. How do you identify missing test scenarios?
+15. What is test data management?
+16. What is a test plan?
+17. What is a test strategy?
+18. Difference between test plan and test strategy?
+19. How do you estimate testing effort?
+20. What is risk-based testing?
+21. How do you prioritize test cases?
+22. What are entry and exit criteria?
+23. What is a test summary report?
+24. What are the important QA metrics?
+25. How do you handle testing with tight deadlines?
+
+4. End-to-End Testing & Real-Time Scenarios
+P0 – Must prepare
+These questions should be answered using your immigration application experience.
+1. How do you perform End-to-End testing?
+2. How do you identify critical business workflows?
+3. How do you test a multi-step application form?
+4. How do you test mandatory and optional fields?
+5. How do you test conditional field validations?
+6. How do you test document upload functionality?
+7. How do you validate file type and file size restrictions?
+8. How do you test application submission?
+9. How do you prevent duplicate form submissions?
+10. How do you test session timeout?
+11. How do you test save-and-resume functionality?
+12. How do you test form data persistence?
+13. How do you test navigation between multiple form sections?
+14. How do you test an application when requirements change?
+15. How do you test an application across different browsers?
+16. How do you validate data consistency across multiple pages?
+17. What would you do if the application submission succeeds but confirmation is not displayed?
+18. What would you do if an uploaded document disappears after navigating back?
+19. How would you test a website before its production launch?
+20. How do you decide whether a product is ready for release?
+5. Selenium WebDriver
+P0 – Must prepare
+This is one of the most important technical sections.
+
+Selenium fundamentals
+1. What is Selenium?
+2. What are the components of Selenium?
+3. Explain Selenium WebDriver architecture.
+4. What is the difference between Selenium 3 and Selenium 4?
+5. What is the difference between findElement() and findElements()?
+6. What are the different locator strategies?
+7. Difference between XPath and CSS Selector?
+8. Difference between absolute and relative XPath?
+9. How do you handle dynamic web elements?
+10. How do you write XPath using contains(), starts-with() and text()?
+Web element handling
+11. How do you handle dropdowns?
+12. How do you handle alerts?
+13. How do you handle multiple windows?
+14. How do you handle frames and iframes?
+15. What is the Actions class?
+16. What is JavaScriptExecutor?
+17. How do you handle mouse hover?
+18. How do you handle drag and drop?
+19. How do you handle date pickers?
+20. How do you scroll a page using Selenium?
+Waits and exceptions
+21. What is implicit wait?
+22. What is explicit wait?
+23. What is fluent wait?
+24. Difference between implicit and explicit waits?
+25. What is StaleElementReferenceException?
+26. What is NoSuchElementException?
+27. What is ElementNotInteractableException?
+28. What is ElementClickInterceptedException?
+29. How do you handle synchronization issues?
+30. How do you handle flaky Selenium scripts?
+6. Core Java for Automation
+P0 – Must prepare
+Don't try to become a Java developer in two days. Focus on concepts used in Selenium automation.
+
+Java fundamentals
+1. What are classes and objects?
+2. What are the four OOP concepts?
+3. What is inheritance?
+4. What is polymorphism?
+5. What is encapsulation?
+6. What is abstraction?
+7. Difference between method overloading and overriding?
+8. Difference between abstract class and interface?
+9. What is a constructor?
+10. Difference between static and non-static methods?
+11. What is the final keyword?
+12. Difference between == and equals()?
+13. Difference between String, StringBuilder and StringBuffer?
+14. What is exception handling?
+15. Difference between checked and unchecked exceptions?
+Collections
+16. What is the Collections Framework?
+17. Difference between List, Set and Map?
+18. Difference between ArrayList and LinkedList?
+19. Difference between HashMap and Hashtable?
+20. How does HashMap work?
+21. What is an Array?
+22. Difference between Array and ArrayList?
+Java coding questions
+23. Reverse a string.
+24. Check whether a string is a palindrome.
+25. Find duplicate characters in a string.
+26. Count the occurrence of each character.
+27. Find the first non-repeated character.
+28. Find the second-largest number in an array.
+29. Find duplicate numbers in an array.
+30. Find the largest and smallest numbers in an array.
+31. Reverse a number.
+32. Check whether a number is prime.
+7. TestNG, Maven & Automation Framework
+P0 – Must prepare
+TestNG
+1. What is TestNG?
+2. What are TestNG annotations?
+3. Explain the TestNG execution order.
+4. What is the difference between @BeforeMethod and @BeforeClass?
+5. What is DataProvider?
+6. What is parameterization?
+7. What is the difference between priority and dependsOnMethods?
+8. What is invocationCount?
+9. How do you execute test cases in parallel?
+10. How do you group test cases?
+11. What is TestNG XML?
+12. How do you implement assertions?
+Automation framework
+13. What is an automation framework?
+14. What are the different types of automation frameworks?
+15. What is Page Object Model?
+16. What is Page Factory?
+17. Difference between POM and Page Factory?
+18. What is a Hybrid Framework?
+19. How do you maintain reusable methods?
+20. How do you manage test data?
+21. How do you handle configuration files?
+22. How do you generate automation reports?
+23. How do you capture screenshots on failure?
+24. How do you maintain existing automation scripts?
+25. How do you identify and fix flaky tests?
+Tools
+26. What is Maven?
+27. What is pom.xml?
+28. What is Git?
+29. Explain Git pull, push, commit, merge and rebase.
+30. What is Jenkins?
+31. How do you integrate Selenium with Jenkins?
+32. What is CI/CD?
+
+8. Playwright Automation
+P1 – Important
+Since Playwright is specifically mentioned in the JD, understand the fundamentals even if your practical experience is limited.
+1. What is Playwright?
+2. What are the advantages of Playwright?
+3. Selenium vs Playwright?
+4. Explain Playwright architecture.
+5. Which programming languages does Playwright support?
+6. What are Playwright locators?
+7. What is auto-waiting?
+8. Difference between locator() and page.locator()?
+9. How do you handle dropdowns?
+10. How do you handle multiple tabs?
+11. How do you handle frames?
+12. How do you handle alerts?
+13. What are assertions in Playwright?
+14. What are fixtures?
+15. What are hooks?
+16. How do you implement Page Object Model in Playwright?
+17. How do you execute tests in parallel?
+18. How do you configure retries?
+19. How do you capture screenshots and videos?
+20. How do you generate HTML reports?
+21. How do you handle dynamic elements?
+22. How do you perform API testing using Playwright?
+23. How do you integrate Playwright with CI/CD?
+24. How do you handle flaky Playwright tests?
+25. How would you migrate Selenium scripts to Playwright?
+
+9. Artificial Intelligence & Machine Learning Fundamentals
+P0 – Very important
+This is probably the biggest new learning area for you.
+
+AI / ML basics
+1. What is Artificial Intelligence?
+2. What is Machine Learning?
+3. What is Deep Learning?
+4. Difference between AI, ML and Deep Learning?
+5. What is Generative AI?
+6. What is an LLM?
+7. What is NLP?
+8. What is a neural network?
+9. What is a machine learning model?
+10. What is model training?
+11. What is model testing?
+12. What is model inference?
+13. What is training data?
+14. What is testing data?
+15. What is validation data?
+16. What is supervised learning?
+17. What is unsupervised learning?
+18. What is reinforcement learning?
+19. What is overfitting?
+20. What is underfitting?
+21. What is model bias?
+22. What is data leakage?
+23. What is model drift?
+24. What is the difference between traditional software and AI-powered applications?
+25. How does an AI model generate predictions?
+Important: Understand the relationship between AI, ML, Deep Learning, NLP and LLM. You should be able to explain each in simple language with examples.
+10. AI Application Testing & LLM Testing
+P0 – Very important
+This is directly related to the position.
+
+AI application testing
+1. What is AI testing?
+2. How is AI testing different from traditional software testing?
+3. How do you test an AI-powered application?
+4. What are the challenges in AI testing?
+5. How do you validate AI-generated responses?
+6. How do you test AI response accuracy?
+7. How do you test consistency in AI responses?
+8. How do you test incomplete or incorrect responses?
+9. How do you test negative scenarios in AI applications?
+10. How do you perform regression testing on AI applications?
+11. How do you test an AI model after retraining?
+12. How do you test AI application performance?
+13. How do you validate model reliability?
+14. How do you test multilingual AI responses?
+15. How do you test sensitive information leakage?
+LLM and prompt testing
+16. What is prompt engineering?
+17. What is prompt testing?
+18. What is prompt injection?
+19. What is hallucination in AI?
+20. How do you identify hallucinations?
+21. What is context retention?
+22. What is grounding in AI?
+23. What is RAG (Retrieval-Augmented Generation)?
+24. How do you test a RAG-based application?
+25. How do you validate whether an AI response is relevant to the question?
+26. How do you test an AI chatbot?
+27. How do you test the same prompt with different inputs?
+28. How do you validate an AI response when the expected output is not fixed?
+29. How do you test an AI application against harmful or inappropriate responses?
+30. How do you create an AI regression test suite?
+A scenario you must practise:
+
+Suppose an AI chatbot answers immigration-related questions using uploaded documents.
+- How would you validate its answers?
+- How would you identify incorrect information?
+- How would you test missing information?
+- How would you test misleading prompts?
+- How would you check whether the answer is supported by the uploaded document?
+- How would you test consistency?
+- How would you automate these scenarios?
+This scenario connects AI testing with your actual immigration application domain.
+
+11. AI Model Evaluation & Testing Metrics
+P0 – Must prepare
+1. What is model accuracy?
+2. What is precision?
+3. What is recall?
+4. What is F1 Score?
+5. What is a confusion matrix?
+6. What are True Positive and True Negative?
+7. What are False Positive and False Negative?
+8. Difference between precision and recall?
+9. When would you prioritize precision over recall?
+10. When would you prioritize recall over precision?
+11. What is model reliability?
+12. What is model efficiency?
+13. How do you measure response latency?
+14. What is throughput?
+15. How do you compare two AI model versions?
+16. How do you evaluate AI-generated text?
+17. How do you measure relevance and groundedness?
+18. What is semantic similarity?
+19. How do you evaluate AI model performance after deployment?
+20. What metrics would you include in an AI testing report?
+12. AI Testing Frameworks and Tools
+P1 – Important
+Understand what these tools are used for.
+1. What is DeepEval?
+2. What is Ragas?
+3. What is Promptfoo?
+4. What is LangSmith?
+5. What is MLflow?
+6. What is Evidently AI?
+7. How do you automate LLM testing?
+8. How do you compare expected and actual AI responses?
+9. How do you create reusable prompts for testing?
+10. How would you integrate AI evaluation into a regression pipeline?
+You don't need to master every tool. Be prepared to explain at least one LLM evaluation framework and its purpose.
+
+13. API Testing & Postman
+P1 – Important
+1. What is API testing?
+2. What is a REST API?
+3. What is the difference between REST and SOAP?
+4. Explain GET, POST, PUT, PATCH and DELETE.
+5. What are HTTP status codes?
+6. Explain 200, 201, 204, 400, 401, 403, 404, 405 and 500.
+7. What is the difference between authentication and authorization?
+8. What are headers, parameters and request body?
+9. What is JSON?
+10. How do you validate API responses?
+11. How do you validate response time?
+12. How do you perform negative API testing?
+13. What is API chaining?
+14. What is token-based authentication?
+15. How do you test an API using Postman?
+16. How do you write assertions in Postman?
+17. How do you automate API testing?
+18. How do you validate an AI application's API?
+19. How do you test invalid prompts through an API?
+20. How do you validate API responses when the output is generated by an AI model?
+14. SQL & Database Testing
+P1 – Important
+1. What is database testing?
+2. What is a primary key?
+3. What is a foreign key?
+4. Difference between DELETE, DROP and TRUNCATE?
+5. Difference between WHERE and HAVING?
+6. What are aggregate functions?
+7. Explain GROUP BY and ORDER BY.
+8. Explain INNER JOIN, LEFT JOIN, RIGHT JOIN and FULL JOIN.
+9. How do you identify duplicate records?
+10. How do you retrieve the second-highest salary?
+11. How do you find NULL values?
+12. How do you compare records between two tables?
+13. How do you validate data integrity?
+14. How do you validate data stored after form submission?
+15. What is a subquery?
+AI-related data validation
+16. What is data preprocessing?
+17. How do you validate training datasets?
+18. How do you identify missing and duplicate data?
+19. What is data imbalance?
+20. What is data leakage?
+21. How do you validate data consistency?
+22. How do you ensure data integrity between training and testing datasets?
+15. Scriptless Automation
+P2 – Additional
+1. What is scriptless automation?
+2. How is scriptless automation different from script-based automation?
+3. What are the advantages of scriptless automation?
+4. What are the limitations?
+5. How do you create reusable test components?
+6. How do you maintain test cases in a scriptless framework?
+7. Can scriptless automation support regression testing?
+8. How do you integrate scriptless automation with CI/CD?
+9. How do you decide between Selenium and scriptless automation?
+10. What challenges can arise while maintaining scriptless automation?
+16. Agile, Scrum, Git & CI/CD
+P1 – Important
+1. What is Agile methodology?
+2. What is Scrum?
+3. What are the roles in Scrum?
+4. What is a sprint?
+5. What happens during sprint planning?
+6. What is a daily stand-up?
+7. What is sprint retrospective?
+8. What is a user story?
+9. What are acceptance criteria?
+10. What is a Definition of Done?
+11. How does QA participate in Agile?
+12. How do you handle incomplete requirements during a sprint?
+13. What is version control?
+14. What is Git?
+15. Difference between Git merge and rebase?
+16. What is a pull request?
+17. What is CI/CD?
+18. How do you integrate automated tests into a CI/CD pipeline?
+17. Senior QA – Leadership, Ownership & Managerial Scenarios
+P0 – Must prepare
+These questions are particularly important because the requirement mentions 8–9 years of Quality Engineering experience.
+1. How do you independently own QA for a product?
+2. How do you create a testing strategy from scratch?
+3. How do you plan QA activities for a new website launch?
+4. How do you identify project risks?
+5. How do you prioritize testing activities?
+6. How do you handle critical production defects?
+7. How do you manage multiple releases?
+8. How do you handle disagreements with developers?
+9. How do you communicate testing risks to stakeholders?
+10. How do you handle last-minute requirement changes?
+11. How do you manage testing when there is insufficient time?
+12. How do you decide whether to automate a test case?
+13. How do you measure testing effectiveness?
+14. How do you reduce regression testing effort?
+15. How do you improve an existing automation framework?
+16. How do you handle flaky automation scripts?
+17. How do you mentor junior QA engineers?
+18. How do you handle a situation where the developer says a defect is not reproducible?
+19. What would you do if a critical defect escaped into production?
+20. How do you ensure quality when working independently?
