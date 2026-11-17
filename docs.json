@@ -7,6 +7,12 @@
       "description": "Download API Testing interview"
     },
     {
+      "name": "Git Interview Questions",
+      "file": "Git_Interview_Questions.pdf",
+      "type": "PDF",
+      "description": "Download Git Interview Questions"
+    },
+    {
       "name": "Java basic interview questions",
       "file": "Java basic interview questions.pdf",
       "type": "PDF",
@@ -53,6 +59,12 @@
       "file": "Selenium.pdf",
       "type": "PDF",
       "description": "Download Selenium"
+    },
+    {
+      "name": "TCS Interview",
+      "file": "TCS_Interview.pdf",
+      "type": "PDF",
+      "description": "Download TCS Interview"
     },
     {
       "name": "essential questions on Selenium, Playwright, Appium, API testing, CI CD",
