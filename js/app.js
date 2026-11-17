@@ -998,14 +998,55 @@
                         card.appendChild(createElement("p", null, doc.description));
                     }
 
-                    const link = createElement("a", "download-btn", "↓ Download");
-
-                    link.href =
+                    const filePath =
                         "./docs/" +
-                        doc.file.split("/").map(encodeURIComponent).join("/");
-                    link.download = doc.file.split("/").pop();
+                        doc.file
+                            .split("/")
+                            .map(encodeURIComponent)
+                            .join("/");
 
-                    card.appendChild(link);
+                    /* View */
+
+                    const viewLink =
+                        createElement(
+                            "a",
+                            "view-btn",
+                            "👁 View"
+                        );
+
+                    viewLink.href =
+                        "./viewer.html?file=" +
+                        encodeURIComponent(doc.file);
+
+                    viewLink.target = "_blank";
+
+                    /* Download */
+
+                    const downloadLink =
+                        createElement(
+                            "a",
+                            "download-btn",
+                            "↓ Download"
+                        );
+
+                    downloadLink.href =
+                        filePath;
+
+                    downloadLink.download =
+                        doc.file
+                            .split("/")
+                            .pop();
+
+                    /* Actions */
+
+                    const actions =
+                        createElement("div", "document-actions");
+
+                    actions.appendChild(viewLink);
+                    actions.appendChild(downloadLink);
+
+                    card.appendChild(actions);
+
                     questionContainer.appendChild(card);
                 });
             })

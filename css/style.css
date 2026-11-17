@@ -1361,3 +1361,19 @@ main {
         box-shadow: none;
     }
 }
+.view-btn {
+    background: #0ea5e9;
+    color: white;
+
+    padding: 10px 16px;
+    border-radius: 8px;
+
+    text-decoration: none;
+    margin-right: 10px;
+
+    display: inline-block;
+}
+
+.view-btn:hover {
+    background: #0284c7;
+}
