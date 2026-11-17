@@ -217,7 +217,6 @@ main {
 /* ---------- Header ---------- */
 
 .site-header {
-    position: -webkit-sticky;
     position: sticky;
     top: 0;
     z-index: 50;
@@ -381,18 +380,41 @@ main {
     text-align: center;
     overflow: hidden;
 
-    background-image:
-            linear-gradient(
-                    90deg,
-                    rgba(8, 15, 30, 0.92),
-                    rgba(8, 15, 30, 0.65),
-                    rgba(8, 15, 30, 0.35)
-            ),
-            url("../assets/images/home-hero.jpg");
-
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
+}
+:root[data-theme="dark"] .home-view {
+
+    background-image:
+            linear-gradient(
+                    90deg,
+                    rgba(8,15,30,.92),
+                    rgba(8,15,30,.65),
+                    rgba(8,15,30,.35)
+            ),
+            url("../assets/images/home-hero.jpg");
+}
+
+:root[data-theme="light"] .home-view {
+
+    background-image:
+            linear-gradient(
+                    90deg,
+                    rgba(255,255,255,.90),
+                    rgba(255,255,255,.75),
+                    rgba(255,255,255,.50)
+            ),
+            url("../assets/images/home-hero.jpg");
+}
+:root[data-theme="dark"] .home-content h1 {
+
+    color: #ffffff;
+}
+
+:root[data-theme="light"] .home-content h1 {
+
+    color: #0f172a;
 }
 
 .home-content {
@@ -420,12 +442,27 @@ main {
     letter-spacing: -1.5px;
 }
 
-.gradient-text {
-    background: linear-gradient(120deg, var(--primary), var(--accent), var(--accent-2));
+:root[data-theme="dark"] .gradient-text {
+
+    background: linear-gradient(
+            120deg,
+            var(--primary),
+            var(--accent),
+            var(--accent-2)
+    );
+
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
-    color: var(--primary);
+}
+
+:root[data-theme="light"] .gradient-text {
+
+    color: #2563eb;
+
+    background: none;
+
+    -webkit-text-fill-color: initial;
 }
 
 .home-content p {

@@ -12,7 +12,7 @@
             id: "qa",
             name: "QA Basics",
             description: "Manual testing fundamentals",
-            icon: "🧪",
+            icon: "🕵️",
             type: "questions"
         },
         {
@@ -33,7 +33,7 @@
             id: "cucumber",
             name: "Cucumber",
             description: "BDD with Gherkin scenarios",
-            icon: "🥒",
+            icon: "🧩",
             type: "questions"
         },
         {
