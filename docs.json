@@ -67,16 +67,16 @@
       "description": "Download TCS Interview"
     },
     {
-      "name": "essential questions on Selenium, Playwright, Appium, API testing, CI CD",
-      "file": "essential questions on Selenium, Playwright, Appium, API testing, CI CD.pdf",
+      "name": "Essential questions on Selenium, Playwright, Appium, API testing, CI CD",
+      "file": "Essential questions on Selenium, Playwright, Appium, API testing, CI CD.pdf",
       "type": "PDF",
       "description": "Download essential questions on Selenium, Playwright, Appium, API testing, CI CD"
     },
     {
-      "name": "selenium interviw questions",
-      "file": "selenium interviw questions.pdf",
+      "name": "selenium interview questions",
+      "file": "selenium interview questions.pdf",
       "type": "PDF",
-      "description": "Download selenium interviw questions"
+      "description": "Download selenium interview questions"
     }
   ]
 }
