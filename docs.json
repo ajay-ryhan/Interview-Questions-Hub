@@ -7,6 +7,12 @@
       "description": "Download API Testing interview"
     },
     {
+      "name": "Essential questions on Selenium, Playwright, Appium, API testing, CI CD",
+      "file": "Essential questions on Selenium, Playwright, Appium, API testing, CI CD.pdf",
+      "type": "PDF",
+      "description": "Download Essential questions on Selenium, Playwright, Appium, API testing, CI CD"
+    },
+    {
       "name": "Git Interview Questions",
       "file": "Git_Interview_Questions.pdf",
       "type": "PDF",
@@ -61,6 +67,12 @@
       "description": "Download Selenium cheat sheet"
     },
     {
+      "name": "Selenium interview questions",
+      "file": "Selenium interview questions.pdf",
+      "type": "PDF",
+      "description": "Download Selenium interview questions"
+    },
+    {
       "name": "Selenium",
       "file": "Selenium.pdf",
       "type": "PDF",
@@ -71,18 +83,6 @@
       "file": "TCS_Interview.pdf",
       "type": "PDF",
       "description": "Download TCS Interview"
-    },
-    {
-      "name": "Essential questions on Selenium, Playwright, Appium, API testing, CI CD",
-      "file": "Essential questions on Selenium, Playwright, Appium, API testing, CI CD.pdf",
-      "type": "PDF",
-      "description": "Download essential questions on Selenium, Playwright, Appium, API testing, CI CD"
-    },
-    {
-      "name": "selenium interview questions",
-      "file": "selenium interview questions.pdf",
-      "type": "PDF",
-      "description": "Download selenium interview questions"
     }
   ]
 }
