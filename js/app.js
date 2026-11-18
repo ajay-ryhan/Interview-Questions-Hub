@@ -16,13 +16,6 @@
             type: "questions"
         },
         {
-            id: "manual-testing",
-            name: "Manual Testing",
-            description: "Testing fundamentals, test design, defects, automation strategy and real-world scenarios",
-            icon: "📝",
-            type: "questions"
-        },
-        {
             id: "selenium",
             name: "Selenium",
             description: "Web browser automation",
@@ -382,12 +375,15 @@
         clearElement(topicChips);
 
         allTopics.forEach(function (topic) {
-            const chip = createElement(
-                "button",
-                "topic-chip",
-                topic.icon + " " + topic.name
-            );
+            const chip = createElement("button", "topic-chip");
             chip.type = "button";
+            chip.setAttribute("aria-label", topic.name);
+            chip.title = topic.name;
+
+            const icon = createElement("span", "topic-chip-icon", topic.icon);
+            icon.setAttribute("aria-hidden", "true");
+
+            chip.appendChild(icon);
 
             if (topic.id === activeId) {
                 chip.classList.add("active");
