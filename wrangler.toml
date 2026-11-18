@@ -30,3 +30,10 @@ not_found_handling = "none"
 binding = "DB"
 database_name = "qa-interview-hub-db"
 database_id = "164b9201-b8bd-4f53-9750-99a84e1a7344"
+# ...
+[observability.logs]
+enabled = true
+invocation_logs = true
+persist = true
+# ...
+
