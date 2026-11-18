@@ -390,8 +390,10 @@ refresh the list locally without GitHub, regenerate `docs.json` by hand with the
 
 ## Security notes
 
-- Passwords are hashed with **PBKDF2-HMAC-SHA256, 600,000 iterations**, 16-byte random salt,
+- Passwords are hashed with **PBKDF2-HMAC-SHA256, 100,000 iterations**, 16-byte random salt,
   256-bit key, stored as `pbkdf2$sha256$<iters>$<salt-b64>$<hash-b64>`. Plaintext is never stored.
+  100,000 is Cloudflare Workers' ceiling — requesting more throws `NotSupportedError` at runtime,
+  so do not raise it without checking the platform limit.
 - Session tokens are 32 random bytes; only their **SHA-256 hash** is persisted, and the cookie is
   `HttpOnly; Secure; SameSite=Lax` with a sliding expiry.
 - Login is rate limited to 30 attempts per IP and 8 per email per 10 minutes; registration is
@@ -411,5 +413,6 @@ refresh the list locally without GitHub, regenerate `docs.json` by hand with the
 | `code: 10021 ... d1 must have a valid database_id` | Placeholder / wrong `database_id` | Paste the UUID returned by `npx wrangler d1 create` |
 | `incomplete input: SQLITE_ERROR` in the D1 console | Pasted SQL contained `--` comments; the console strips newlines | Remove comment lines, or run each statement separately |
 | `npx : The term 'npx' is not recognized` | Node.js not installed | Install Node LTS (`winget install OpenJS.NodeJS.LTS`), open a new terminal, or create/read the database in the Cloudflare dashboard instead |
+| Sign-up returns 500 | PBKDF2 iteration count above Cloudflare's 100,000 limit (`NotSupportedError`) | Keep `PBKDF2_ITERATIONS` at `100000` in `worker/src/lib/auth.js` |
 | Sign-up returns 500 after a green deploy | Migrations not applied to remote D1 | `npm run db:migrate:remote` (or run the schema in the dashboard) |
 | `warning: ... LF will be replaced by CRLF` | Windows line endings — cosmetic | Ignore |

@@ -2,7 +2,7 @@
  * Password hashing and token helpers.
  *
  * Passwords use PBKDF2-HMAC-SHA256 (Web Crypto) with a unique random salt,
- * 600,000 iterations and a 256-bit derived key. Stored format:
+ * 100,000 iterations and a 256-bit derived key. Stored format:
  *   pbkdf2$sha256$<iterations>$<salt-base64>$<hash-base64>
  *
  * No custom cryptography is implemented — only established Web Crypto
@@ -10,7 +10,14 @@
  * ever persisted.
  */
 
-const PBKDF2_ITERATIONS = 600000;
+/**
+ * Cloudflare's Workers runtime rejects PBKDF2 above 100,000 iterations with
+ * NotSupportedError, so this is the strongest count the platform allows.
+ * Each stored hash records the count it was created with, and verification
+ * reads that value back, so the number can be changed without invalidating
+ * existing hashes.
+ */
+const PBKDF2_ITERATIONS = 100000;
 const SALT_BYTES = 16;
 const KEY_BITS = 256;
 const TOKEN_BYTES = 32;
