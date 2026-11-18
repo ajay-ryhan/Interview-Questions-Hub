@@ -84,6 +84,8 @@
 
     const questionCache = {};
 
+    const topicCardRefs = {};
+
     let currentTopic = null;
     let currentQuestions = [];
     let loadToken = 0;
@@ -97,8 +99,10 @@
     const homeView = document.getElementById("home-view");
     const topicsView = document.getElementById("topics-view");
     const studyView = document.getElementById("study-view");
+    const authView = document.getElementById("auth-view");
+    const dashboardView = document.getElementById("dashboard-view");
 
-    const startButton = document.getElementById("start-button");
+    const authArea = document.getElementById("auth-area");
     const homeButton = document.getElementById("home-button");
     const backButton = document.getElementById("back-button");
     const brandLink = document.getElementById("brand-link");
@@ -251,6 +255,21 @@
         topicsView.hidden = name !== "topics";
         studyView.hidden = name !== "study";
 
+        if (authView) {
+            authView.hidden = name !== "auth";
+        }
+
+        if (dashboardView) {
+            dashboardView.hidden = name !== "dashboard";
+        }
+
+        // The account actions only belong on the study/browse views: the home
+        // page offers them in the hero, and the login page has its own forms.
+        // Everywhere else the top-right corner keeps just Home + the theme switch.
+        if (authArea) {
+            authArea.hidden = name === "home" || name === "auth";
+        }
+
         homeButton.hidden = name === "home";
 
         window.scrollTo(0, 0);
@@ -279,6 +298,28 @@
             return;
         }
 
+        if (hash === "login" || hash === "register") {
+            currentTopic = null;
+            showView("auth");
+
+            if (window.QAAuth && window.QAAuth.handleRoute) {
+                window.QAAuth.handleRoute(hash);
+            }
+
+            return;
+        }
+
+        if (hash === "dashboard") {
+            currentTopic = null;
+            showView("dashboard");
+
+            if (window.QAAuth && window.QAAuth.handleRoute) {
+                window.QAAuth.handleRoute(hash);
+            }
+
+            return;
+        }
+
         const topic = allTopics.filter(function (item) {
             return item.id === hash;
         })[0];
@@ -289,10 +330,6 @@
             showView("topics");
         }
     }
-
-    startButton.addEventListener("click", function () {
-        goTo("topics");
-    });
 
     homeButton.addEventListener("click", function () {
         goTo("home");
@@ -358,11 +395,24 @@
             topicGrid.appendChild(card);
 
             if (topic.type === "questions") {
+                const ref = {
+                    topicId: topic.id,
+                    topic: topic,
+                    card: card,
+                    countEl: count,
+                    total: 0
+                };
+
+                topicCardRefs[topic.id] = ref;
+
                 fetchQuestions(topic.id)
                     .then(function (questions) {
                         count.textContent =
                             questions.length +
                             (questions.length === 1 ? " question" : " questions");
+
+                        ref.total = questions.length;
+                        emit("topicCard", ref);
                     })
                     .catch(function () {
                         count.textContent = "Open";
@@ -859,6 +909,12 @@
     function createQuestionCard(item, index) {
         const card = createElement("details", "question-card");
 
+        // Globally unique key: the same id exists in more than one data file.
+        card.setAttribute(
+            "data-question-key",
+            (currentTopic ? currentTopic.id : "qa") + ":" + (item.id || index + 1)
+        );
+
         const summaryElement = createElement("summary");
 
         // The row lives inside the summary because some browsers
@@ -883,6 +939,10 @@
         if (item.topic) {
             meta.appendChild(createElement("span", "topic-label", item.topic));
         }
+
+        const doneBadge = createElement("span", "question-done", "✓ Completed");
+        doneBadge.hidden = true;
+        meta.appendChild(doneBadge);
 
         main.appendChild(meta);
         summary.appendChild(main);
@@ -949,6 +1009,12 @@
         });
 
         questionContainer.appendChild(fragment);
+
+        emit("rendered", {
+            topicId: currentTopic ? currentTopic.id : null,
+            container: questionContainer,
+            questions: questions
+        });
     }
 
     /* ==========================
@@ -1082,6 +1148,78 @@
 
         questionContainer.appendChild(frame);
     }
+
+    /* ==========================
+       Integration surface
+       Small, explicit hooks used by the modules loaded after
+       this file (learning progress + authentication).
+    ========================== */
+
+    const integrationHandlers = { rendered: [], opened: [], topicCard: [] };
+
+    function on(type, handler) {
+        if (integrationHandlers[type]) {
+            integrationHandlers[type].push(handler);
+        }
+    }
+
+    function emit(type, payload) {
+        (integrationHandlers[type] || []).forEach(function (handler) {
+            try {
+                handler(payload);
+            } catch (error) {
+                console.error(error);
+            }
+        });
+    }
+
+    // <details> fires "toggle" without bubbling, so listen in the capture phase.
+    questionContainer.addEventListener(
+        "toggle",
+        function (event) {
+            const card = event.target;
+
+            if (!card.classList || !card.classList.contains("question-card")) {
+                return;
+            }
+
+            if (!card.open) {
+                return;
+            }
+
+            const key = card.getAttribute("data-question-key");
+
+            if (key) {
+                emit("opened", { key: key, card: card });
+            }
+        },
+        true
+    );
+
+    window.QAHub = {
+        topics: allTopics,
+        on: on,
+        goTo: goTo,
+        loadQuestions: fetchQuestions,
+        getCurrentQuestions: function () {
+            return currentQuestions;
+        },
+        get currentTopic() {
+            return currentTopic;
+        },
+        eachTopicCard: function (handler) {
+            Object.keys(topicCardRefs).forEach(function (id) {
+                handler(topicCardRefs[id]);
+            });
+        },
+        eachQuestionCard: function (handler) {
+            const cards = questionContainer.querySelectorAll(".question-card");
+
+            for (let i = 0; i < cards.length; i++) {
+                handler(cards[i]);
+            }
+        }
+    };
 
     /* ==========================
        Events

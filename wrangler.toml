@@ -1,0 +1,31 @@
+#:schema node_modules/wrangler/config-schema.json
+
+# QA Interview Hub — Cloudflare Worker + D1 + static assets.
+# One Worker serves both the website and the /api/* backend.
+
+name = "qa-interview-hub"
+main = "worker/src/index.js"
+# Keep this date at or below today's date; bump it deliberately when needed.
+compatibility_date = "2025-06-01"
+
+# ---------------------------------------------------------------------------
+# Static website
+# index.html, css/, js/, data/, assets/, docs/, viewer.html, docs.json, ...
+# are served directly from the repository root. The Worker is only invoked for
+# requests that do not match a static file (e.g. /api/*).
+# Non-public files are excluded through .assetsignore.
+# ---------------------------------------------------------------------------
+[assets]
+directory = "./"
+binding = "ASSETS"
+not_found_handling = "none"
+
+# ---------------------------------------------------------------------------
+# Cloudflare D1 database
+# Create it once with:  npx wrangler d1 create qa-interview-hub-db
+# Then paste the returned database_id below.
+# ---------------------------------------------------------------------------
+[[d1_databases]]
+binding = "DB"
+database_name = "qa-interview-hub-db"
+database_id = "REPLACE_WITH_D1_DATABASE_ID"

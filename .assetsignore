@@ -1,0 +1,27 @@
+# Files that must NOT be published as part of the static website.
+# Everything here is still present in the repository; it is only excluded
+# from the Worker's static-asset upload.
+
+# Development tooling
+.git
+.github
+.idea
+.vscode
+.trae-html-share-packages
+node_modules
+.wrangler
+
+# Worker / backend sources and database migrations
+worker
+migrations
+
+# Configuration and package files
+package.json
+package-lock.json
+wrangler.toml
+.assetsignore
+.gitignore
+.dev.vars
+
+# Documentation and repository metadata
+*.md
