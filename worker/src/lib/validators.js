@@ -31,19 +31,12 @@ export function validateEmail(input) {
 export function validatePassword(input) {
     const value = String(input ?? "");
 
-    if (value.length < 8) {
-        return { ok: false, message: "Password must be at least 8 characters." };
+    if (value.length < 6) {
+        return { ok: false, message: "Password must be at least 6 characters." };
     }
 
     if (value.length > 200) {
         return { ok: false, message: "Password must be 200 characters or fewer." };
-    }
-
-    if (!/[a-z]/.test(value) || !/[A-Z]/.test(value) || !/[0-9]/.test(value)) {
-        return {
-            ok: false,
-            message: "Password must include uppercase and lowercase letters and a number."
-        };
     }
 
     return { ok: true, value };
