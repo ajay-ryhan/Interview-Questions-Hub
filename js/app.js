@@ -16,6 +16,13 @@
             type: "questions"
         },
         {
+            id: "manual-testing",
+            name: "Manual Testing",
+            description: "Testing fundamentals, test design, defects, automation strategy and real-world scenarios",
+            icon: "📝",
+            type: "questions"
+        },
+        {
             id: "selenium",
             name: "Selenium",
             description: "Web browser automation",
