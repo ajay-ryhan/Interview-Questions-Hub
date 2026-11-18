@@ -8,6 +8,8 @@
  *   POST   /api/auth/login
  *   POST   /api/auth/logout
  *   GET    /api/auth/me
+ *   POST   /api/auth/forgot-password
+ *   POST   /api/auth/reset-password
  *   GET    /api/progress
  *   POST   /api/progress/complete
  *   DELETE /api/progress/:questionKey
@@ -66,6 +68,14 @@ async function dispatch(request, env, url) {
 
     if (path === "/api/auth/me" && method === "GET") {
         return authRoutes.me(request, env);
+    }
+
+    if (path === "/api/auth/forgot-password" && method === "POST") {
+        return authRoutes.forgotPassword(request, env);
+    }
+
+    if (path === "/api/auth/reset-password" && method === "POST") {
+        return authRoutes.resetPassword(request, env);
     }
 
     /* ---------------- progress ---------------- */

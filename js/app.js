@@ -285,6 +285,8 @@
 
     function route() {
         const hash = window.location.hash.replace(/^#\/?/, "");
+        // Auth routes may carry data in the hash, e.g. #reset?token=abc.
+        const name = hash.split("?")[0];
 
         if (!hash || hash === "home") {
             currentTopic = null;
@@ -298,7 +300,7 @@
             return;
         }
 
-        if (hash === "login" || hash === "register") {
+        if (name === "login" || name === "register" || name === "forgot" || name === "reset") {
             currentTopic = null;
             showView("auth");
 

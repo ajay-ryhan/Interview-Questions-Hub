@@ -19,6 +19,7 @@ studied and bookmark questions for revision.
 - [Database (Cloudflare D1)](#database-cloudflare-d1)
 - [SQL queries](#sql-queries)
 - [API reference](#api-reference)
+- [Password reset emails (EmailJS)](#password-reset-emails-emailjs)
 - [Adding content](#adding-content)
 - [Security notes](#security-notes)
 - [Troubleshooting](#troubleshooting)
@@ -162,15 +163,18 @@ The `database_id` is an **identifier, not a secret** — it grants nothing witho
 authentication, so it is safe to keep in `wrangler.toml`. Real secrets are the Cloudflare API token,
 `.dev.vars`, and the learner data itself.
 
-**Tables** (see [migrations/0001_init.sql](migrations/0001_init.sql)):
+**Tables** (see [migrations/0001_init.sql](migrations/0001_init.sql) and
+[migrations/0002_password_resets.sql](migrations/0002_password_resets.sql)):
 
 - `users` — id, name, unique case-insensitive email, `password_hash`, `is_active`, timestamps.
 - `sessions` — only the **SHA-256 hash** of the session token is stored, plus `expires_at`.
 - `question_progress` — one row per user + question (`UNIQUE (user_id, question_key)`).
 - `bookmarks` — revision list, also unique per user + question.
+- `password_resets` — one-off reset tokens: only the **SHA-256 hash** is stored, with
+  `expires_at` (24 hours) and `used_at` (single use).
 
-Deleting a user cascades to their sessions, progress and bookmarks (foreign keys with
-`ON DELETE CASCADE`).
+Deleting a user cascades to their sessions, progress, bookmarks and reset tokens (foreign keys
+with `ON DELETE CASCADE`).
 
 ```bash
 npm run db:create            # create the database (once)
@@ -308,6 +312,32 @@ SELECT question_key, COUNT(*) AS saves
  LIMIT 10;
 ```
 
+### Password resets
+
+```sql
+-- Outstanding (unused, unexpired) reset links
+SELECT u.email,
+       r.expires_at,
+       CAST((julianday(r.expires_at) - julianday('now')) * 24 AS INTEGER) AS hours_left
+  FROM password_resets r
+  JOIN users u ON u.id = r.user_id
+ WHERE r.used_at IS NULL
+   AND r.expires_at > strftime('%Y-%m-%dT%H:%M:%fZ', 'now')
+ ORDER BY r.expires_at;
+
+-- Reset history for one account
+SELECT r.created_at, r.expires_at, r.used_at
+  FROM password_resets r
+  JOIN users u ON u.id = r.user_id
+ WHERE u.email = 'someone@example.com'
+ ORDER BY r.created_at DESC;
+
+-- Clear expired / spent tokens
+DELETE FROM password_resets
+ WHERE expires_at <= strftime('%Y-%m-%dT%H:%M:%fZ', 'now')
+    OR used_at IS NOT NULL;
+```
+
 ### Maintenance
 
 ```sql
@@ -349,6 +379,8 @@ All endpoints are same-origin JSON under `/api`. Write methods require a same-or
 | `POST` | `/api/auth/login` | – | Sign in, return `{ user }` |
 | `POST` | `/api/auth/logout` | – | End the session and clear the cookie |
 | `GET` | `/api/auth/me` | session | Current user, or 401 |
+| `POST` | `/api/auth/forgot-password` | – | Email a reset link (`{ email }`); always the same answer, so accounts cannot be probed |
+| `POST` | `/api/auth/reset-password` | – | Set a new password (`{ token, password }`); ends every session for the account |
 | `GET` | `/api/progress` | session | All completed `question_key`s |
 | `POST` | `/api/progress/complete` | session | Mark one (`{ questionKey }`) or many (`{ questionKeys: [] }`) |
 | `DELETE` | `/api/progress/:questionKey` | session | Unmark a question |
@@ -362,6 +394,45 @@ Anything that is not `/api/*` is served as a static asset, so `/api/typo` return
 
 Password rule: **at least 6 characters**, at most 200. Validation runs client-side and again in
 `worker/src/lib/validators.js`.
+
+---
+
+## Password reset emails (EmailJS)
+
+Forgot-password works through [EmailJS](https://www.emailjs.com), which sends the message from a
+mailbox you connect in their dashboard — no SMTP credentials and no domain verification needed.
+
+Setup:
+
+1. Create an EmailJS account and add an **email service** (e.g. Gmail). Note its **service ID**.
+2. Create a **template** whose body contains the reset link, and note its **template ID**.
+   Available variables: `{{to_email}}`, `{{to_name}}`, `{{reset_link}}`, `{{expires_hours}}`.
+   A working body is:
+   `Hi {{to_name}}, use {{reset_link}} to choose a new password. The link works for {{expires_hours}} hours.`
+3. Copy the **public key** from *Account → General*.
+4. In the Cloudflare dashboard open **Workers & Pages → qa-interview-hub → Settings → Variables
+   and Secrets** and add:
+
+   | Name | Type | Value |
+   | --- | --- | --- |
+   | `EMAILJS_SERVICE_ID` | Variable | service ID |
+   | `EMAILJS_TEMPLATE_ID` | Variable | template ID |
+   | `EMAILJS_PUBLIC_KEY` | Variable | public key |
+   | `EMAILJS_PRIVATE_KEY` | **Secret** | private key, only if *Use Private Key* is enabled |
+
+The private key must be a Secret, never a plain variable. These names are read from `env`; do not
+also declare them in `wrangler.toml`, or the config file will override the dashboard on every
+deploy.
+
+Reset behaviour:
+
+- The emailed link is `https://<your-worker>/#reset?token=…` and is valid for **24 hours**.
+- Only the SHA-256 hash of the token is stored, tokens are **single use**, and requesting a new
+  link retires the previous one.
+- A successful reset **ends every session** for that account, so the user signs in again.
+- With the variables missing, `forgot-password` returns 502 and logs `password_reset_email_failed`
+  with the reason; the rest of the site is unaffected.
+- EmailJS free tier allows 200 emails per month.
 
 ---
 
@@ -397,7 +468,11 @@ refresh the list locally without GitHub, regenerate `docs.json` by hand with the
 - Session tokens are 32 random bytes; only their **SHA-256 hash** is persisted, and the cookie is
   `HttpOnly; Secure; SameSite=Lax` with a sliding expiry.
 - Login is rate limited to 30 attempts per IP and 8 per email per 10 minutes; registration is
-  limited to 10 per IP per 10 minutes.
+  limited to 10 per IP per 10 minutes; forgot-password is limited to 10 per IP and 3 per email per
+  10 minutes.
+- Reset tokens are 32 random bytes, stored as a SHA-256 hash, valid for 24 hours and single use;
+  `forgot-password` returns the same message whether or not the email exists, so accounts cannot
+  be enumerated, and a completed reset ends every session for that account.
 - The Worker rejects cross-origin state-changing requests and non-JSON bodies.
 - `code: 10021 ... binding DB of type d1 must have a valid database_id` means the `database_id` in
   `wrangler.toml` is missing, still a placeholder, or not a UUID.
@@ -412,6 +487,8 @@ refresh the list locally without GitHub, regenerate `docs.json` by hand with the
 | `Your Wrangler configuration is missing a previews block` | Building a non-production branch (Workers Builds forces `wrangler preview`) | Merge to `master`, or disable Preview Builds in the dashboard |
 | `code: 10021 ... d1 must have a valid database_id` | Placeholder / wrong `database_id` | Paste the UUID returned by `npx wrangler d1 create` |
 | `incomplete input: SQLITE_ERROR` in the D1 console | Pasted SQL contained `--` comments; the console strips newlines | Remove comment lines, or run each statement separately |
+| `no such table: password_resets` in the Worker logs | Migration `0002` not applied to the remote database | Run [0002_password_resets.sql](migrations/0002_password_resets.sql) against D1 |
+| Forgot-password returns 502 | EmailJS variables missing or rejected the send | Check the `password_reset_email_failed` log line, then the variables in [Password reset emails](#password-reset-emails-emailjs) |
 | `npx : The term 'npx' is not recognized` | Node.js not installed | Install Node LTS (`winget install OpenJS.NodeJS.LTS`), open a new terminal, or create/read the database in the Cloudflare dashboard instead |
 | Sign-up returns 500 | PBKDF2 iteration count above Cloudflare's 100,000 limit (`NotSupportedError`) | Keep `PBKDF2_ITERATIONS` at `100000` in `worker/src/lib/auth.js` |
 | Sign-up returns 500 after a green deploy | Migrations not applied to remote D1 | `npm run db:migrate:remote` (or run the schema in the dashboard) |

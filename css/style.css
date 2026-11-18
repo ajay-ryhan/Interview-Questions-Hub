@@ -1693,6 +1693,39 @@ main {
     color: #fda4af;
 }
 
+/* Success/confirmation messages, e.g. "reset link sent". */
+.form-notice {
+    margin: 0 0 16px;
+    padding: 10px 14px;
+    border: 1px solid rgba(52, 211, 153, 0.35);
+    border-radius: 10px;
+    background: rgba(52, 211, 153, 0.12);
+    color: #0f766e;
+    font-size: 13.5px;
+}
+
+:root[data-theme="dark"] .form-notice {
+    color: #6ee7b7;
+}
+
+/* Sits between the password field and the submit button. */
+.auth-forgot {
+    margin: -6px 0 16px;
+    text-align: right;
+    font-size: 13px;
+}
+
+.auth-forgot a {
+    color: var(--muted);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.auth-forgot a:hover {
+    color: var(--text);
+    text-decoration: underline;
+}
+
 .btn-block {
     width: 100%;
 }

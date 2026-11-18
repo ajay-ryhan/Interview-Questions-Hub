@@ -17,9 +17,19 @@
     var authArea = document.getElementById("auth-area");
     var loginPanel = document.getElementById("login-panel");
     var registerPanel = document.getElementById("register-panel");
+    var forgotPanel = document.getElementById("forgot-panel");
+    var resetPanel = document.getElementById("reset-panel");
 
     var loginForm = document.getElementById("login-form");
     var registerForm = document.getElementById("register-form");
+    var forgotForm = document.getElementById("forgot-form");
+    var resetForm = document.getElementById("reset-form");
+
+    /**
+     * The token carried by the emailed #reset?token=… link. It is kept in
+     * memory only and dropped as soon as the password has been changed.
+     */
+    var resetToken = "";
 
     var homePrimary = document.getElementById("home-primary");
     var homeSecondary = document.getElementById("home-secondary");
@@ -220,21 +230,70 @@
        Forms
     ========================================================= */
 
-    function panelFor(hash) {
-        if (loginPanel) {
-            loginPanel.hidden = hash !== "login";
+    /** Splits "#reset?token=abc" into its route name and query string. */
+    function routeParts(hash) {
+        var value = hash || currentHash();
+        var mark = value.indexOf("?");
+
+        return {
+            name: mark === -1 ? value : value.slice(0, mark),
+            query: mark === -1 ? "" : value.slice(mark + 1)
+        };
+    }
+
+    /** Reads one value out of a "#route?key=value" query string. */
+    function queryValue(query, key) {
+        var pairs = query.split("&");
+
+        for (var i = 0; i < pairs.length; i++) {
+            var equals = pairs[i].indexOf("=");
+
+            if (equals !== -1 && pairs[i].slice(0, equals) === key) {
+                return decodeURIComponent(pairs[i].slice(equals + 1));
+            }
         }
 
-        if (registerPanel) {
-            registerPanel.hidden = hash !== "register";
+        return "";
+    }
+
+    /**
+     * Shows a single auth panel and clears its messages, so an error from one
+     * form never follows you onto the next.
+     */
+    function panelFor(name) {
+        var panels = [
+            { node: loginPanel, name: "login" },
+            { node: registerPanel, name: "register" },
+            { node: forgotPanel, name: "forgot" },
+            { node: resetPanel, name: "reset" }
+        ];
+
+        for (var i = 0; i < panels.length; i++) {
+            if (panels[i].node) {
+                panels[i].node.hidden = panels[i].name !== name;
+            }
         }
 
-        if (hash === "login") {
-            showFormError(document.getElementById("login-error"), "");
+        showFormError(document.getElementById(name + "-error"), "");
+        showFormError(document.getElementById(name + "-notice"), "");
+    }
+
+    /** Reads the token out of a reset link and prepares the panel for it. */
+    function prepareResetForm(query) {
+        resetToken = queryValue(query, "token");
+        panelFor("reset");
+
+        var button = resetForm ? resetForm.querySelector("button[type=submit]") : null;
+
+        if (button) {
+            button.disabled = !resetToken;
         }
 
-        if (hash === "register") {
-            showFormError(document.getElementById("register-error"), "");
+        if (!resetToken) {
+            showFormError(
+                document.getElementById("reset-error"),
+                "This link is missing its reset token. Please request a new one."
+            );
         }
     }
 
@@ -316,24 +375,121 @@
         });
     }
 
+    function submitForgotPassword(event) {
+        event.preventDefault();
+
+        var form = event.currentTarget;
+        var errorNode = document.getElementById("forgot-error");
+        var noticeNode = document.getElementById("forgot-notice");
+
+        showFormError(errorNode, "");
+        showFormError(noticeNode, "");
+        setBusy(form, true);
+
+        api.forgotPassword({ email: form.elements.email.value.trim() })
+            .then(function (result) {
+                setBusy(form, false);
+
+                if (!result.ok) {
+                    showFormError(
+                        errorNode,
+                        api.messageOf(result, "Unable to send the reset link.")
+                    );
+                    return;
+                }
+
+                form.reset();
+                showFormError(
+                    noticeNode,
+                    (result.data && result.data.message) ||
+                        "Check your inbox for the reset link."
+                );
+            })
+            .catch(function () {
+                setBusy(form, false);
+                showFormError(errorNode, "Network error. Please try again.");
+            });
+    }
+
+    function submitResetPassword(event) {
+        event.preventDefault();
+
+        var form = event.currentTarget;
+        var errorNode = document.getElementById("reset-error");
+        var noticeNode = document.getElementById("reset-notice");
+
+        showFormError(errorNode, "");
+        showFormError(noticeNode, "");
+
+        if (!resetToken) {
+            showFormError(
+                errorNode,
+                "This link is missing its reset token. Please request a new one."
+            );
+            return;
+        }
+
+        setBusy(form, true);
+
+        api.resetPassword({
+            token: resetToken,
+            password: form.elements.password.value
+        }).then(function (result) {
+            setBusy(form, false);
+
+            if (!result.ok) {
+                showFormError(
+                    errorNode,
+                    api.messageOf(result, "Unable to update your password.")
+                );
+                return;
+            }
+
+            form.reset();
+            maskPasswords(form);
+
+            // The token is single use, and the server has already ended every
+            // session for this account, so drop the local one too.
+            resetToken = "";
+            setUser(null);
+            showFormError(
+                noticeNode,
+                "Password updated. You can now log in with your new password."
+            );
+        }).catch(function () {
+            setBusy(form, false);
+            showFormError(errorNode, "Network error. Please try again.");
+        });
+    }
+
     /* =========================================================
        Routing (called by app.js and on load)
     ========================================================= */
 
     function handleRoute(hash) {
-        var value = hash || currentHash();
+        var parts = routeParts(hash);
 
-        if (value === "login" || value === "register") {
+        if (parts.name === "login" || parts.name === "register") {
             if (user) {
                 navigate("dashboard");
                 return;
             }
 
-            panelFor(value);
+            panelFor(parts.name);
             return;
         }
 
-        if (value === "dashboard") {
+        if (parts.name === "forgot") {
+            panelFor("forgot");
+            return;
+        }
+
+        if (parts.name === "reset") {
+            prepareResetForm(parts.query);
+            return;
+        }
+
+        if (parts.name === "dashboard") {
             if (!user) {
                 navigate("login");
                 return;
@@ -355,6 +511,14 @@
 
     if (registerForm) {
         registerForm.addEventListener("submit", submitRegister);
+    }
+
+    if (forgotForm) {
+        forgotForm.addEventListener("submit", submitForgotPassword);
+    }
+
+    if (resetForm) {
+        resetForm.addEventListener("submit", submitResetPassword);
     }
 
     var passwordToggles = document.querySelectorAll(".password-toggle");

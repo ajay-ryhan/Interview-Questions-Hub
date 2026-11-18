@@ -75,6 +75,14 @@
             return request("/auth/me");
         },
 
+        forgotPassword: function (payload) {
+            return request("/auth/forgot-password", { method: "POST", body: payload });
+        },
+
+        resetPassword: function (payload) {
+            return request("/auth/reset-password", { method: "POST", body: payload });
+        },
+
         /* ----- progress ----- */
 
         getProgress: function () {

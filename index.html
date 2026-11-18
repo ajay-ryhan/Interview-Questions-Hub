@@ -230,6 +230,10 @@
                         </span>
                     </label>
 
+                    <p class="auth-forgot">
+                        <a href="#forgot">Forgot password?</a>
+                    </p>
+
                     <p id="login-error" class="form-error" hidden></p>
 
                     <button type="submit" class="btn btn-primary btn-block">
@@ -289,6 +293,72 @@
                 <p class="auth-switch">
                     Already have an account?
                     <a href="#login">Log in</a>
+                </p>
+            </div>
+
+            <div id="forgot-panel" class="auth-card" hidden>
+                <span class="eyebrow">PASSWORD HELP</span>
+                <h2>Reset your password</h2>
+                <p class="auth-sub">
+                    Enter the email you signed up with and we will send you a
+                    link to choose a new password.
+                </p>
+
+                <form id="forgot-form" novalidate>
+                    <label class="field">
+                        <span>Email</span>
+                        <input type="email" name="email" autocomplete="email"
+                               placeholder="you@example.com" required>
+                    </label>
+
+                    <p id="forgot-error" class="form-error" hidden></p>
+                    <p id="forgot-notice" class="form-notice" hidden></p>
+
+                    <button type="submit" class="btn btn-primary btn-block">
+                        Send reset link
+                    </button>
+                </form>
+
+                <p class="auth-switch">
+                    Remembered it?
+                    <a href="#login">Back to log in</a>
+                </p>
+            </div>
+
+            <div id="reset-panel" class="auth-card" hidden>
+                <span class="eyebrow">NEW PASSWORD</span>
+                <h2>Choose a new password</h2>
+                <p class="auth-sub">
+                    Your reset link works for 24 hours and can only be used once.
+                </p>
+
+                <form id="reset-form" novalidate>
+                    <label class="field">
+                        <span>New password</span>
+                        <span class="password-field">
+                            <input type="password" name="password"
+                                   autocomplete="new-password"
+                                   placeholder="Create a password" required>
+                            <button type="button" class="password-toggle"
+                                    aria-label="Show password"
+                                    aria-pressed="false">Show</button>
+                        </span>
+                    </label>
+
+                    <p class="field-hint">
+                        At least 6 characters.
+                    </p>
+
+                    <p id="reset-error" class="form-error" hidden></p>
+                    <p id="reset-notice" class="form-notice" hidden></p>
+
+                    <button type="submit" class="btn btn-primary btn-block">
+                        Update password
+                    </button>
+                </form>
+
+                <p class="auth-switch">
+                    <a href="#login">Back to log in</a>
                 </p>
             </div>
 
