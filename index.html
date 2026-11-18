@@ -220,9 +220,14 @@
 
                     <label class="field">
                         <span>Password</span>
-                        <input type="password" name="password"
-                               autocomplete="current-password"
-                               placeholder="Your password" required>
+                        <span class="password-field">
+                            <input type="password" name="password"
+                                   autocomplete="current-password"
+                                   placeholder="Your password" required>
+                            <button type="button" class="password-toggle"
+                                    aria-label="Show password"
+                                    aria-pressed="false">Show</button>
+                        </span>
                     </label>
 
                     <p id="login-error" class="form-error" hidden></p>
@@ -260,9 +265,14 @@
 
                     <label class="field">
                         <span>Password</span>
-                        <input type="password" name="password"
-                               autocomplete="new-password"
-                               placeholder="Create a password" required>
+                        <span class="password-field">
+                            <input type="password" name="password"
+                                   autocomplete="new-password"
+                                   placeholder="Create a password" required>
+                            <button type="button" class="password-toggle"
+                                    aria-label="Show password"
+                                    aria-pressed="false">Show</button>
+                        </span>
                     </label>
 
                     <p class="field-hint">

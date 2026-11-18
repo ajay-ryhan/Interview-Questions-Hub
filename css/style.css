@@ -1631,6 +1631,48 @@ main {
     box-shadow: 0 0 0 3px var(--primary-soft);
 }
 
+/* Wrapper that lets the show/hide button sit inside the field.
+   The resets undo the .field > span label styling it would inherit. */
+.field .password-field {
+    position: relative;
+    display: block;
+    margin-bottom: 0;
+    color: inherit;
+    font-size: inherit;
+    font-weight: inherit;
+}
+
+/* Keeps long passwords clear of the button. */
+.field .password-field input {
+    padding-right: 68px;
+}
+
+.password-toggle {
+    position: absolute;
+    top: 50%;
+    right: 6px;
+    transform: translateY(-50%);
+    padding: 6px 10px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: color 0.2s ease, background 0.2s ease;
+}
+
+.password-toggle:hover {
+    background: var(--primary-soft);
+    color: var(--text);
+}
+
+.password-toggle:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 1px;
+}
+
 .field-hint {
     margin: -6px 0 16px;
     color: var(--muted);

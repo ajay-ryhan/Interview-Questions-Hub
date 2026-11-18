@@ -65,6 +65,34 @@
         button.classList.toggle("is-busy", busy);
     }
 
+    /**
+     * Masks or reveals the password in the field that owns this button.
+     * Returns the input so the caller can put the caret back in it.
+     */
+    function setPasswordVisible(button, visible) {
+        var input = button.parentNode.querySelector("input");
+
+        if (!input) {
+            return null;
+        }
+
+        input.type = visible ? "text" : "password";
+        button.textContent = visible ? "Hide" : "Show";
+        button.setAttribute("aria-label", visible ? "Hide password" : "Show password");
+        button.setAttribute("aria-pressed", visible ? "true" : "false");
+
+        return input;
+    }
+
+    /** Puts a form's password fields back to their masked state. */
+    function maskPasswords(form) {
+        var buttons = form.querySelectorAll(".password-toggle");
+
+        for (var i = 0; i < buttons.length; i++) {
+            setPasswordVisible(buttons[i], false);
+        }
+    }
+
     /* =========================================================
        Session state
     ========================================================= */
@@ -234,6 +262,7 @@
             }
 
             form.reset();
+            maskPasswords(form);
             setUser(result.data.user);
             navigate("dashboard");
         }).catch(function () {
@@ -267,6 +296,7 @@
             }
 
             form.reset();
+            maskPasswords(form);
             setUser(result.data.user);
             navigate("dashboard");
         }).catch(function () {
@@ -325,6 +355,23 @@
 
     if (registerForm) {
         registerForm.addEventListener("submit", submitRegister);
+    }
+
+    var passwordToggles = document.querySelectorAll(".password-toggle");
+
+    for (var t = 0; t < passwordToggles.length; t++) {
+        passwordToggles[t].addEventListener("click", function (event) {
+            // The button sits inside <label>, so keep the label from
+            // forwarding this click to the input it points at.
+            event.preventDefault();
+
+            var input = setPasswordVisible(this, this.getAttribute("aria-pressed") !== "true");
+
+            // Clicking the button moves focus off the field; put it back.
+            if (input) {
+                input.focus();
+            }
+        });
     }
 
     // A single outside-click listener closes the account dropdown.
