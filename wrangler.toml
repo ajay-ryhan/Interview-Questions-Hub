@@ -22,27 +22,11 @@ not_found_handling = "none"
 
 # ---------------------------------------------------------------------------
 # Cloudflare D1 database — production
+#
 # Create it once with:  npx wrangler d1 create qa-interview-hub-db
-# Then paste the returned database_id below.
+# Then paste the returned database_id below (it must be a UUID, not a name).
 # ---------------------------------------------------------------------------
 [[d1_databases]]
 binding = "DB"
 database_name = "qa-interview-hub-db"
-database_id = "REPLACE_WITH_D1_DATABASE_ID"
-
-# ---------------------------------------------------------------------------
-# Cloudflare D1 database — previews
-#
-# Workers Builds runs `wrangler preview` for non-production branches, and that
-# command refuses to load a config whose bindings have no preview-safe
-# counterpart. Preview deployments get their OWN database so a branch build can
-# never read or write production learner data.
-#
-# Create it once with:  npx wrangler d1 create qa-interview-hub-db-preview
-# Then paste the returned database_id below and apply the migrations to it.
-#
-# Only `binding` and `database_id` belong in this block.
-# ---------------------------------------------------------------------------
-[[previews.d1_databases]]
-binding = "DB"
-database_id = "REPLACE_WITH_PREVIEW_D1_DATABASE_ID"
+database_id = "164b9201-b8bd-4f53-9750-99a84e1a7344"
