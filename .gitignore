@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+
+# Local Cloudflare Worker secrets
+.dev.vars
+
+# Wrangler local state
+.wrangler/
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+
+# IDE project state
+.idea/
+.vscode/
+
+# Trae HTML share packages
+.trae-html-share-packages/

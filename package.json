@@ -1,0 +1,20 @@
+{
+  "name": "qa-interview-hub",
+  "version": "1.0.0",
+  "private": true,
+  "description": "QA Interview Hub — static site plus a Cloudflare Worker (D1-backed authentication and progress).",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "db:create": "wrangler d1 create qa-interview-hub-db",
+    "db:create:preview": "wrangler d1 create qa-interview-hub-db-preview",
+    "db:migrate:local": "wrangler d1 migrations apply qa-interview-hub-db --local",
+    "db:migrate:remote": "wrangler d1 migrations apply qa-interview-hub-db --remote",
+    "db:migrate:preview": "wrangler d1 migrations apply qa-interview-hub-db-preview --remote",
+    "db:migrate:list": "wrangler d1 migrations list qa-interview-hub-db --remote",
+    "db:tables": "wrangler d1 execute qa-interview-hub-db --remote --command \"SELECT name FROM sqlite_master WHERE type='table' ORDER BY name\""
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}
