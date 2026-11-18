@@ -10,3 +10,10 @@ node_modules/
 # OS / editor noise
 .DS_Store
 Thumbs.db
+
+# IDE project state
+.idea/
+.vscode/
+
+# Trae HTML share packages
+.trae-html-share-packages/

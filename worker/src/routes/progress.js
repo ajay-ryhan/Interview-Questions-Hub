@@ -2,7 +2,7 @@
  * Learning-progress routes.
  *
  *   GET    /api/progress                      completion + bookmark keys
- *   POST   /api/progress/complete             mark a question completed
+ *   POST   /api/progress/complete             mark one or many questions studied
  *   DELETE /api/progress/:questionKey         clear a completion
  *   GET    /api/bookmarks                     list bookmarked questions
  *   POST   /api/bookmarks                     add a bookmark
@@ -17,6 +17,9 @@
 import { json, error, readJsonBody } from "../lib/http.js";
 import { validateQuestionKey } from "../lib/validators.js";
 import { authenticate } from "../lib/sessions.js";
+
+/** Upper bound for a single "Expand all" style batch write. */
+const MAX_KEYS_PER_REQUEST = 1000;
 
 export async function list(request, env) {
     const { session, headers } = await authenticate(request, env);
@@ -52,25 +55,60 @@ export async function complete(request, env) {
     }
 
     const body = await readJsonBody(request);
-    const key = validateQuestionKey(body && body.questionKey);
 
-    if (!key.ok) {
-        return error(key.message, 422);
+    // One key (opening a single answer) or many (Expand all).
+    const incoming = Array.isArray(body && body.questionKeys)
+        ? body.questionKeys
+        : [body && body.questionKey];
+
+    const keys = [];
+    const seen = Object.create(null);
+
+    for (const value of incoming) {
+        const key = validateQuestionKey(value);
+
+        if (!key.ok) {
+            return error(key.message, 422);
+        }
+
+        // De-duplicate inside the request so a repeated key is one insert.
+        if (!seen[key.value]) {
+            seen[key.value] = true;
+            keys.push(key.value);
+        }
     }
 
-    const result = await env.DB.prepare(
-        `INSERT INTO question_progress (id, user_id, question_key)
-         VALUES (?, ?, ?)
-         ON CONFLICT (user_id, question_key) DO NOTHING`
-    )
-        .bind(crypto.randomUUID(), session.userId, key.value)
-        .run();
+    if (keys.length === 0) {
+        return error("No questions were provided.", 422);
+    }
+
+    if (keys.length > MAX_KEYS_PER_REQUEST) {
+        return error("Too many questions in one request.", 413);
+    }
+
+    // A single batch: the UNIQUE (user_id, question_key) constraint ignores
+    // anything already studied, so re-opening a question creates no new row.
+    const results = await env.DB.batch(
+        keys.map((value) =>
+            env.DB.prepare(
+                `INSERT INTO question_progress (id, user_id, question_key)
+                 VALUES (?, ?, ?)
+                 ON CONFLICT (user_id, question_key) DO NOTHING`
+            ).bind(crypto.randomUUID(), session.userId, value)
+        )
+    );
+
+    const created = results.reduce(
+        (total, result) =>
+            total + (result.meta && result.meta.changes > 0 ? 1 : 0),
+        0
+    );
 
     return json(
         {
-            questionKey: key.value,
+            questionKeys: keys,
             completed: true,
-            created: Boolean(result.meta && result.meta.changes > 0)
+            created: created
         },
         200,
         headers

@@ -88,6 +88,13 @@
             });
         },
 
+        completeMany: function (questionKeys) {
+            return request("/progress/complete", {
+                method: "POST",
+                body: { questionKeys: questionKeys }
+            });
+        },
+
         reset: function (questionKey) {
             return request("/progress/" + encodeURIComponent(questionKey), {
                 method: "DELETE"

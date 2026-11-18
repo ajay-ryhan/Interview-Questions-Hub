@@ -1471,12 +1471,6 @@ main {
     gap: 8px;
 }
 
-.auth-area .btn {
-    min-height: 38px;
-    padding: 7px 14px;
-    text-decoration: none;
-}
-
 /* The home page keeps the theme switch alone in the top-right corner. */
 .auth-area[hidden] {
     display: none;
@@ -1878,6 +1872,7 @@ main {
 
 .dash-topic-head {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: 10px;
     width: 100%;

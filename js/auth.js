@@ -117,19 +117,9 @@
 
         authArea.textContent = "";
 
+        // Guests get the Log in / Continue as Guest choice on the home page
+        // hero, so the header stays empty for them.
         if (!user) {
-            var login = document.createElement("a");
-            login.className = "btn btn-ghost";
-            login.href = "#login";
-            login.textContent = "Log in";
-
-            var register = document.createElement("a");
-            register.className = "btn btn-primary";
-            register.href = "#register";
-            register.textContent = "Sign up";
-
-            authArea.appendChild(login);
-            authArea.appendChild(register);
             return;
         }
 

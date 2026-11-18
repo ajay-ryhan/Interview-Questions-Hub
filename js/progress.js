@@ -15,6 +15,12 @@
     var loaded = false;   // progress has been fetched for this session
     var guestHintShown = false;
 
+    // Newly studied keys wait briefly so that "Expand all" — which opens every
+    // answer at once — is written to D1 as a single batch, not one call each.
+    var pending = {};     // questionKey -> true, awaiting the next flush
+    var flushTimer = null;
+    var FLUSH_DELAY_MS = 250;
+
     /* =========================================================
        Toast
     ========================================================= */
@@ -97,6 +103,12 @@
         completed = {};
         bookmarks = {};
         loaded = false;
+        pending = {};
+
+        if (flushTimer) {
+            window.clearTimeout(flushTimer);
+            flushTimer = null;
+        }
     }
 
     /* =========================================================
@@ -162,7 +174,7 @@
         var reset = document.createElement("button");
         reset.type = "button";
         reset.className = "link-button qa-reset";
-        reset.textContent = "↺ Mark as not completed";
+        reset.textContent = "↺ Mark as not studied";
         reset.hidden = true;
         reset.addEventListener("click", function () {
             clearCompletion(key);
@@ -234,10 +246,12 @@
         }
 
         var percent = Math.round((doneCount / total) * 100);
+        var remaining = total - doneCount;
         var pill = document.createElement("span");
 
         pill.className = "study-progress";
-        pill.textContent = "✓ " + doneCount + "/" + total + " completed (" + percent + "%)";
+        pill.textContent =
+            "✓ " + doneCount + " studied · " + remaining + " left · " + percent + "%";
 
         stats.appendChild(pill);
     }
@@ -246,15 +260,56 @@
        Mutations
     ========================================================= */
 
-    function markCompleted(key) {
-        return window.QAAPI.complete(key).then(function (result) {
-            if (result.ok) {
-                completed[key] = true;
-                refreshVisible(key);
-            }
+    /**
+     * Records a studied question. The count only moves when the key was not
+     * already studied, so re-opening an answer changes nothing (requirement 3).
+     */
+    function markStudied(key) {
+        if (completed[key]) {
+            return;
+        }
 
-            return result;
-        });
+        // Update the UI immediately; the write is batched just below.
+        completed[key] = true;
+        pending[key] = true;
+
+        refreshVisible(key);
+        scheduleFlush();
+    }
+
+    function scheduleFlush() {
+        if (flushTimer) {
+            return;
+        }
+
+        flushTimer = window.setTimeout(flushPending, FLUSH_DELAY_MS);
+    }
+
+    function flushPending() {
+        flushTimer = null;
+
+        var keys = Object.keys(pending);
+
+        if (keys.length === 0) {
+            return;
+        }
+
+        pending = {};
+
+        function rollback() {
+            keys.forEach(function (key) {
+                delete completed[key];
+            });
+
+            refreshAllCards();
+            toast("Your progress could not be saved. Please try again.", "warn");
+        }
+
+        window.QAAPI.completeMany(keys).then(function (result) {
+            if (!result.ok) {
+                rollback();
+            }
+        }).catch(rollback);
     }
 
     function clearCompletion(key) {
@@ -262,13 +317,23 @@
             return;
         }
 
+        // Still queued: nothing has reached the server, so just drop it locally.
+        if (pending[key]) {
+            delete pending[key];
+            delete completed[key];
+            refreshVisible(key);
+            toast("Marked as not studied.");
+            return;
+        }
+
         window.QAAPI.reset(key).then(function (result) {
-            if (result.ok) {
-                delete completed[key];
-                refreshVisible(key);
-                updateTopicCards();
-                toast("Marked as not completed.");
+            if (!result.ok) {
+                return;
             }
+
+            delete completed[key];
+            refreshVisible(key);
+            toast("Marked as not studied.");
         });
     }
 
@@ -309,6 +374,11 @@
             refreshCard(cards[i]);
         }
 
+        refreshProgressViews();
+    }
+
+    /** Re-renders every counter that summarises progress. */
+    function refreshProgressViews() {
         updateTopicCards();
 
         var stats = document.getElementById("question-stats");
@@ -327,10 +397,26 @@
         }
     }
 
+    function refreshAllCards() {
+        if (!window.QAHub) {
+            return;
+        }
+
+        window.QAHub.eachQuestionCard(function (card) {
+            refreshCard(card);
+        });
+
+        refreshProgressViews();
+    }
+
     /* =========================================================
        Completion trigger (answer expanded)
     ========================================================= */
 
+    /**
+     * An answer became visible. Closing an answer never reaches this point,
+     * so collapsing a question leaves progress untouched (requirement 4).
+     */
     function onOpened(payload) {
         if (!payload || !payload.key) {
             return;
@@ -345,11 +431,7 @@
             return;
         }
 
-        if (completed[payload.key]) {
-            return;
-        }
-
-        markCompleted(payload.key);
+        markStudied(payload.key);
     }
 
     /* =========================================================
@@ -395,11 +477,11 @@
             }
 
             var info = topicProgress(ref.topicId, ref.total);
+            var remaining = info.total - info.done;
 
             if (ref.countEl) {
                 ref.countEl.hidden = false;
-                ref.countEl.textContent =
-                    info.done + "/" + info.total + " completed";
+                ref.countEl.textContent = info.done + " studied · " + remaining + " left";
             }
 
             if (!bar) {
@@ -640,7 +722,13 @@
                 var head = el("span", "dash-topic-head");
                 head.appendChild(el("span", "dash-topic-icon", entry.topic.icon));
                 head.appendChild(el("span", "dash-topic-name", entry.topic.name));
-                head.appendChild(el("span", "dash-topic-count", done + "/" + total));
+                head.appendChild(
+                    el(
+                        "span",
+                        "dash-topic-count",
+                        done + " studied · " + (total - done) + " left · " + percent + "%"
+                    )
+                );
                 row.appendChild(head);
 
                 var topicTrack = el("span", "progress-track");

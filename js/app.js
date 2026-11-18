@@ -1236,6 +1236,17 @@
 
         for (let i = 0; i < cards.length; i++) {
             cards[i].open = expand;
+
+            // "toggle" is dispatched asynchronously for programmatic changes,
+            // so signal the newly displayed answers here too. Already studied
+            // questions are ignored downstream, so nothing is counted twice.
+            if (expand) {
+                const key = cards[i].getAttribute("data-question-key");
+
+                if (key) {
+                    emit("opened", { key: key, card: cards[i] });
+                }
+            }
         }
 
         expandToggle.textContent = expand ? "Collapse all" : "Expand all";
