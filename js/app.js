@@ -250,6 +250,28 @@
        button working on desktop and mobile.
     ========================== */
 
+    let currentView = "home";
+
+    /**
+     * The account button follows the session, not the view: once signed in it
+     * stays in the header everywhere, including the home page, so logging out
+     * or jumping to the dashboard is always one click away. Guests keep the
+     * corner clear — the home hero offers the ways in and the auth page has
+     * its own forms.
+     */
+    function applyAuthArea() {
+        if (!authArea) {
+            return;
+        }
+
+        const signedIn = Boolean(window.QAAuth && window.QAAuth.user);
+
+        authArea.hidden = !signedIn && (currentView === "home" || currentView === "auth");
+    }
+
+    // auth.js announces every sign-in, sign-out and restored session.
+    document.addEventListener("qahub:auth", applyAuthArea);
+
     function showView(name) {
         homeView.hidden = name !== "home";
         topicsView.hidden = name !== "topics";
@@ -263,12 +285,8 @@
             dashboardView.hidden = name !== "dashboard";
         }
 
-        // The account actions only belong on the study/browse views: the home
-        // page offers them in the hero, and the login page has its own forms.
-        // Everywhere else the top-right corner keeps just Home + the theme switch.
-        if (authArea) {
-            authArea.hidden = name === "home" || name === "auth";
-        }
+        currentView = name;
+        applyAuthArea();
 
         homeButton.hidden = name === "home";
 
