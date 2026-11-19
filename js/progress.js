@@ -619,6 +619,160 @@
         return card;
     }
 
+    /** Personal greeting, plus a streak pill when real activity days exist. */
+    function buildWelcome(user, streak) {
+        var card = el("div", "dash-welcome");
+
+        var name = user && user.name ? user.name : "there";
+
+        card.appendChild(el("h3", "dash-welcome-title", "Welcome back, " + name + "!"));
+        card.appendChild(
+            el("p", "dash-welcome-sub", "Here is a snapshot of your interview preparation.")
+        );
+
+        if (streak > 0) {
+            card.appendChild(el("span", "dash-streak", streak + "-day streak"));
+        }
+
+        return card;
+    }
+
+    /**
+     * Consecutive days with at least one completion, ending today or yesterday.
+     * Returns 0 when the run is already broken, so the pill can be hidden.
+     */
+    function currentStreak(days) {
+        if (!days || days.length === 0) {
+            return 0;
+        }
+
+        var seen = {};
+
+        days.forEach(function (day) {
+            seen[day] = true;
+        });
+
+        function iso(date) {
+            return date.toISOString().slice(0, 10);
+        }
+
+        var now = new Date();
+        var cursor = new Date(
+            Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())
+        );
+
+        // A streak stays alive when the last active day is today or yesterday.
+        if (!seen[iso(cursor)]) {
+            cursor = new Date(cursor.getTime() - 86400000);
+
+            if (!seen[iso(cursor)]) {
+                return 0;
+            }
+        }
+
+        var streak = 0;
+
+        while (seen[iso(cursor)]) {
+            streak += 1;
+            cursor = new Date(cursor.getTime() - 86400000);
+        }
+
+        return streak;
+    }
+
+    /** Opens a specific question, falling back to its topic when unavailable. */
+    function openQuestion(questionKey, fallbackTopicId) {
+        if (questionKey && window.QAHub && window.QAHub.openQuestion) {
+            window.QAHub.openQuestion(questionKey);
+            return;
+        }
+
+        if (fallbackTopicId && window.QAHub) {
+            window.QAHub.goTo(fallbackTopicId);
+        }
+    }
+
+    /** The most recently studied question, with a button back into it. */
+    function buildContinue(entry, lookup) {
+        var card = el("div", "dash-card");
+        card.appendChild(el("h3", null, "Continue Learning"));
+
+        if (!entry) {
+            card.appendChild(
+                el(
+                    "p",
+                    "dash-muted",
+                    "Nothing studied yet. Open any answer and it will appear here."
+                )
+            );
+            return card;
+        }
+
+        var info = lookup[entry.questionKey];
+        var topicId = entry.questionKey.split(":")[0];
+
+        var box = el("div", "dash-continue");
+
+        var text = el("div", "dash-continue-text");
+        text.appendChild(el("span", "dash-continue-topic", info ? info.topicName : topicId));
+        text.appendChild(
+            el("span", "dash-continue-question", info ? info.question : entry.questionKey)
+        );
+        text.appendChild(
+            el(
+                "span",
+                "dash-continue-meta",
+                "Last studied " + relativeDay(entry.completedAt).toLowerCase()
+            )
+        );
+        box.appendChild(text);
+
+        var go = el("button", "btn btn-primary", "Continue");
+        go.type = "button";
+        go.addEventListener("click", function () {
+            openQuestion(entry.questionKey, topicId);
+        });
+        box.appendChild(go);
+
+        card.appendChild(box);
+        return card;
+    }
+
+    /** Friendly sign-in invitation shown to guests instead of an empty panel. */
+    function renderGuestPrompt(host) {
+        clear(host);
+
+        var card = el("div", "dash-guest");
+        card.appendChild(el("h3", null, "Your personal learning dashboard"));
+        card.appendChild(
+            el(
+                "p",
+                "dash-muted",
+                "Sign in to track the questions you have studied, save revision bookmarks and follow your progress by topic. Browsing and reading every question stays free for guests."
+            )
+        );
+
+        var actions = el("div", "dash-guest-actions");
+
+        var login = el("button", "btn btn-primary", "Log in");
+        login.type = "button";
+        login.addEventListener("click", function () {
+            window.QAHub.goTo("login");
+        });
+
+        var register = el("button", "btn btn-ghost", "Create account");
+        register.type = "button";
+        register.addEventListener("click", function () {
+            window.QAHub.goTo("register");
+        });
+
+        actions.appendChild(login);
+        actions.appendChild(register);
+        card.appendChild(actions);
+
+        host.appendChild(card);
+    }
+
     function renderDashboard() {
         var host = document.getElementById("dashboard-content");
 
@@ -627,11 +781,7 @@
         }
 
         if (!signedIn()) {
-            clear(host);
-            var gate = el("div", "state-message");
-            gate.appendChild(el("strong", null, "Please sign in."));
-            gate.appendChild(el("span", null, "The dashboard shows your personal learning progress."));
-            host.appendChild(gate);
+            renderGuestPrompt(host);
             return;
         }
 
@@ -662,6 +812,8 @@
 
             clear(host);
 
+            var lookup = questionTextLookup(totals);
+
             var grandTotal = totals.reduce(function (sum, entry) {
                 return sum + (entry.questions || []).length;
             }, 0);
@@ -671,17 +823,17 @@
                 ? Math.round((doneTotal / grandTotal) * 100)
                 : 0;
 
-            var weekTotal = (data.weekly || []).reduce(function (sum, day) {
-                return sum + day.count;
-            }, 0);
+            /* ---- welcome ---- */
+
+            host.appendChild(buildWelcome(data.user, currentStreak(data.activityDays)));
 
             /* ---- headline stats ---- */
 
             var stats = el("div", "dash-stats");
-            stats.appendChild(statCard("Questions completed", String(doneTotal), "of " + grandTotal + " total"));
-            stats.appendChild(statCard("Overall progress", overallPercent + "%", "across all topics"));
-            stats.appendChild(statCard("Completed this week", String(weekTotal), "last 7 days"));
-            stats.appendChild(statCard("Saved for revision", String((data.bookmarks || []).length), "bookmarks"));
+            stats.appendChild(statCard("Total Questions", String(grandTotal), "in the question bank"));
+            stats.appendChild(statCard("Studied", String(doneTotal), "questions completed"));
+            stats.appendChild(statCard("Remaining", String(Math.max(0, grandTotal - doneTotal)), "still to study"));
+            stats.appendChild(statCard("Overall Progress", overallPercent + "%", "across all topics"));
             host.appendChild(stats);
 
             /* ---- overall progress bar ---- */
@@ -698,6 +850,10 @@
                 el("p", "dash-muted", doneTotal + " of " + grandTotal + " questions completed")
             );
             host.appendChild(overall);
+
+            /* ---- continue learning ---- */
+
+            host.appendChild(buildContinue((data.recent || [])[0], lookup));
 
             /* ---- topic wise ---- */
 
@@ -776,28 +932,25 @@
             week.appendChild(chart);
             host.appendChild(week);
 
-            /* ---- recent + bookmarks ---- */
-
-            var lookup = questionTextLookup(totals);
+            /* ---- revision, bookmarks and activity ---- */
 
             var lists = el("div", "dash-lists");
 
             lists.appendChild(
                 buildList(
-                    "Recently Completed",
-                    (data.recent || []).map(function (entry) {
+                    "Questions to Revise",
+                    (data.revision || []).map(function (entry) {
                         var info = lookup[entry.questionKey];
-                        var topicId = entry.questionKey.split(":")[0];
 
                         return {
                             key: entry.questionKey,
                             title: info ? info.question : entry.questionKey,
-                            meta: (info ? info.topicName + " · " : "") + relativeDay(entry.completedAt),
-                            topicId: topicId,
-                            empty: "No questions completed yet. Open any answer to start tracking."
+                            meta: (info ? info.topicName + " · " : "") +
+                                relativeDay(entry.completedAt),
+                            topicId: entry.questionKey.split(":")[0]
                         };
                     }),
-                    "Open a few answers and they will appear here."
+                    "Questions studied more than a week ago appear here for revision."
                 )
             );
 
@@ -806,17 +959,34 @@
                     "Revision Bookmarks",
                     (data.bookmarks || []).map(function (entry) {
                         var info = lookup[entry.questionKey];
-                        var topicId = entry.questionKey.split(":")[0];
 
                         return {
                             key: entry.questionKey,
                             title: info ? info.question : entry.questionKey,
                             meta: info ? info.topicName : entry.questionKey,
-                            topicId: topicId,
-                            empty: "No bookmarks yet. Use “Revise later” on any question."
+                            topicId: entry.questionKey.split(":")[0]
                         };
                     }),
-                    "Your saved questions will appear here."
+                    "No bookmarks yet. Use “Revise later” on any question.",
+                    { removable: true }
+                )
+            );
+
+            lists.appendChild(
+                buildList(
+                    "Recent Activity",
+                    (data.recent || []).map(function (entry) {
+                        var info = lookup[entry.questionKey];
+
+                        return {
+                            key: entry.questionKey,
+                            title: info ? info.question : entry.questionKey,
+                            meta: (info ? info.topicName + " · " : "") +
+                                relativeDay(entry.completedAt),
+                            topicId: entry.questionKey.split(":")[0]
+                        };
+                    }),
+                    "Your recently studied questions will appear here."
                 )
             );
 
@@ -824,7 +994,7 @@
         });
     }
 
-    function buildList(title, items, emptyText) {
+    function buildList(title, items, emptyText, options) {
         var card = el("div", "dash-card");
         card.appendChild(el("h3", null, title));
 
@@ -834,6 +1004,7 @@
         }
 
         var list = el("ul", "dash-list");
+        var removable = Boolean(options && options.removable);
 
         items.forEach(function (item) {
             var row = el("li", "dash-list-item");
@@ -843,11 +1014,27 @@
             link.appendChild(el("span", "dash-list-title", item.title));
             link.appendChild(el("span", "dash-list-meta", item.meta));
 
+            // Opens the question itself rather than only its topic.
             link.addEventListener("click", function () {
-                window.QAHub.goTo(item.topicId);
+                openQuestion(item.key, item.topicId);
             });
 
             row.appendChild(link);
+
+            if (removable) {
+                var remove = el("button", "dash-remove", "Remove");
+                remove.type = "button";
+                remove.title = "Remove from revision list";
+                remove.setAttribute("aria-label", "Remove bookmark: " + item.title);
+                remove.addEventListener("click", function () {
+                    // Reuses the existing bookmark toggle: it is currently saved,
+                    // so this removes it and refreshes the open dashboard.
+                    toggleBookmark(item.key);
+                });
+
+                row.appendChild(remove);
+            }
+
             list.appendChild(row);
         });
 

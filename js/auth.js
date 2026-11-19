@@ -490,11 +490,9 @@
         }
 
         if (parts.name === "dashboard") {
-            if (!user) {
-                navigate("login");
-                return;
-            }
-
+            // Guests are not bounced away any more: progress.js renders the
+            // personal dashboard for signed-in users and a friendly sign-in
+            // invitation for everyone else.
             if (window.QAProgress) {
                 window.QAProgress.renderDashboard();
             }

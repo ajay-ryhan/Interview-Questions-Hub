@@ -810,6 +810,66 @@ main {
     min-height: 46px;
 }
 
+/* List / flash-card switch that sits in the toolbar. */
+
+.view-switch {
+    flex: 0 0 auto;
+    min-height: 46px;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 14px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--surface-2);
+    color: var(--text-soft);
+    font: inherit;
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+}
+
+.view-switch:hover {
+    border-color: var(--border-strong);
+    color: var(--text);
+}
+
+.view-switch[aria-checked="true"] {
+    border-color: var(--primary);
+    background: var(--primary-soft);
+    color: var(--text);
+}
+
+.view-switch-track {
+    position: relative;
+    flex: 0 0 auto;
+    width: 34px;
+    height: 18px;
+    border-radius: 999px;
+    background: var(--border-strong);
+    transition: background-color 0.2s ease;
+}
+
+.view-switch-thumb {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #ffffff;
+    transition: transform 0.2s ease;
+}
+
+.view-switch[aria-checked="true"] .view-switch-track {
+    background: var(--primary-strong);
+}
+
+.view-switch[aria-checked="true"] .view-switch-thumb {
+    transform: translateX(16px);
+}
+
 /* ---------- Stats ---------- */
 
 .question-stats {
@@ -991,6 +1051,121 @@ main {
 .question-card[open] .question-chevron {
     transform: rotate(180deg);
     color: var(--primary);
+}
+
+/* ---------- Flash card deck ---------- */
+
+.flash-deck {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.flash-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px 16px;
+    padding: 0 2px;
+    font-size: 13.5px;
+    color: var(--muted);
+}
+
+.flash-count {
+    color: var(--text-soft);
+    font-weight: 700;
+    letter-spacing: 0.02em;
+}
+
+/* Clips the card while it is dragged or flies out. pan-y keeps vertical
+   scrolling over a tall card working on touch screens. */
+
+.flash-stage {
+    position: relative;
+    overflow: hidden;
+    padding: 4px;
+    touch-action: pan-y;
+}
+
+.flash-stage .question-card {
+    cursor: grab;
+    transition: transform 0.18s ease, opacity 0.18s ease;
+    will-change: transform;
+}
+
+.flash-stage .question-card:hover {
+    border-color: var(--border);
+}
+
+.flash-stage.is-dragging .question-card {
+    cursor: grabbing;
+    transition: none;
+}
+
+.flash-stage .question-card.is-leaving-next {
+    transform: translateX(-130%) rotate(-7deg);
+    opacity: 0;
+}
+
+.flash-stage .question-card.is-leaving-previous {
+    transform: translateX(130%) rotate(7deg);
+    opacity: 0;
+}
+
+.flash-stage .question-card.is-entering-next {
+    animation: flash-enter-next 0.22s ease-out;
+}
+
+.flash-stage .question-card.is-entering-previous {
+    animation: flash-enter-previous 0.22s ease-out;
+}
+
+@keyframes flash-enter-next {
+    from {
+        opacity: 0;
+        transform: translateX(28px);
+    }
+}
+
+@keyframes flash-enter-previous {
+    from {
+        opacity: 0;
+        transform: translateX(-28px);
+    }
+}
+
+/* The card carries the whole deck, so it gets room to breathe and a
+   centred, larger question than in the list. */
+
+.flash-stage .summary-row {
+    padding: 26px 22px;
+    gap: 16px;
+}
+
+.flash-stage .question-text {
+    font-size: 18px;
+    line-height: 1.55;
+}
+
+.flash-stage .question-chevron {
+    align-self: center;
+}
+
+.flash-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.flash-nav .btn {
+    min-height: 46px;
+}
+
+.flash-nav .btn[disabled] {
+    opacity: 0.45;
+    cursor: not-allowed;
 }
 
 /* ---------- Answer area ---------- */
@@ -2056,6 +2231,155 @@ main {
 .dash-list-meta {
     font-size: 12px;
     color: var(--muted);
+}
+
+/* Welcome banner */
+
+.dash-welcome {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 14px;
+    margin-bottom: 18px;
+    padding: 22px;
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    background: linear-gradient(135deg, var(--primary-soft), transparent 70%), var(--surface);
+    box-shadow: var(--shadow-soft);
+}
+
+.dash-welcome-title {
+    flex: 1 1 auto;
+    margin: 0;
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.3px;
+}
+
+.dash-welcome-sub {
+    flex: 1 1 100%;
+    margin: 0;
+    font-size: 13.5px;
+    color: var(--muted);
+}
+
+.dash-streak {
+    flex: 0 0 auto;
+    padding: 6px 14px;
+    border: 1px solid var(--badge-border);
+    border-radius: 999px;
+    background: var(--badge-bg);
+    color: var(--badge-text);
+    font-size: 13px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+/* Continue Learning */
+
+.dash-continue {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+}
+
+.dash-continue-text {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+}
+
+.dash-continue-topic {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--primary);
+}
+
+.dash-continue-question {
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.5;
+}
+
+.dash-continue-meta {
+    font-size: 12px;
+    color: var(--muted);
+}
+
+.dash-continue .btn {
+    flex: 0 0 auto;
+    min-height: 44px;
+}
+
+/* Bookmark rows with a remove action */
+
+.dash-list-item {
+    display: flex;
+    align-items: stretch;
+    gap: 8px;
+}
+
+.dash-list-item .dash-list-link {
+    flex: 1 1 auto;
+}
+
+.dash-remove {
+    flex: 0 0 auto;
+    padding: 0 14px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: transparent;
+    color: var(--muted);
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.dash-remove:hover {
+    border-color: var(--expert-text);
+    background: var(--expert-bg);
+    color: var(--expert-text);
+}
+
+/* Guest prompt */
+
+.dash-guest {
+    padding: 30px 26px;
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    background: var(--surface);
+    box-shadow: var(--shadow-soft);
+    text-align: center;
+}
+
+.dash-guest h3 {
+    margin: 0 0 10px;
+    font-size: 19px;
+    font-weight: 800;
+    letter-spacing: -0.3px;
+}
+
+.dash-guest .dash-muted {
+    margin: 0 auto;
+    max-width: 520px;
+}
+
+.dash-guest-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.dash-guest-actions .btn {
+    min-height: 46px;
 }
 
 /* ---------- Toasts ---------- */

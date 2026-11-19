@@ -122,6 +122,7 @@
     const difficultyFilter = document.getElementById("difficulty-filter");
     const subtopicFilter = document.getElementById("subtopic-filter");
     const expandToggle = document.getElementById("expand-toggle");
+    const flashToggle = document.getElementById("flash-toggle");
     const questionStats = document.getElementById("question-stats");
     const questionContainer = document.getElementById("question-container");
 
@@ -1000,10 +1001,336 @@
         return card;
     }
 
+    /* ==========================
+       Flash cards
+
+       The deck shows one card at a time but reuses the list markup, so the
+       studied/bookmark behaviour in progress.js works untouched: flipping a
+       card opens its <details> and swiping on records the card being left.
+    ========================== */
+
+    const SWIPE_DISTANCE = 60;      // travel that counts as a finished swipe
+    const SWIPE_ANIMATION_MS = 180; // must match .flash-stage in the stylesheet
+    const VIEW_MODE_KEY = "qa-hub-question-mode";
+
+    let viewMode = storedViewMode();
+    let visibleQuestions = [];
+    let deckIndex = 0;
+    let deckBusy = false;
+    let dragStart = null;
+    let ignoreCardClick = false;
+
+    // Set by openQuestion(); consumed by the next render so a question opened
+    // from the dashboard lands on its answer instead of the top of the topic.
+    let pendingOpenKey = null;
+
+    function storedViewMode() {
+        try {
+            return localStorage.getItem(VIEW_MODE_KEY) === "cards" ? "cards" : "list";
+        } catch (error) {
+            return "list";
+        }
+    }
+
+    function storeViewMode() {
+        try {
+            localStorage.setItem(VIEW_MODE_KEY, viewMode);
+        } catch (error) {
+            /* storage unavailable: the choice simply is not remembered */
+        }
+    }
+
+    /** Reflects the current mode in the switch and the toolbar buttons. */
+    function applyViewMode() {
+        if (flashToggle) {
+            flashToggle.setAttribute(
+                "aria-checked",
+                viewMode === "cards" ? "true" : "false"
+            );
+        }
+
+        // "Expand all" has nothing to do with a single-card deck.
+        if (expandToggle) {
+            expandToggle.hidden = viewMode === "cards";
+        }
+    }
+
+    function renderList(questions) {
+        clearElement(questionContainer);
+        questionContainer.className = "question-container";
+
+        const fragment = document.createDocumentFragment();
+
+        questions.forEach(function (item, index) {
+            fragment.appendChild(createQuestionCard(item, index));
+        });
+
+        questionContainer.appendChild(fragment);
+
+        emit("rendered", {
+            topicId: currentTopic ? currentTopic.id : null,
+            container: questionContainer,
+            questions: questions
+        });
+
+        revealPendingQuestion();
+    }
+
+    function renderDeck(entry) {
+        deckIndex = Math.max(0, Math.min(deckIndex, visibleQuestions.length - 1));
+
+        const card = createQuestionCard(visibleQuestions[deckIndex], deckIndex);
+
+        if (entry) {
+            card.classList.add(
+                entry === "next" ? "is-entering-next" : "is-entering-previous"
+            );
+        }
+
+        clearElement(questionContainer);
+        questionContainer.className = "question-container deck-container";
+
+        const deck = createElement("div", "flash-deck");
+
+        const meta = createElement("div", "flash-meta");
+        meta.appendChild(
+            createElement(
+                "span",
+                "flash-count",
+                "Card " + (deckIndex + 1) + " of " + visibleQuestions.length
+            )
+        );
+        meta.appendChild(
+            createElement("span", "flash-hint", "Tap to reveal · swipe to move")
+        );
+        deck.appendChild(meta);
+
+        const stage = createElement("div", "flash-stage");
+        stage.appendChild(card);
+        deck.appendChild(stage);
+
+        const nav = createElement("div", "flash-nav");
+
+        const previous = createElement("button", "btn btn-ghost", "← Previous");
+        previous.type = "button";
+        previous.disabled = deckIndex === 0;
+        previous.addEventListener("click", function () {
+            goToCard(deckIndex - 1, "previous");
+        });
+
+        const next = createElement("button", "btn btn-primary", "Next →");
+        next.type = "button";
+        next.disabled = deckIndex === visibleQuestions.length - 1;
+        next.addEventListener("click", function () {
+            goToCard(deckIndex + 1, "next");
+        });
+
+        nav.appendChild(previous);
+        nav.appendChild(next);
+        deck.appendChild(nav);
+
+        questionContainer.appendChild(deck);
+
+        wireDeck(stage);
+
+        emit("rendered", {
+            topicId: currentTopic ? currentTopic.id : null,
+            container: questionContainer,
+            questions: visibleQuestions
+        });
+
+        revealPendingQuestion();
+    }
+
+    /**
+     * Opens a specific question that was requested before its topic rendered,
+     * then clears the request. Used by the dashboard's Continue Learning and
+     * activity links. Does nothing when the question is not in the current set.
+     */
+    function revealPendingQuestion() {
+        if (!pendingOpenKey) {
+            return;
+        }
+
+        const key = pendingOpenKey;
+        pendingOpenKey = null;
+
+        // Flash cards keep only the current card in the DOM, so move the deck
+        // to the requested question and render it before looking for the card.
+        if (viewMode === "cards") {
+            const topicId = currentTopic ? currentTopic.id : "qa";
+            const index = visibleQuestions.findIndex(function (item, position) {
+                return topicId + ":" + (item.id || position + 1) === key;
+            });
+
+            if (index !== -1 && index !== deckIndex) {
+                deckIndex = index;
+                renderDeck();
+                return;
+            }
+        }
+
+        const card = questionContainer.querySelector(
+            '.question-card[data-question-key="' + key + '"]'
+        );
+
+        if (!card) {
+            return;
+        }
+
+        card.open = true;
+        emit("opened", { key: key, card: card });
+
+        try {
+            card.scrollIntoView({ behavior: "smooth", block: "start" });
+        } catch (error) {
+            card.scrollIntoView();
+        }
+    }
+
+    /**
+     * Moves through the deck. Leaving a card forwards records it as studied,
+     * using the same event that revealing an answer emits, so progress follows
+     * the swipes and guests still get the one-off sign-in hint.
+     */
+    function goToCard(target, direction) {
+        if (deckBusy || target < 0 || target >= visibleQuestions.length) {
+            return;
+        }
+
+        const leaving = questionContainer.querySelector(".question-card");
+
+        if (direction === "next" && leaving) {
+            const key = leaving.getAttribute("data-question-key");
+
+            if (key) {
+                emit("opened", { key: key, card: leaving });
+            }
+        }
+
+        if (!leaving) {
+            deckIndex = target;
+            renderDeck(direction);
+            return;
+        }
+
+        // Let the card travel the way the gesture went before it is replaced.
+        deckBusy = true;
+        leaving.classList.add(
+            direction === "next" ? "is-leaving-next" : "is-leaving-previous"
+        );
+
+        window.setTimeout(function () {
+            deckBusy = false;
+            deckIndex = target;
+            renderDeck(direction);
+        }, SWIPE_ANIMATION_MS);
+    }
+
+    function wireDeck(stage) {
+        stage.addEventListener("pointerdown", function (event) {
+            if (deckBusy || (event.pointerType === "mouse" && event.button !== 0)) {
+                return;
+            }
+
+            ignoreCardClick = false;
+
+            dragStart = {
+                x: event.clientX,
+                y: event.clientY,
+                stage: stage,
+                card: stage.querySelector(".question-card"),
+                active: false
+            };
+        });
+
+        stage.addEventListener("pointermove", function (event) {
+            if (!dragStart || !dragStart.card || deckBusy) {
+                return;
+            }
+
+            const dx = event.clientX - dragStart.x;
+            const dy = event.clientY - dragStart.y;
+
+            if (!dragStart.active) {
+                // Wait until the gesture is clearly horizontal so that
+                // vertical scrolling over a tall card keeps working.
+                if (Math.abs(dx) < 12 || Math.abs(dx) <= Math.abs(dy)) {
+                    return;
+                }
+
+                dragStart.active = true;
+                stage.classList.add("is-dragging");
+                stage.setPointerCapture(event.pointerId);
+            }
+
+            dragStart.card.style.transform =
+                "translateX(" + dx + "px) rotate(" + Math.round(dx / 27) + "deg)";
+        });
+
+        stage.addEventListener("pointerup", function (event) {
+            if (!dragStart) {
+                return;
+            }
+
+            const drag = dragStart;
+            dragStart = null;
+
+            if (!drag.active) {
+                return;
+            }
+
+            ignoreCardClick = true;
+            stage.classList.remove("is-dragging");
+
+            if (drag.card) {
+                drag.card.style.transform = "";
+            }
+
+            const dx = event.clientX - drag.x;
+
+            if (dx <= -SWIPE_DISTANCE) {
+                goToCard(deckIndex + 1, "next");
+            } else if (dx >= SWIPE_DISTANCE) {
+                goToCard(deckIndex - 1, "previous");
+            }
+        });
+
+        stage.addEventListener("pointercancel", function () {
+            dragStart = null;
+            stage.classList.remove("is-dragging");
+
+            const card = stage.querySelector(".question-card");
+
+            if (card) {
+                card.style.transform = "";
+            }
+        });
+
+        // A swipe ends with a click on the card; without this the summary
+        // would flip open as the finger lifts.
+        stage.addEventListener(
+            "click",
+            function (event) {
+                if (!ignoreCardClick) {
+                    return;
+                }
+
+                ignoreCardClick = false;
+                event.preventDefault();
+                event.stopPropagation();
+            },
+            true
+        );
+    }
+
     function displayQuestions(questions) {
         expandToggle.textContent = "Expand all";
+        applyViewMode();
 
         if (!questions || questions.length === 0) {
+            visibleQuestions = [];
+
             const box = showMessage(
                 "No matching questions found.",
                 "Try a different search word or clear the filters."
@@ -1020,21 +1347,15 @@
             return;
         }
 
-        clearElement(questionContainer);
+        // A new set of questions always starts at the first card.
+        visibleQuestions = questions;
+        deckIndex = 0;
 
-        const fragment = document.createDocumentFragment();
-
-        questions.forEach(function (item, index) {
-            fragment.appendChild(createQuestionCard(item, index));
-        });
-
-        questionContainer.appendChild(fragment);
-
-        emit("rendered", {
-            topicId: currentTopic ? currentTopic.id : null,
-            container: questionContainer,
-            questions: questions
-        });
+        if (viewMode === "cards") {
+            renderDeck();
+        } else {
+            renderList(questions);
+        }
     }
 
     /* ==========================
@@ -1220,6 +1541,18 @@
         topics: allTopics,
         on: on,
         goTo: goTo,
+        /**
+         * Navigates to the question's topic and opens that answer. Used by the
+         * dashboard to jump straight to the last studied or a revision item.
+         */
+        openQuestion: function (questionKey) {
+            if (!questionKey) {
+                return;
+            }
+
+            pendingOpenKey = questionKey;
+            goTo(questionKey.split(":")[0]);
+        },
         loadQuestions: fetchQuestions,
         getCurrentQuestions: function () {
             return currentQuestions;
@@ -1270,6 +1603,51 @@
         }
 
         expandToggle.textContent = expand ? "Collapse all" : "Expand all";
+    });
+
+    if (flashToggle) {
+        flashToggle.addEventListener("click", function () {
+            viewMode = viewMode === "cards" ? "list" : "cards";
+            storeViewMode();
+            applyViewMode();
+
+            if (visibleQuestions.length === 0) {
+                return;
+            }
+
+            // Switching keeps your place: the deck and the list share the
+            // current question set, and the deck remembers its index.
+            if (viewMode === "cards") {
+                renderDeck();
+            } else {
+                renderList(visibleQuestions);
+            }
+        });
+    }
+
+    // Arrow keys mirror the deck buttons. ← / → are ignored while typing.
+    document.addEventListener("keydown", function (event) {
+        if (viewMode !== "cards" || studyView.hidden) {
+            return;
+        }
+
+        if (event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) {
+            return;
+        }
+
+        const tag = event.target && event.target.tagName;
+
+        if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") {
+            return;
+        }
+
+        if (event.key === "ArrowRight") {
+            event.preventDefault();
+            goToCard(deckIndex + 1, "next");
+        } else if (event.key === "ArrowLeft") {
+            event.preventDefault();
+            goToCard(deckIndex - 1, "previous");
+        }
     });
 
     window.addEventListener(
