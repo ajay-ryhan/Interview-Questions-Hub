@@ -78,6 +78,20 @@
         }
     ];
 
+    /* Games live in their own section under the topic grid. Adding a game here,
+       or a new topic to "categories", needs no other change: the quiz reads the
+       same topic list at run time, so new topics show up on their own. */
+    const games = [
+        {
+            id: "quiz-battle",
+            name: "QA Quiz Battle",
+            description: "Battle through 5 questions against the clock and rack up points.",
+            icon: "🎮",
+            type: "game",
+            meta: "Quiz game"
+        }
+    ];
+
     const allTopics = categories.concat(tools);
 
     const THEME_KEY = "qa-hub-theme";
@@ -101,6 +115,7 @@
     const studyView = document.getElementById("study-view");
     const authView = document.getElementById("auth-view");
     const dashboardView = document.getElementById("dashboard-view");
+    const gameView = document.getElementById("game-view");
 
     const authArea = document.getElementById("auth-area");
     const homeButton = document.getElementById("home-button");
@@ -111,6 +126,7 @@
     const toTopButton = document.getElementById("to-top");
 
     const topicGrid = document.getElementById("topic-grid");
+    const gamesGrid = document.getElementById("games-grid");
     const topicChips = document.getElementById("topic-chips");
 
     const selectedTopic = document.getElementById("selected-topic");
@@ -286,6 +302,10 @@
             dashboardView.hidden = name !== "dashboard";
         }
 
+        if (gameView) {
+            gameView.hidden = name !== "game";
+        }
+
         currentView = name;
         applyAuthArea();
 
@@ -336,6 +356,21 @@
 
             if (window.QAAuth && window.QAAuth.handleRoute) {
                 window.QAAuth.handleRoute(hash);
+            }
+
+            return;
+        }
+
+        const game = games.filter(function (item) {
+            return item.id === hash;
+        })[0];
+
+        if (game) {
+            currentTopic = null;
+            showView("game");
+
+            if (window.QAQuiz && window.QAQuiz.open) {
+                window.QAQuiz.open(game);
             }
 
             return;
@@ -477,6 +512,51 @@
                 /* older browsers: the chip row can still be scrolled by hand */
             }
         }
+    }
+
+    /* ==========================
+       Games
+    ========================== */
+
+    function renderGamesGrid() {
+        if (!gamesGrid) {
+            return;
+        }
+
+        clearElement(gamesGrid);
+
+        games.forEach(function (game) {
+            const card = createElement("button", "topic-card game-card");
+            card.type = "button";
+
+            const icon = createElement("span", "topic-card-icon", game.icon);
+            icon.setAttribute("aria-hidden", "true");
+
+            const name = createElement("span", "topic-card-name", game.name);
+            const description = createElement(
+                "span",
+                "topic-card-description",
+                game.description
+            );
+
+            const meta = createElement("span", "topic-card-meta");
+            meta.appendChild(createElement("span", "topic-card-count", game.meta));
+
+            const arrow = createElement("span", "topic-card-arrow", "→");
+            arrow.setAttribute("aria-hidden", "true");
+            meta.appendChild(arrow);
+
+            card.appendChild(icon);
+            card.appendChild(name);
+            card.appendChild(description);
+            card.appendChild(meta);
+
+            card.addEventListener("click", function () {
+                goTo(game.id);
+            });
+
+            gamesGrid.appendChild(card);
+        });
     }
 
     /* ==========================
@@ -1674,5 +1754,6 @@
     ========================== */
 
     renderTopicGrid();
+    renderGamesGrid();
     route();
 })();
