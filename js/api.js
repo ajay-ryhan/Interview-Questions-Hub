@@ -132,6 +132,52 @@
 
         getDashboard: function () {
             return request("/dashboard");
+        },
+
+        /* ----- mock interview ----- */
+
+        startInterview: function (payload) {
+            return request("/interview/session", { method: "POST", body: payload });
+        },
+
+        getInterview: function (id) {
+            return request("/interview/session/" + encodeURIComponent(id));
+        },
+
+        listInterviews: function () {
+            return request("/interview/sessions");
+        },
+
+        deleteInterview: function (id) {
+            return request("/interview/session/" + encodeURIComponent(id), {
+                method: "DELETE"
+            });
+        },
+
+        answerInterview: function (id, payload) {
+            return request("/interview/session/" + encodeURIComponent(id) + "/answer", {
+                method: "POST",
+                body: payload
+            });
+        },
+
+        finishInterview: function (id, payload) {
+            return request("/interview/session/" + encodeURIComponent(id) + "/finish", {
+                method: "POST",
+                body: payload || {}
+            });
+        },
+
+        transcribeAudio: function (payload) {
+            return request("/interview/transcribe", { method: "POST", body: payload });
+        },
+
+        interviewSpeech: function (payload) {
+            return request("/interview/speech", { method: "POST", body: payload });
+        },
+
+        testInterviewProvider: function (payload) {
+            return request("/interview/provider/test", { method: "POST", body: payload });
         }
     };
 })();

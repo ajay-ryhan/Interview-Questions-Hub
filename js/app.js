@@ -94,6 +94,20 @@
 
     const allTopics = categories.concat(tools);
 
+    /* Mock Interview is its own section. This single entry is all the router
+       needs: js/interview.js owns the setup form, the interview room and the
+       final report for both the written and the voice mode. */
+    const practice = [
+        {
+            id: "mock-interview",
+            name: "Mock Interview",
+            description: "Sit a full interview with an AI interviewer and get a scored report.",
+            icon: "🎤",
+            type: "interview",
+            meta: "Written & voice"
+        }
+    ];
+
     const THEME_KEY = "qa-hub-theme";
 
     const questionCache = {};
@@ -116,6 +130,7 @@
     const authView = document.getElementById("auth-view");
     const dashboardView = document.getElementById("dashboard-view");
     const gameView = document.getElementById("game-view");
+    const interviewView = document.getElementById("interview-view");
 
     const authArea = document.getElementById("auth-area");
     const homeButton = document.getElementById("home-button");
@@ -127,6 +142,7 @@
 
     const topicGrid = document.getElementById("topic-grid");
     const gamesGrid = document.getElementById("games-grid");
+    const interviewGrid = document.getElementById("interview-grid");
     const topicChips = document.getElementById("topic-chips");
 
     const selectedTopic = document.getElementById("selected-topic");
@@ -306,6 +322,10 @@
             gameView.hidden = name !== "game";
         }
 
+        if (interviewView) {
+            interviewView.hidden = name !== "interview";
+        }
+
         currentView = name;
         applyAuthArea();
 
@@ -371,6 +391,21 @@
 
             if (window.QAQuiz && window.QAQuiz.open) {
                 window.QAQuiz.open(game);
+            }
+
+            return;
+        }
+
+        const practiceItem = practice.filter(function (item) {
+            return item.id === hash;
+        })[0];
+
+        if (practiceItem) {
+            currentTopic = null;
+            showView("interview");
+
+            if (window.QAInterview && window.QAInterview.open) {
+                window.QAInterview.open(practiceItem);
             }
 
             return;
@@ -515,32 +550,36 @@
     }
 
     /* ==========================
-       Games
+       Cards for Games and Mock Interview
     ========================== */
 
-    function renderGamesGrid() {
-        if (!gamesGrid) {
+    /**
+     * Shared card grid. Every entry navigates to its own hash, so the quiz
+     * module and the interview module each own their view.
+     */
+    function renderEntryGrid(grid, entries) {
+        if (!grid) {
             return;
         }
 
-        clearElement(gamesGrid);
+        clearElement(grid);
 
-        games.forEach(function (game) {
+        entries.forEach(function (entry) {
             const card = createElement("button", "topic-card game-card");
             card.type = "button";
 
-            const icon = createElement("span", "topic-card-icon", game.icon);
+            const icon = createElement("span", "topic-card-icon", entry.icon);
             icon.setAttribute("aria-hidden", "true");
 
-            const name = createElement("span", "topic-card-name", game.name);
+            const name = createElement("span", "topic-card-name", entry.name);
             const description = createElement(
                 "span",
                 "topic-card-description",
-                game.description
+                entry.description
             );
 
             const meta = createElement("span", "topic-card-meta");
-            meta.appendChild(createElement("span", "topic-card-count", game.meta));
+            meta.appendChild(createElement("span", "topic-card-count", entry.meta));
 
             const arrow = createElement("span", "topic-card-arrow", "→");
             arrow.setAttribute("aria-hidden", "true");
@@ -552,11 +591,19 @@
             card.appendChild(meta);
 
             card.addEventListener("click", function () {
-                goTo(game.id);
+                goTo(entry.id);
             });
 
-            gamesGrid.appendChild(card);
+            grid.appendChild(card);
         });
+    }
+
+    function renderGamesGrid() {
+        renderEntryGrid(gamesGrid, games);
+    }
+
+    function renderInterviewGrid() {
+        renderEntryGrid(interviewGrid, practice);
     }
 
     /* ==========================
@@ -1755,5 +1802,6 @@
 
     renderTopicGrid();
     renderGamesGrid();
+    renderInterviewGrid();
     route();
 })();

@@ -31,11 +31,46 @@ binding = "DB"
 database_name = "qa-interview-hub-db"
 database_id = "164b9201-b8bd-4f53-9750-99a84e1a7344"
 # ...
+# ---------------------------------------------------------------------------
+# Workers AI — powers Mock Interview Mode (free tier: 10,000 Neurons/day)
+#
+# This binding is what makes the free path work: no API key, no billing.
+# ---------------------------------------------------------------------------
+[ai]
+binding = "AI"
+
 [observability.logs]
 enabled = true
 invocation_logs = true
 persist = true
 # ...
+# ---------------------------------------------------------------------------
+# Non-secret configuration.
+#
+# Secrets are NOT set here. Put them in the Worker with:
+#   npx wrangler secret put OPENAI_API_KEY
+# and in .dev.vars for local development (that file is gitignored).
+# ---------------------------------------------------------------------------
 [vars]
-# ...
+# --- Mock Interview: model selection -----------------------------------
+# "workers-ai" uses the free AI binding above and needs no key.
+# Switch to "openai" only after the OPENAI_API_KEY secret exists; OpenAI has
+# no free tier, so that path bills your account per token.
+#
+# Candidates may also bring their own OpenAI-compatible key in the setup form.
+# That key is used in-flight only: it is never logged and never stored here.
+INTERVIEW_PROVIDER = "workers-ai"
+INTERVIEW_TEXT_MODEL = "@cf/meta/llama-3.3-70b-instruct-fp8-fast"
+INTERVIEW_STT_MODEL = "@cf/openai/whisper"
+# Optional paid models, used only when INTERVIEW_PROVIDER = "openai".
+OPENAI_TEXT_MODEL = "gpt-4o-mini"
+OPENAI_STT_MODEL = "whisper-1"
+OPENAI_TTS_MODEL = "gpt-4o-mini-tts"
+OPENAI_TTS_VOICE = "alloy"
+
+# --- Mock Interview: usage and spending protection ---------------------
+INTERVIEW_MAX_SESSIONS_PER_DAY = "5"
+INTERVIEW_MAX_TURNS_PER_SESSION = "100"
+INTERVIEW_MAX_TURNS_PER_DAY = "200"
+INTERVIEW_MAX_SESSIONS_PER_DAY_ALL = "50"
 
