@@ -161,15 +161,12 @@
             return;
         }
 
-        var menu = document.createElement("div");
-        menu.className = "user-menu";
+        var profile = document.createElement("div");
+        profile.className = "user-profile";
 
-        var trigger = document.createElement("button");
-        trigger.type = "button";
-        trigger.className = "user-button";
-        trigger.setAttribute("aria-haspopup", "true");
-        trigger.setAttribute("aria-expanded", "false");
-        trigger.title = (user.name || "Account") + " · Online";
+        var identity = document.createElement("div");
+        identity.className = "user-identity";
+        identity.title = (user.name || "Account") + " · Online";
 
         var avatar = document.createElement("span");
         avatar.className = "user-avatar-wrap";
@@ -179,11 +176,7 @@
         initial.className = "user-avatar";
         initial.textContent = (user.name || "?").trim().charAt(0).toUpperCase();
 
-        var presence = document.createElement("span");
-        presence.className = "user-presence";
-
         avatar.appendChild(initial);
-        avatar.appendChild(presence);
 
         var details = document.createElement("span");
         details.className = "user-details";
@@ -199,41 +192,10 @@
         details.appendChild(name);
         details.appendChild(status);
 
-        var chevron = document.createElement("span");
-        chevron.className = "user-chevron";
-        chevron.setAttribute("aria-hidden", "true");
-        chevron.textContent = "▾";
-
-        trigger.appendChild(avatar);
-        trigger.appendChild(details);
-        trigger.appendChild(chevron);
-
-        var dropdown = document.createElement("div");
-        dropdown.className = "user-dropdown";
-        dropdown.hidden = true;
-
-        /* Navigation lives in the sidebar, so this menu only carries the
-           account action. */
-        var logout = document.createElement("button");
-        logout.type = "button";
-        logout.className = "user-menu-item is-danger";
-        logout.textContent = "Log out";
-
-        logout.addEventListener("click", function () {
-            doLogout();
-        });
-
-        dropdown.appendChild(logout);
-
-        trigger.addEventListener("click", function (event) {
-            event.stopPropagation();
-            dropdown.hidden = !dropdown.hidden;
-            trigger.setAttribute("aria-expanded", dropdown.hidden ? "false" : "true");
-        });
-
-        menu.appendChild(trigger);
-        menu.appendChild(dropdown);
-        authArea.appendChild(menu);
+        identity.appendChild(avatar);
+        identity.appendChild(details);
+        profile.appendChild(identity);
+        authArea.appendChild(profile);
     }
 
     /* =========================================================
@@ -545,20 +507,6 @@
             }
         });
     }
-
-    // A single outside-click listener closes the account dropdown.
-    document.addEventListener("click", function () {
-        var dropdowns = document.querySelectorAll(".user-dropdown");
-        var triggers = document.querySelectorAll(".user-button");
-
-        for (var i = 0; i < dropdowns.length; i++) {
-            dropdowns[i].hidden = true;
-        }
-
-        for (var j = 0; j < triggers.length; j++) {
-            triggers[j].setAttribute("aria-expanded", "false");
-        }
-    });
 
     function init() {
         api.me().then(function (result) {

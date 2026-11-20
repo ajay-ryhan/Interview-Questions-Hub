@@ -2050,12 +2050,11 @@ html[data-view="auth"] .header-brand {
     display: none;
 }
 
-.user-menu {
-    position: relative;
+.user-profile {
     min-width: 0;
 }
 
-.user-button {
+.user-identity {
     display: inline-flex;
     align-items: center;
     gap: 9px;
@@ -2068,26 +2067,9 @@ html[data-view="auth"] .header-brand {
     font-size: 14px;
     font-weight: 600;
     text-align: left;
-    transition: background-color 0.2s ease, border-color 0.2s ease,
-        color 0.2s ease, transform 0.18s ease, box-shadow 0.2s ease;
 }
 
-.user-button:hover {
-    background: var(--surface-hover);
-    border-color: var(--border-strong);
-    color: var(--text);
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-soft);
-}
-
-.user-button:active {
-    transform: translateY(0) scale(0.99);
-    box-shadow: none;
-}
-
-/* The avatar carries the online indicator in its bottom-right corner. */
 .user-avatar-wrap {
-    position: relative;
     flex: 0 0 auto;
     display: inline-flex;
 }
@@ -2104,18 +2086,6 @@ html[data-view="auth"] .header-brand {
     font-size: 14px;
     font-weight: 700;
     box-shadow: 0 4px 10px -4px rgba(31, 95, 196, 0.8);
-}
-
-.user-presence {
-    position: absolute;
-    right: -1px;
-    bottom: -1px;
-    width: 11px;
-    height: 11px;
-    border-radius: 50%;
-    background: #22c55e;
-    border: 2px solid var(--surface);
-    animation: presence-pulse 1.8s ease-in-out infinite;
 }
 
 @keyframes presence-pulse {
@@ -2167,65 +2137,6 @@ html[data-view="auth"] .header-brand {
 /* Deep enough green to stay readable on the light surface. */
 :root[data-theme="light"] .user-status {
     color: #15803d;
-}
-
-.user-chevron {
-    font-size: 10px;
-    color: var(--muted);
-}
-
-.user-dropdown {
-    position: absolute;
-    right: 0;
-    top: calc(100% + 8px);
-    min-width: 170px;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    padding: 6px;
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    background: var(--surface);
-    box-shadow: var(--shadow);
-    z-index: 60;
-}
-
-.user-menu-item {
-    display: block;
-    width: 100%;
-    padding: 10px 12px;
-    border: none;
-    border-radius: 8px;
-    background: transparent;
-    color: var(--text-soft);
-    font-size: 14px;
-    font-weight: 500;
-    text-align: left;
-    text-decoration: none;
-    transition: background-color 0.15s ease, color 0.15s ease;
-}
-
-.user-menu-item:hover {
-    background: var(--surface-hover);
-    color: var(--text);
-}
-
-.user-menu-item.is-danger {
-    color: #fb7185;
-}
-
-.user-menu-item.is-danger:hover {
-    background: rgba(244, 63, 94, 0.12);
-    color: #f43f5e;
-}
-
-:root[data-theme="light"] .user-menu-item.is-danger {
-    color: #b4233c;
-}
-
-:root[data-theme="light"] .user-menu-item.is-danger:hover {
-    background: rgba(244, 63, 94, 0.1);
-    color: #b4233c;
 }
 
 /* ---------- Sign in / Sign up ---------- */
