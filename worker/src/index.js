@@ -17,6 +17,15 @@
  *   POST   /api/bookmarks
  *   DELETE /api/bookmarks/:questionKey
  *   GET    /api/dashboard
+ *   POST   /api/interview/session              (Mock Interview)
+ *   GET    /api/interview/sessions
+ *   GET    /api/interview/session/:id
+ *   POST   /api/interview/session/:id/answer
+ *   POST   /api/interview/session/:id/finish
+ *   DELETE /api/interview/session/:id
+ *   POST   /api/interview/transcribe
+ *   POST   /api/interview/speech
+ *   POST   /api/interview/provider/test
  *   GET    /api/health          (database connectivity check)
  *
  * Section 8 of the spec is preserved: the public site needs no account —
@@ -29,6 +38,7 @@ import { json, error, isSameOrigin, isJsonRequest } from "./lib/http.js";
 import * as authRoutes from "./routes/auth.js";
 import * as progressRoutes from "./routes/progress.js";
 import * as dashboardRoutes from "./routes/dashboard.js";
+import * as interviewRoutes from "./routes/interview.js";
 
 /** Methods that must be protected against cross-site requests. */
 const WRITE_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
@@ -118,6 +128,12 @@ async function dispatch(request, env, url) {
 
     if (path === "/api/dashboard" && method === "GET") {
         return dashboardRoutes.dashboard(request, env);
+    }
+
+    /* ---------------- mock interview ---------------- */
+
+    if (path === "/api/interview" || path.startsWith("/api/interview/")) {
+        return interviewRoutes.handle(request, env, url);
     }
 
     return null;
