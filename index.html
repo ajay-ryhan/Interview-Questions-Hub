@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="dark" data-view="home">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -16,7 +16,7 @@
     <!-- Apply the saved theme before the page is painted -->
     <script>
         (function () {
-            var theme = "dark";
+            var theme = "light";
             try {
                 var saved = localStorage.getItem("qa-hub-theme");
                 if (saved === "light" || saved === "dark") {
@@ -41,58 +41,91 @@
 
 <a class="skip-link" href="#main-content">Skip to content</a>
 
-<!-- Header -->
-<header class="site-header">
-    <div class="header-inner">
+<!-- Mobile menu toggle -->
+<button class="mobile-menu-toggle" id="mobile-menu-toggle" type="button"
+        aria-label="Open menu" aria-controls="app-sidebar" aria-expanded="false">
+    <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+        <line x1="3" y1="6" x2="21" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <line x1="3" y1="12" x2="21" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <line x1="3" y1="18" x2="21" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+</button>
 
-        <a class="brand" id="brand-link" href="#home" aria-label="QA Interview Hub home">
-            <span class="brand-mark" aria-hidden="true">QA</span>
-            <span class="brand-text">
-                <strong>QA Interview Hub</strong>
-                <small>Learn. Practise. Prepare. Succeed.</small>
-            </span>
-        </a>
+<!-- Sidebar -->
+<aside class="app-sidebar" id="app-sidebar" aria-label="Main navigation">
 
-        <div class="header-actions">
+    <a class="sidebar-brand" id="brand-link" href="#home" aria-label="QA Interview Hub home">
+        <span class="brand-mark" aria-hidden="true">QA</span>
+        <span class="brand-text">
+            <strong>QA Interview Hub</strong>
+        </span>
+    </a>
 
-            <button id="home-button"
-                    class="btn btn-ghost"
-                    type="button"
-                    hidden>
-                <span aria-hidden="true">←</span> Home
-            </button>
+    <nav class="sidebar-nav" id="sidebar-nav" aria-label="Main">
+        <p class="sidebar-label">Main menu</p>
+        <ul class="sidebar-list" id="sidebar-list"></ul>
+    </nav>
 
-            <button id="theme-toggle"
-                    class="icon-button"
-                    type="button"
-                    aria-label="Switch to light theme"
-                    title="Switch to light theme">
-                <svg class="icon-sun" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
-                    <circle cx="12" cy="12" r="4.2" fill="currentColor"/>
-                    <g stroke="currentColor" stroke-width="2" stroke-linecap="round">
-                        <line x1="12" y1="2" x2="12" y2="4.5"/>
-                        <line x1="12" y1="19.5" x2="12" y2="22"/>
-                        <line x1="2" y1="12" x2="4.5" y2="12"/>
-                        <line x1="19.5" y1="12" x2="22" y2="12"/>
-                        <line x1="4.9" y1="4.9" x2="6.7" y2="6.7"/>
-                        <line x1="17.3" y1="17.3" x2="19.1" y2="19.1"/>
-                        <line x1="4.9" y1="19.1" x2="6.7" y2="17.3"/>
-                        <line x1="17.3" y1="6.7" x2="19.1" y2="4.9"/>
-                    </g>
-                </svg>
-                <svg class="icon-moon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
-                    <path fill="currentColor"
-                          d="M20.5 14.2A8.5 8.5 0 0 1 9.8 3.5a.7.7 0 0 0-.9-.9A9.9 9.9 0 1 0 21.4 15.1a.7.7 0 0 0-.9-.9z"/>
-                </svg>
-            </button>
+    <div class="sidebar-footer">
+        <div class="sidebar-account auth-area" id="auth-area"></div>
+        <div id="sidebar-footer"></div>
+    </div>
 
-            <div id="auth-area" class="auth-area"></div>
+</aside>
+
+<!-- Backdrop for the mobile drawer -->
+<div class="sidebar-backdrop" id="sidebar-backdrop" hidden></div>
+
+<!-- Main column: top bar + content + footer -->
+<div class="app-main">
+
+    <!-- Top bar -->
+    <header class="app-topbar">
+        <div class="header-inner">
+
+            <div class="topbar-left">
+                <a class="header-brand" href="#home" aria-label="QA Interview Hub home">
+                    <span class="brand-mark" aria-hidden="true">QA</span>
+                    <strong>QA Interview Hub</strong>
+                </a>
+
+                <button id="home-button" class="topbar-back" type="button" hidden>
+                    <span aria-hidden="true">←</span> <span id="home-button-label">Home</span>
+                </button>
+            </div>
+
+            <div class="topbar-right">
+
+                <button id="theme-toggle"
+                        class="icon-button"
+                        type="button"
+                        aria-label="Switch to dark theme"
+                        title="Switch to dark theme">
+                    <svg class="icon-sun" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+                        <circle cx="12" cy="12" r="4.2" fill="currentColor"/>
+                        <g stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                            <line x1="12" y1="2" x2="12" y2="4.5"/>
+                            <line x1="12" y1="19.5" x2="12" y2="22"/>
+                            <line x1="2" y1="12" x2="4.5" y2="12"/>
+                            <line x1="19.5" y1="12" x2="22" y2="12"/>
+                            <line x1="4.9" y1="4.9" x2="6.7" y2="6.7"/>
+                            <line x1="17.3" y1="17.3" x2="19.1" y2="19.1"/>
+                            <line x1="4.9" y1="19.1" x2="6.7" y2="17.3"/>
+                            <line x1="17.3" y1="6.7" x2="19.1" y2="4.9"/>
+                        </g>
+                    </svg>
+                    <svg class="icon-moon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+                        <path fill="currentColor"
+                              d="M20.5 14.2A8.5 8.5 0 0 1 9.8 3.5a.7.7 0 0 0-.9-.9A9.9 9.9 0 1 0 21.4 15.1a.7.7 0 0 0-.9-.9z"/>
+                    </svg>
+                </button>
+
+            </div>
 
         </div>
-    </div>
-</header>
+    </header>
 
-<main id="main-content">
+    <main id="main-content">
 
     <!-- Home -->
     <section id="home-view" class="view home-view">
@@ -141,25 +174,6 @@
 
             <div id="topic-grid" class="topic-grid"></div>
 
-            <div class="section-heading games-heading">
-                <span class="eyebrow">PLAY &amp; LEARN</span>
-                <h2>Games</h2>
-                <p>Test what you know with quick challenges built from the question bank.</p>
-            </div>
-
-            <div id="games-grid" class="topic-grid games-grid"></div>
-
-            <div class="section-heading interview-heading">
-                <span class="eyebrow">AI PRACTICE</span>
-                <h2>Mock Interview</h2>
-                <p>
-                    Rehearse a real interview with an AI interviewer — type your answers
-                    or speak them out loud.
-                </p>
-            </div>
-
-            <div id="interview-grid" class="topic-grid interview-grid"></div>
-
         </div>
     </section>
 
@@ -167,13 +181,7 @@
     <section id="study-view" class="view" hidden>
         <div class="container">
 
-            <div class="study-nav">
-                <button id="back-button" class="btn btn-ghost" type="button">
-                    <span aria-hidden="true">←</span> All topics
-                </button>
-
-                <nav id="topic-chips" class="topic-chips" aria-label="Topics"></nav>
-            </div>
+            <nav id="topic-chips" class="topic-chips" aria-label="Topics"></nav>
 
             <div class="study-heading">
                 <span id="selected-topic-icon" class="study-icon" aria-hidden="true"></span>
@@ -416,12 +424,6 @@
     <section id="game-view" class="view" hidden>
         <div class="container quiz-page">
 
-            <div class="study-nav">
-                <button id="game-back-button" class="btn btn-ghost" type="button">
-                    <span aria-hidden="true">←</span> All topics
-                </button>
-            </div>
-
             <div id="quiz-root" class="quiz-root" aria-live="polite"></div>
 
         </div>
@@ -430,12 +432,6 @@
     <!-- Mock Interview -->
     <section id="interview-view" class="view" hidden>
         <div class="container interview-page">
-
-            <div class="study-nav">
-                <button id="interview-back-button" class="btn btn-ghost" type="button">
-                    <span aria-hidden="true">←</span> All topics
-                </button>
-            </div>
 
             <div id="interview-root" class="interview-root" aria-live="polite"></div>
 
@@ -459,6 +455,7 @@
         </a>
     </p>
 </footer>
+</div>
 <button id="to-top" class="to-top" type="button" aria-label="Back to top" title="Back to top" hidden>
     <span aria-hidden="true">↑</span>
 </button>

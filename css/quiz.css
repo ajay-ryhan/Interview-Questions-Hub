@@ -4,22 +4,6 @@
    style.css, so the game follows the dark and light themes.
 ========================================================= */
 
-/* ---------- Games section on the topics page ---------- */
-
-.games-heading {
-    margin-top: 46px;
-}
-
-.game-card .topic-card-icon {
-    background: linear-gradient(135deg, rgba(139, 155, 255, 0.22), rgba(56, 189, 248, 0.22));
-    font-size: 30px;
-}
-
-.game-card:hover .topic-card-icon,
-.game-card:focus-visible .topic-card-icon {
-    animation: quiz-wiggle 0.6s ease;
-}
-
 /* ---------- Game view ---------- */
 
 #game-view {
@@ -704,12 +688,6 @@
     50% { transform: scale(1.05); }
 }
 
-@keyframes quiz-wiggle {
-    0%, 100% { transform: rotate(0); }
-    25% { transform: rotate(-10deg); }
-    75% { transform: rotate(10deg); }
-}
-
 /* ---------- Responsive ---------- */
 
 @media (max-width: 640px) {
@@ -758,9 +736,7 @@
     .quiz-screen,
     .quiz-setup,
     .quiz-stat,
-    .quiz-feedback,
-    .game-card:hover .topic-card-icon,
-    .game-card:focus-visible .topic-card-icon {
+    .quiz-feedback {
         animation: none;
     }
 

@@ -134,16 +134,21 @@
 
     const authArea = document.getElementById("auth-area");
     const homeButton = document.getElementById("home-button");
-    const backButton = document.getElementById("back-button");
+    const homeButtonLabel = document.getElementById("home-button-label");
     const brandLink = document.getElementById("brand-link");
     const themeToggle = document.getElementById("theme-toggle");
     const themeColorMeta = document.getElementById("theme-color-meta");
     const toTopButton = document.getElementById("to-top");
 
     const topicGrid = document.getElementById("topic-grid");
-    const gamesGrid = document.getElementById("games-grid");
-    const interviewGrid = document.getElementById("interview-grid");
     const topicChips = document.getElementById("topic-chips");
+
+    /* Sidebar (Voxa-style main menu) */
+    const sidebar = document.getElementById("app-sidebar");
+    const sidebarList = document.getElementById("sidebar-list");
+    const sidebarFooter = document.getElementById("sidebar-footer");
+    const mobileMenuToggle = document.getElementById("mobile-menu-toggle");
+    const sidebarBackdrop = document.getElementById("sidebar-backdrop");
 
     const selectedTopic = document.getElementById("selected-topic");
     const selectedTopicIcon = document.getElementById("selected-topic-icon");
@@ -286,11 +291,8 @@
     let currentView = "home";
 
     /**
-     * The account button follows the session, not the view: once signed in it
-     * stays in the header everywhere, including the home page, so logging out
-     * or jumping to the dashboard is always one click away. Guests keep the
-     * corner clear — the home hero offers the ways in and the auth page has
-     * its own forms.
+     * The account block in the sidebar footer is only shown to signed-in
+     * users; guests get the Log in entry below it instead.
      */
     function applyAuthArea() {
         if (!authArea) {
@@ -300,6 +302,18 @@
         const signedIn = Boolean(window.QAAuth && window.QAAuth.user);
 
         authArea.hidden = !signedIn && (currentView === "home" || currentView === "auth");
+    }
+
+    /**
+     * The top bar carries a single navigation link back to the start of the
+     * app: the public landing page for guests, the dashboard once signed in.
+     */
+    function renderTopbarNav() {
+        const signedIn = Boolean(window.QAAuth && window.QAAuth.user);
+        const target = signedIn ? "dashboard" : "home";
+
+        homeButtonLabel.textContent = signedIn ? "Dashboard" : "Home";
+        homeButton.hidden = currentView === target;
     }
 
     // auth.js announces every sign-in, sign-out and restored session.
@@ -327,9 +341,13 @@
         }
 
         currentView = name;
+        // Lets the stylesheet hide the sidebar on the standalone home page.
+        root.dataset.view = name;
         applyAuthArea();
+        renderTopbarNav();
 
-        homeButton.hidden = name === "home";
+        updateSidebarActive();
+        closeSidebar();
 
         window.scrollTo(0, 0);
     }
@@ -423,11 +441,7 @@
     }
 
     homeButton.addEventListener("click", function () {
-        goTo("home");
-    });
-
-    backButton.addEventListener("click", function () {
-        goTo("topics");
+        goTo(window.QAAuth && window.QAAuth.user ? "dashboard" : "home");
     });
 
     brandLink.addEventListener("click", function (event) {
@@ -438,13 +452,261 @@
     window.addEventListener("hashchange", route);
 
     /* ==========================
+       Sidebar (Voxa-style main menu)
+       Dashboard, Topics, Interview, Editor, Games, Downloadable Docs,
+       and finally Log in / Log out.
+    ========================== */
+
+    const sidebarItems = [
+        {
+            id: "dashboard",
+            label: "Dashboard",
+            hash: "dashboard",
+            icon: '<rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/>'
+        },
+        {
+            id: "topics",
+            label: "Topics",
+            hash: "topics",
+            icon: '<path d="M4 6h16M4 12h16M4 18h10"/>'
+        },
+        {
+            id: "interview",
+            label: "Interview",
+            hash: "mock-interview",
+            icon: '<rect x="3" y="5" width="18" height="14" rx="3"/><circle cx="9" cy="12" r="2.5"/><path d="M9 14.5v2.5h6v-2.5"/><circle cx="15" cy="12" r="2.5"/>'
+        },
+        {
+            id: "editor",
+            label: "Editor",
+            hash: "qubiqode",
+            icon: '<polyline points="8 7 3 12 8 17"/><polyline points="16 7 21 12 16 17"/><line x1="14" y1="5" x2="10" y2="19"/>'
+        },
+        {
+            id: "games",
+            label: "Games",
+            hash: "quiz-battle",
+            icon: '<rect x="2" y="6" width="20" height="12" rx="3"/><path d="M7 12h3M8.5 10.5v3"/><circle cx="15.5" cy="11" r="1"/><circle cx="17.5" cy="13" r="1"/>'
+        },
+        {
+            id: "docs",
+            label: "Downloadable Docs",
+            hash: "docs",
+            icon: '<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><polyline points="14 3 14 8 19 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/>'
+        }
+    ];
+
+    function isSidebarItemActive(item) {
+        if (currentView === "dashboard") {
+            return item.id === "dashboard";
+        }
+
+        if (currentView === "topics") {
+            return item.id === "topics";
+        }
+
+        if (currentView === "interview") {
+            return item.id === "interview";
+        }
+
+        if (currentView === "game") {
+            return item.id === "games";
+        }
+
+        if (currentView === "study" && currentTopic) {
+            if (currentTopic.id === "qubiqode") {
+                return item.id === "editor";
+            }
+
+            if (currentTopic.id === "docs") {
+                return item.id === "docs";
+            }
+
+            return item.id === "topics";
+        }
+
+        return false;
+    }
+
+    function createSidebarItem(item) {
+        const link = createElement("a", "sidebar-item");
+        link.href = "#" + item.hash;
+        link.setAttribute("data-item", item.id);
+        link.setAttribute("aria-label", item.label);
+
+        const icon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        icon.setAttribute("viewBox", "0 0 24 24");
+        icon.setAttribute("aria-hidden", "true");
+        icon.innerHTML = item.icon;
+
+        const label = createElement("span", null, item.label);
+
+        link.appendChild(icon);
+        link.appendChild(label);
+
+        link.addEventListener("click", function (event) {
+            event.preventDefault();
+            goTo(item.hash);
+        });
+
+        return link;
+    }
+
+    function renderSidebar() {
+        if (!sidebarList) {
+            return;
+        }
+
+        clearElement(sidebarList);
+
+        sidebarItems.forEach(function (item) {
+            const li = createElement("li");
+            const link = createSidebarItem(item);
+
+            if (isSidebarItemActive(item)) {
+                link.classList.add("is-active");
+                link.setAttribute("aria-current", "page");
+            }
+
+            li.appendChild(link);
+            sidebarList.appendChild(li);
+        });
+
+        renderSidebarFooter();
+    }
+
+    /**
+     * The account block above the footer shows the signed-in user and their
+     * account actions, so only guests need an entry here.
+     */
+    function renderSidebarFooter() {
+        if (!sidebarFooter) {
+            return;
+        }
+
+        clearElement(sidebarFooter);
+
+        if (window.QAAuth && window.QAAuth.user) {
+            return;
+        }
+
+        const link = createElement("button", "sidebar-item");
+        link.type = "button";
+
+        const icon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        icon.setAttribute("viewBox", "0 0 24 24");
+        icon.setAttribute("aria-hidden", "true");
+        icon.innerHTML =
+            '<path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>' +
+            '<polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/>';
+
+        link.appendChild(icon);
+        link.appendChild(createElement("span", null, "Log in"));
+
+        link.addEventListener("click", function (event) {
+            event.preventDefault();
+            goTo("login");
+        });
+
+        sidebarFooter.appendChild(link);
+    }
+
+    function updateSidebarActive() {
+        if (!sidebarList) {
+            return;
+        }
+
+        const links = sidebarList.querySelectorAll(".sidebar-item");
+
+        for (let i = 0; i < links.length; i++) {
+            const id = links[i].getAttribute("data-item");
+            const item = sidebarItems.filter(function (entry) {
+                return entry.id === id;
+            })[0];
+
+            if (item && isSidebarItemActive(item)) {
+                links[i].classList.add("is-active");
+                links[i].setAttribute("aria-current", "page");
+            } else {
+                links[i].classList.remove("is-active");
+                links[i].removeAttribute("aria-current");
+            }
+        }
+
+        renderSidebarFooter();
+    }
+
+    function openSidebar() {
+        if (!sidebar) {
+            return;
+        }
+
+        sidebar.classList.add("is-open");
+
+        if (sidebarBackdrop) {
+            sidebarBackdrop.hidden = false;
+        }
+
+        if (mobileMenuToggle) {
+            mobileMenuToggle.setAttribute("aria-expanded", "true");
+            mobileMenuToggle.setAttribute("aria-label", "Close menu");
+        }
+    }
+
+    function closeSidebar() {
+        if (!sidebar) {
+            return;
+        }
+
+        sidebar.classList.remove("is-open");
+
+        if (sidebarBackdrop) {
+            sidebarBackdrop.hidden = true;
+        }
+
+        if (mobileMenuToggle) {
+            mobileMenuToggle.setAttribute("aria-expanded", "false");
+            mobileMenuToggle.setAttribute("aria-label", "Open menu");
+        }
+    }
+
+    if (mobileMenuToggle) {
+        mobileMenuToggle.addEventListener("click", function () {
+            if (sidebar && sidebar.classList.contains("is-open")) {
+                closeSidebar();
+            } else {
+                openSidebar();
+            }
+        });
+    }
+
+    if (sidebarBackdrop) {
+        sidebarBackdrop.addEventListener("click", closeSidebar);
+    }
+
+    // The footer's Log in / Log out depends on the auth state.
+    document.addEventListener("qahub:auth", function () {
+        renderSidebarFooter();
+        renderTopbarNav();
+    });
+
+    window.addEventListener("resize", function () {
+        // Going wide closes any open drawer so it does not stay stuck open.
+        if (window.innerWidth > 900) {
+            closeSidebar();
+        }
+    });
+
+    /* ==========================
        Topic grid
     ========================== */
 
     function renderTopicGrid() {
         clearElement(topicGrid);
 
-        allTopics.forEach(function (topic) {
+        /* Only question categories live in the grid. Qubiqode (Editor) and
+           Downloadable Docs are reachable from the sidebar. */
+        categories.forEach(function (topic) {
             const card = createElement("button", "topic-card");
             card.type = "button";
 
@@ -547,63 +809,6 @@
                 /* older browsers: the chip row can still be scrolled by hand */
             }
         }
-    }
-
-    /* ==========================
-       Cards for Games and Mock Interview
-    ========================== */
-
-    /**
-     * Shared card grid. Every entry navigates to its own hash, so the quiz
-     * module and the interview module each own their view.
-     */
-    function renderEntryGrid(grid, entries) {
-        if (!grid) {
-            return;
-        }
-
-        clearElement(grid);
-
-        entries.forEach(function (entry) {
-            const card = createElement("button", "topic-card game-card");
-            card.type = "button";
-
-            const icon = createElement("span", "topic-card-icon", entry.icon);
-            icon.setAttribute("aria-hidden", "true");
-
-            const name = createElement("span", "topic-card-name", entry.name);
-            const description = createElement(
-                "span",
-                "topic-card-description",
-                entry.description
-            );
-
-            const meta = createElement("span", "topic-card-meta");
-            meta.appendChild(createElement("span", "topic-card-count", entry.meta));
-
-            const arrow = createElement("span", "topic-card-arrow", "→");
-            arrow.setAttribute("aria-hidden", "true");
-            meta.appendChild(arrow);
-
-            card.appendChild(icon);
-            card.appendChild(name);
-            card.appendChild(description);
-            card.appendChild(meta);
-
-            card.addEventListener("click", function () {
-                goTo(entry.id);
-            });
-
-            grid.appendChild(card);
-        });
-    }
-
-    function renderGamesGrid() {
-        renderEntryGrid(gamesGrid, games);
-    }
-
-    function renderInterviewGrid() {
-        renderEntryGrid(interviewGrid, practice);
     }
 
     /* ==========================
@@ -1801,7 +2006,6 @@
     ========================== */
 
     renderTopicGrid();
-    renderGamesGrid();
-    renderInterviewGrid();
+    renderSidebar();
     route();
 })();

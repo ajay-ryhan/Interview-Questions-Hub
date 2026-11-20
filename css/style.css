@@ -137,7 +137,6 @@ body {
     min-height: 100vh;
     min-height: 100dvh;
     display: flex;
-    flex-direction: column;
     background: var(--bg);
     color: var(--text);
     font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
@@ -147,6 +146,17 @@ body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+/* The main column holds the top bar, the scrollable content and the footer.
+   The sidebar is a sibling of this element, not inside it. */
+.app-main {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    min-height: 100dvh;
 }
 
 h1,
@@ -214,82 +224,326 @@ main {
     top: 12px;
 }
 
-/* ---------- Header ---------- */
+/* ---------- Sidebar (Voxa-style, always dark) ---------- */
 
-.site-header {
+.app-sidebar {
+    flex: 0 0 264px;
+    width: 264px;
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    background: #161618;
+    color: #e4e4e7;
+    border-right: 1px solid #26262b;
     position: sticky;
     top: 0;
-    z-index: 50;
-    background: var(--header-bg);
-    border-bottom: 1px solid var(--border);
-    -webkit-backdrop-filter: blur(12px);
-    backdrop-filter: blur(12px);
+    height: 100vh;
+    height: 100dvh;
+    overflow-y: auto;
+    z-index: 40;
 }
 
-.header-inner {
-    max-width: 1180px;
-    margin: 0 auto;
-    padding: 12px 20px;
-    padding-left: max(20px, env(safe-area-inset-left));
-    padding-right: max(20px, env(safe-area-inset-right));
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-}
-
-.brand {
+.sidebar-brand {
     display: flex;
     align-items: center;
     gap: 12px;
-    min-width: 0;
-    color: var(--text);
+    padding: 22px 20px 18px;
+    color: #ffffff;
     text-decoration: none;
 }
 
-.brand-mark {
+.sidebar-brand .brand-mark {
     flex: 0 0 auto;
-    width: 42px;
-    height: 42px;
+    width: 40px;
+    height: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 12px;
     background: linear-gradient(135deg, #6d7ff5, #a78bfa);
     color: #ffffff;
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 800;
     letter-spacing: 0.5px;
-    box-shadow: 0 6px 16px rgba(109, 127, 245, 0.35);
+    box-shadow: 0 6px 16px rgba(109, 127, 245, 0.4);
 }
 
-.brand-text {
+.sidebar-brand .brand-text {
     display: flex;
     flex-direction: column;
     min-width: 0;
     line-height: 1.25;
 }
 
-.brand-text strong {
+.sidebar-brand .brand-text strong {
     font-size: 17px;
     font-weight: 700;
     letter-spacing: -0.2px;
-    white-space: nowrap;
-}
-
-.brand-text small {
-    color: var(--muted);
-    font-size: 12px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
-.header-actions {
+.sidebar-nav {
+    flex: 1 1 auto;
+    padding: 4px 12px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.sidebar-label {
+    padding: 14px 12px 8px;
+    margin: 0;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: #71717a;
+}
+
+.sidebar-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.sidebar-item {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
+    width: 100%;
+    padding: 11px 12px;
+    border: none;
+    border-radius: 10px;
+    background: transparent;
+    color: #d4d4d8;
+    font-size: 14.5px;
+    font-weight: 500;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.sidebar-item:hover {
+    background: rgba(255, 255, 255, 0.06);
+    color: #ffffff;
+}
+
+.sidebar-item.is-active {
+    background: #6366f1;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
+}
+
+.sidebar-item svg {
     flex: 0 0 auto;
+    width: 20px;
+    height: 20px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.sidebar-footer {
+    padding: 12px;
+    border-top: 1px solid #26262b;
+}
+
+.sidebar-footer .sidebar-item {
+    color: #a1a1aa;
+}
+
+.sidebar-footer .sidebar-item:hover {
+    background: rgba(255, 255, 255, 0.06);
+    color: #ffffff;
+}
+
+/* ---------- Account block (moved out of the top bar) ---------- */
+
+.sidebar-account {
+    margin-bottom: 4px;
+}
+
+.sidebar-account:empty {
+    display: none;
+}
+
+.sidebar-account .user-button {
+    width: 100%;
+    border-color: transparent;
+    background: transparent;
+    color: #d4d4d8;
+}
+
+.sidebar-account .user-button:hover {
+    background: rgba(255, 255, 255, 0.06);
+    color: #ffffff;
+}
+
+.sidebar-account .user-name {
+    max-width: none;
+}
+
+.sidebar-account .user-chevron {
+    color: #a1a1aa;
+}
+
+/* The sidebar footer sits at the bottom, so its menu opens upwards. */
+.sidebar-account .user-dropdown {
+    top: auto;
+    bottom: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    min-width: 0;
+    border-color: #2c2c31;
+    background: #1c1c1f;
+}
+
+.sidebar-account .user-menu-item {
+    color: #d4d4d8;
+}
+
+.sidebar-account .user-menu-item:hover {
+    background: rgba(255, 255, 255, 0.06);
+    color: #ffffff;
+}
+
+/* The home and auth pages are standalone: no sidebar and no menu button. */
+html[data-view="home"] .app-sidebar,
+html[data-view="home"] .mobile-menu-toggle,
+html[data-view="auth"] .app-sidebar,
+html[data-view="auth"] .mobile-menu-toggle {
+    display: none;
+}
+
+/* ---------- Mobile menu toggle ---------- */
+
+.mobile-menu-toggle {
+    display: none;
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    z-index: 60;
+    width: 42px;
+    height: 42px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--surface);
+    color: var(--text);
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-soft);
+}
+
+.sidebar-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 45;
+}
+
+/* ---------- Top bar ---------- */
+
+.app-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 24px;
+    padding-left: max(24px, env(safe-area-inset-left));
+    padding-right: max(24px, env(safe-area-inset-right));
+    background: var(--header-bg);
+    border-bottom: 1px solid var(--border);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+}
+
+/* Keeps the top bar aligned with the page content on wide screens. */
+.header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    width: 100%;
+    max-width: 1180px;
+    margin: 0 auto;
+}
+
+/* The sidebar shows the brand whenever it is visible, so the header only
+   carries it on the pages that hide the sidebar. */
+.header-brand {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    color: var(--text);
+    text-decoration: none;
+}
+
+html[data-view="home"] .header-brand,
+html[data-view="auth"] .header-brand {
+    display: inline-flex;
+}
+
+.header-brand .brand-mark {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+    background: linear-gradient(135deg, #6d7ff5, #a78bfa);
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.4px;
+}
+
+.header-brand strong {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: -0.2px;
+    white-space: nowrap;
+}
+
+.topbar-left,
+.topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+
+.topbar-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 38px;
+    padding: 7px 14px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--surface);
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.topbar-back:hover {
+    background: var(--surface-hover);
+    border-color: var(--border-strong);
 }
 
 /* ---------- Buttons ---------- */
@@ -1444,9 +1698,43 @@ main {
     transform: translateY(-2px);
 }
 
-/* ---------- Tablets ---------- */
+/* ---------- Tablets / narrow desktop: sidebar becomes a drawer ---------- */
 
 @media (max-width: 900px) {
+    .app-sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        transform: translateX(-100%);
+        transition: transform 0.25s ease;
+        z-index: 55;
+        box-shadow: 4px 0 24px rgba(0, 0, 0, 0.3);
+    }
+
+    .app-sidebar.is-open {
+        transform: translateX(0);
+    }
+
+    /* Leave room for the fixed menu button so it never covers the brand. */
+    .sidebar-brand {
+        padding: 14px 20px 14px 62px;
+    }
+
+    .mobile-menu-toggle {
+        display: inline-flex;
+    }
+
+    .app-topbar {
+        padding-left: 64px;
+        padding-right: 16px;
+    }
+
+    /* These pages have no menu button, so they need no gutter for one. */
+    html[data-view="home"] .app-topbar,
+    html[data-view="auth"] .app-topbar {
+        padding-left: 16px;
+    }
+
     .select {
         flex: 1 1 160px;
     }
@@ -1460,17 +1748,13 @@ main {
         padding-bottom: 44px;
     }
 
-    .header-inner {
-        padding-top: 10px;
-        padding-bottom: 10px;
+    .app-topbar {
+        padding: 10px 14px 10px 62px;
     }
 
-    .brand-text small {
-        display: none;
-    }
-
-    .brand-text strong {
-        font-size: 16px;
+    .topbar-back {
+        padding: 6px 10px;
+        font-size: 13px;
     }
 
     .home-view {
@@ -1500,16 +1784,6 @@ main {
 
     .topic-card-description {
         font-size: 13px;
-    }
-
-    .study-nav {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 10px;
-    }
-
-    .study-nav .btn {
-        align-self: flex-start;
     }
 
     .study-icon {
@@ -1587,6 +1861,10 @@ main {
         scroll-behavior: auto;
     }
 
+    .app-sidebar {
+        transition: none;
+    }
+
     *,
     *::before,
     *::after {
@@ -1596,9 +1874,10 @@ main {
 }
 
 @media print {
-    .site-header,
+    .app-sidebar,
+    .mobile-menu-toggle,
+    .app-topbar,
     .site-footer,
-    .study-nav,
     .question-tools,
     .to-top,
     .copy-button {
@@ -1606,6 +1885,7 @@ main {
     }
 
     body {
+        display: block;
         background: #ffffff;
         color: #000000;
     }
@@ -1761,6 +2041,13 @@ main {
     border-radius: 20px;
     background: var(--surface);
     box-shadow: var(--shadow);
+}
+
+/* Centred on the auth pages, while the rest of the card stays left-aligned. */
+.auth-card .eyebrow {
+    display: block;
+    width: fit-content;
+    margin: 0 auto;
 }
 
 .auth-card h2 {
