@@ -5,43 +5,44 @@
    page: inputs, dropdowns, badges, cards and code blocks.
 ========================================================= */
 
-/* ---------- Theme: dark (default) ---------- */
+/* ---------- Theme: Midnight (dark, default) ----------
+   Deep midnight water with arctic blue light on top of it. */
 
 :root,
 :root[data-theme="dark"] {
     color-scheme: dark;
 
-    --bg: #0b1020;
-    --bg-soft: #0f1629;
-    --surface: #141c33;
-    --surface-2: #1a2440;
-    --surface-hover: #1f2b4d;
-    --border: #27324f;
-    --border-strong: #3a4770;
+    --bg: #060b16;
+    --bg-soft: #0a1222;
+    --surface: #0f1a2e;
+    --surface-2: #152443;
+    --surface-hover: #1a2c50;
+    --border: #223a63;
+    --border-strong: #34558c;
 
-    --text: #e8ecf7;
-    --text-soft: #c3cbe0;
-    --muted: #93a0bd;
+    --text: #e8f1ff;
+    --text-soft: #bdd0e8;
+    --muted: #8ba0bf;
 
-    --primary: #8b9bff;
-    --primary-strong: #6d7ff5;
-    --primary-contrast: #0b1020;
-    --primary-soft: rgba(139, 155, 255, 0.14);
-    --accent: #a78bfa;
-    --accent-2: #38bdf8;
+    --primary: #4da3ff;
+    --primary-strong: #2f7fe6;
+    --primary-contrast: #04101f;
+    --primary-soft: rgba(77, 163, 255, 0.15);
+    --accent: #22d3ee;
+    --accent-2: #7dd3fc;
 
-    --input-bg: #0f1629;
-    --badge-bg: rgba(139, 155, 255, 0.14);
-    --badge-text: #c7d0ff;
-    --badge-border: rgba(139, 155, 255, 0.3);
+    --input-bg: #0a1222;
+    --badge-bg: rgba(77, 163, 255, 0.15);
+    --badge-text: #a8d1ff;
+    --badge-border: rgba(77, 163, 255, 0.32);
 
-    --example-bg: rgba(56, 189, 248, 0.08);
-    --example-border: #38bdf8;
+    --example-bg: rgba(34, 211, 238, 0.08);
+    --example-border: #22d3ee;
 
-    --code-bg: #090e1b;
-    --code-text: #dbe4ff;
-    --code-border: #232e4b;
-    --output-bg: #0c1a16;
+    --code-bg: #04080f;
+    --code-text: #d8e6fb;
+    --code-border: #1b2f52;
+    --output-bg: #07161a;
     --output-text: #a7f3d0;
     --output-border: #1d4034;
 
@@ -54,49 +55,53 @@
     --general-bg: rgba(148, 163, 184, 0.16);
     --general-text: #cbd5e1;
 
-    --header-bg: rgba(11, 16, 32, 0.85);
-    --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
-    --shadow-soft: 0 2px 10px rgba(0, 0, 0, 0.25);
-    --grid-line: rgba(139, 155, 255, 0.07);
-    --glow-1: rgba(109, 127, 245, 0.28);
-    --glow-2: rgba(56, 189, 248, 0.16);
+    /* Filled arctic surfaces: deep enough for white text to stay readable. */
+    --grad-from: #12408c;
+    --grad-to: #1f5fc4;
+
+    --header-bg: rgba(6, 11, 22, 0.85);
+    --shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+    --shadow-soft: 0 2px 10px rgba(0, 0, 0, 0.3);
+    --grid-line: rgba(77, 163, 255, 0.07);
+    --glow-1: rgba(47, 127, 230, 0.3);
+    --glow-2: rgba(34, 211, 238, 0.18);
 }
 
-/* ---------- Theme: light ---------- */
+/* ---------- Theme: Arctic Blue (light) ---------- */
 
 :root[data-theme="light"] {
     color-scheme: light;
 
-    --bg: #f4f6fb;
-    --bg-soft: #eef1f8;
+    --bg: #eef6fd;
+    --bg-soft: #e4eefb;
     --surface: #ffffff;
-    --surface-2: #f3f5fb;
-    --surface-hover: #eef1fa;
-    --border: #dde3ef;
-    --border-strong: #c3cce0;
+    --surface-2: #f2f8fe;
+    --surface-hover: #e8f2fc;
+    --border: #d3e4f5;
+    --border-strong: #a9c7e6;
 
-    --text: #131a2e;
-    --text-soft: #2e3850;
-    --muted: #5b6781;
+    --text: #0b1f33;
+    --text-soft: #27435f;
+    --muted: #566e8a;
 
-    --primary: #4654d8;
-    --primary-strong: #3642bd;
+    --primary: #1a68c9;
+    --primary-strong: #11539f;
     --primary-contrast: #ffffff;
-    --primary-soft: rgba(70, 84, 216, 0.1);
-    --accent: #7c3aed;
-    --accent-2: #0284c7;
+    --primary-soft: rgba(26, 104, 201, 0.1);
+    --accent: #0e8fd6;
+    --accent-2: #38bdf8;
 
     --input-bg: #ffffff;
-    --badge-bg: #eceffd;
-    --badge-text: #3642bd;
-    --badge-border: #cfd6fa;
+    --badge-bg: #e4f0fb;
+    --badge-text: #11539f;
+    --badge-border: #c3ddf3;
 
-    --example-bg: #eef8fe;
-    --example-border: #0284c7;
+    --example-bg: #ecf7fe;
+    --example-border: #0e8fd6;
 
-    --code-bg: #f6f8fd;
-    --code-text: #1c2540;
-    --code-border: #dde3ef;
+    --code-bg: #f5f9fe;
+    --code-text: #10243b;
+    --code-border: #dbe8f6;
     --output-bg: #effaf4;
     --output-text: #14532d;
     --output-border: #c5e8d3;
@@ -110,12 +115,15 @@
     --general-bg: #e9edf5;
     --general-text: #475069;
 
+    --grad-from: #1a5cbf;
+    --grad-to: #2a74d8;
+
     --header-bg: rgba(255, 255, 255, 0.88);
-    --shadow: 0 10px 30px rgba(28, 39, 76, 0.1);
-    --shadow-soft: 0 2px 8px rgba(28, 39, 76, 0.06);
-    --grid-line: rgba(70, 84, 216, 0.07);
-    --glow-1: rgba(70, 84, 216, 0.16);
-    --glow-2: rgba(2, 132, 199, 0.12);
+    --shadow: 0 10px 30px rgba(13, 45, 84, 0.1);
+    --shadow-soft: 0 2px 8px rgba(13, 45, 84, 0.07);
+    --grid-line: rgba(26, 104, 201, 0.07);
+    --glow-1: rgba(26, 104, 201, 0.16);
+    --glow-2: rgba(56, 189, 248, 0.16);
 }
 
 /* ---------- Base ---------- */
@@ -224,7 +232,9 @@ main {
     top: 12px;
 }
 
-/* ---------- Sidebar (Voxa-style, always dark) ---------- */
+/* ---------- Sidebar (main menu) ----------
+   The sidebar is part of the page, so it takes its colours from the active
+   theme instead of keeping a look of its own. */
 
 .app-sidebar {
     flex: 0 0 264px;
@@ -233,24 +243,57 @@ main {
     min-height: 100dvh;
     display: flex;
     flex-direction: column;
-    background: #161618;
-    color: #e4e4e7;
-    border-right: 1px solid #26262b;
+    background: linear-gradient(180deg, var(--surface) 0%, var(--bg-soft) 100%);
+    color: var(--text);
+    border-right: 1px solid var(--border);
     position: sticky;
     top: 0;
     height: 100vh;
     height: 100dvh;
     overflow-y: auto;
+    overscroll-behavior: contain;
     z-index: 40;
+    transition: background-color 0.25s ease, border-color 0.25s ease;
+}
+
+.sidebar-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .sidebar-brand {
+    flex: 1 1 auto;
+    min-width: 0;
     display: flex;
     align-items: center;
     gap: 12px;
     padding: 22px 20px 18px;
-    color: #ffffff;
+    color: var(--text);
     text-decoration: none;
+}
+
+/* Only shown on phones, where the top bar keeps just the logo. */
+.sidebar-theme-toggle {
+    display: none;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    margin-right: 12px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--surface-2);
+    color: var(--text-soft);
+    transition: background-color 0.2s ease, border-color 0.2s ease,
+        color 0.2s ease;
+}
+
+.sidebar-theme-toggle:hover {
+    background: var(--surface-hover);
+    border-color: var(--border-strong);
+    color: var(--primary);
 }
 
 .sidebar-brand .brand-mark {
@@ -261,12 +304,12 @@ main {
     align-items: center;
     justify-content: center;
     border-radius: 12px;
-    background: linear-gradient(135deg, #6d7ff5, #a78bfa);
+    background: linear-gradient(135deg, var(--grad-from), var(--grad-to));
     color: #ffffff;
     font-size: 14px;
     font-weight: 800;
     letter-spacing: 0.5px;
-    box-shadow: 0 6px 16px rgba(109, 127, 245, 0.4);
+    box-shadow: 0 6px 16px rgba(31, 95, 196, 0.45);
 }
 
 .sidebar-brand .brand-text {
@@ -300,7 +343,7 @@ main {
     font-weight: 600;
     letter-spacing: 1.2px;
     text-transform: uppercase;
-    color: #71717a;
+    color: var(--muted);
 }
 
 .sidebar-list {
@@ -313,6 +356,7 @@ main {
 }
 
 .sidebar-item {
+    position: relative;
     display: flex;
     align-items: center;
     gap: 12px;
@@ -321,24 +365,35 @@ main {
     border: none;
     border-radius: 10px;
     background: transparent;
-    color: #d4d4d8;
+    color: var(--text-soft);
     font-size: 14.5px;
     font-weight: 500;
     text-align: left;
     text-decoration: none;
     cursor: pointer;
-    transition: background-color 0.15s ease, color 0.15s ease;
+    transition: background-color 0.18s ease, color 0.18s ease,
+        box-shadow 0.18s ease, transform 0.18s ease;
 }
 
 .sidebar-item:hover {
-    background: rgba(255, 255, 255, 0.06);
-    color: #ffffff;
+    background: var(--primary-soft);
+    color: var(--primary);
+    transform: translateX(2px);
+}
+
+.sidebar-item:active {
+    transform: translateX(2px) scale(0.99);
 }
 
 .sidebar-item.is-active {
-    background: #6366f1;
+    background: linear-gradient(135deg, var(--grad-from), var(--grad-to));
     color: #ffffff;
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
+    box-shadow: 0 8px 18px -10px rgba(31, 95, 196, 0.9);
+}
+
+.sidebar-item.is-active:hover {
+    color: #ffffff;
+    transform: none;
 }
 
 .sidebar-item svg {
@@ -353,67 +408,34 @@ main {
 }
 
 .sidebar-footer {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
     padding: 12px;
-    border-top: 1px solid #26262b;
+    padding-bottom: max(12px, env(safe-area-inset-bottom));
+    border-top: 1px solid var(--border);
 }
 
 .sidebar-footer .sidebar-item {
-    color: #a1a1aa;
+    color: var(--text-soft);
 }
 
-.sidebar-footer .sidebar-item:hover {
-    background: rgba(255, 255, 255, 0.06);
-    color: #ffffff;
+.sidebar-footer .sidebar-item.is-danger {
+    color: #f87171;
 }
 
-/* ---------- Account block (moved out of the top bar) ---------- */
-
-.sidebar-account {
-    margin-bottom: 4px;
+.sidebar-footer .sidebar-item.is-danger:hover {
+    background: rgba(244, 63, 94, 0.12);
+    color: #f43f5e;
 }
 
-.sidebar-account:empty {
-    display: none;
+:root[data-theme="light"] .sidebar-footer .sidebar-item.is-danger {
+    color: #b4233c;
 }
 
-.sidebar-account .user-button {
-    width: 100%;
-    border-color: transparent;
-    background: transparent;
-    color: #d4d4d8;
-}
-
-.sidebar-account .user-button:hover {
-    background: rgba(255, 255, 255, 0.06);
-    color: #ffffff;
-}
-
-.sidebar-account .user-name {
-    max-width: none;
-}
-
-.sidebar-account .user-chevron {
-    color: #a1a1aa;
-}
-
-/* The sidebar footer sits at the bottom, so its menu opens upwards. */
-.sidebar-account .user-dropdown {
-    top: auto;
-    bottom: calc(100% + 8px);
-    left: 0;
-    right: 0;
-    min-width: 0;
-    border-color: #2c2c31;
-    background: #1c1c1f;
-}
-
-.sidebar-account .user-menu-item {
-    color: #d4d4d8;
-}
-
-.sidebar-account .user-menu-item:hover {
-    background: rgba(255, 255, 255, 0.06);
-    color: #ffffff;
+:root[data-theme="light"] .sidebar-footer .sidebar-item.is-danger:hover {
+    background: rgba(244, 63, 94, 0.1);
+    color: #b4233c;
 }
 
 /* The home and auth pages are standalone: no sidebar and no menu button. */
@@ -429,18 +451,41 @@ html[data-view="auth"] .mobile-menu-toggle {
 .mobile-menu-toggle {
     display: none;
     position: fixed;
-    top: 12px;
-    left: 12px;
+    top: max(8px, calc(env(safe-area-inset-top) + 8px));
+    left: max(12px, env(safe-area-inset-left));
     z-index: 60;
     width: 42px;
     height: 42px;
-    border: 1px solid var(--border);
+    border: 1px solid var(--border-strong);
     border-radius: 10px;
-    background: var(--surface);
+    background: var(--surface-2);
     color: var(--text);
     align-items: center;
     justify-content: center;
     box-shadow: var(--shadow-soft);
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.mobile-menu-toggle:hover {
+    background: var(--surface-hover);
+}
+
+.mobile-menu-toggle svg line {
+    transform-box: fill-box;
+    transform-origin: center;
+    transition: transform 0.18s ease, opacity 0.18s ease;
+}
+
+.mobile-menu-toggle[aria-expanded="true"] svg line:first-child {
+    transform: translateY(6px) rotate(45deg);
+}
+
+.mobile-menu-toggle[aria-expanded="true"] svg line:nth-child(2) {
+    opacity: 0;
+}
+
+.mobile-menu-toggle[aria-expanded="true"] svg line:last-child {
+    transform: translateY(-6px) rotate(-45deg);
 }
 
 .sidebar-backdrop {
@@ -476,16 +521,19 @@ html[data-view="auth"] .mobile-menu-toggle {
     justify-content: space-between;
     gap: 16px;
     width: 100%;
+    min-width: 0;
     max-width: 1180px;
     margin: 0 auto;
 }
 
-/* The sidebar shows the brand whenever it is visible, so the header only
-   carries it on the pages that hide the sidebar. */
+/* The top bar carries the brand on standalone pages and while the sidebar
+   is collapsed into a drawer on smaller screens. */
 .header-brand {
     display: none;
     align-items: center;
     gap: 10px;
+    min-width: 0;
+    max-width: 100%;
     color: var(--text);
     text-decoration: none;
 }
@@ -503,7 +551,7 @@ html[data-view="auth"] .header-brand {
     width: 32px;
     height: 32px;
     border-radius: 9px;
-    background: linear-gradient(135deg, #6d7ff5, #a78bfa);
+    background: linear-gradient(135deg, var(--grad-from), var(--grad-to));
     color: #ffffff;
     font-size: 12px;
     font-weight: 800;
@@ -511,6 +559,9 @@ html[data-view="auth"] .header-brand {
 }
 
 .header-brand strong {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
     font-size: 16px;
     font-weight: 700;
     letter-spacing: -0.2px;
@@ -525,25 +576,13 @@ html[data-view="auth"] .header-brand {
     min-width: 0;
 }
 
-.topbar-back {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    min-height: 38px;
-    padding: 7px 14px;
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    background: var(--surface);
-    color: var(--text);
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background-color 0.15s ease, border-color 0.15s ease;
+.topbar-left {
+    flex: 1 1 auto;
 }
 
-.topbar-back:hover {
-    background: var(--surface-hover);
-    border-color: var(--border-strong);
+/* Who is signed in: the avatar and name live in the top bar itself. */
+.topbar-account {
+    min-width: 0;
 }
 
 /* ---------- Buttons ---------- */
@@ -575,17 +614,24 @@ html[data-view="auth"] .header-brand {
     background: var(--surface-hover);
     border-color: var(--border-strong);
     color: var(--text);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-soft);
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, #5b6df0, #8b5cf6);
+    background: linear-gradient(135deg, var(--grad-from), var(--grad-to));
     color: #ffffff;
-    box-shadow: 0 10px 26px rgba(99, 102, 241, 0.38);
+    box-shadow: 0 10px 26px rgba(31, 95, 196, 0.38);
 }
 
 .btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 14px 32px rgba(99, 102, 241, 0.48);
+    box-shadow: 0 14px 32px rgba(31, 95, 196, 0.5);
+}
+
+.btn:active {
+    transform: translateY(0) scale(0.98);
+    box-shadow: none;
 }
 
 .btn-large {
@@ -607,13 +653,21 @@ html[data-view="auth"] .header-brand {
     border-radius: 10px;
     background: var(--surface);
     color: var(--text-soft);
-    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    transition: background-color 0.2s ease, border-color 0.2s ease,
+        color 0.2s ease, transform 0.18s ease, box-shadow 0.2s ease;
 }
 
 .icon-button:hover {
     background: var(--surface-hover);
     border-color: var(--border-strong);
     color: var(--primary);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-soft);
+}
+
+.icon-button:active {
+    transform: translateY(0) scale(0.96);
+    box-shadow: none;
 }
 
 /* The toggle shows the theme you will switch to */
@@ -712,7 +766,7 @@ html[data-view="auth"] .header-brand {
 
 :root[data-theme="light"] .gradient-text {
 
-    color: #2563eb;
+    color: var(--primary);
 
     background: none;
 
@@ -796,8 +850,9 @@ html[data-view="auth"] .header-brand {
 
 .topic-card:hover,
 .topic-card:focus-visible {
-    transform: translateY(-4px);
+    transform: translateY(-3px);
     border-color: var(--primary);
+    background: var(--surface-hover);
     box-shadow: var(--shadow);
 }
 
@@ -872,6 +927,7 @@ html[data-view="auth"] .header-brand {
     align-items: center;
     gap: 4px;
     min-width: 0;
+    margin-bottom: 12px;
     padding: 5px;
     border: 1px solid var(--border);
     border-radius: 999px;
@@ -925,9 +981,9 @@ html[data-view="auth"] .header-brand {
 }
 
 .topic-chip.active {
-    background: linear-gradient(135deg, #5b6df0, #8b5cf6);
+    background: linear-gradient(135deg, var(--grad-from), var(--grad-to));
     color: #ffffff;
-    box-shadow: 0 6px 18px rgba(99, 102, 241, 0.4);
+    box-shadow: 0 6px 18px rgba(31, 95, 196, 0.45);
 }
 
 .topic-chip.active .topic-chip-icon {
@@ -1201,6 +1257,7 @@ html[data-view="auth"] .header-brand {
 
 .question-card:hover {
     border-color: var(--border-strong);
+    box-shadow: var(--shadow);
 }
 
 .question-card[open] {
@@ -1598,12 +1655,14 @@ html[data-view="auth"] .header-brand {
     border-radius: 16px;
     background: var(--surface);
     box-shadow: var(--shadow-soft);
-    transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    transition: border-color 0.2s ease, background-color 0.2s ease,
+        transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .download-doc-card:hover {
     transform: translateY(-3px);
     border-color: var(--primary);
+    background: var(--surface-hover);
     box-shadow: var(--shadow);
 }
 
@@ -1630,25 +1689,70 @@ html[data-view="auth"] .header-brand {
     font-weight: 700;
 }
 
-.download-btn {
+/* Two icon actions: view in a new tab, or download the file. */
+.document-actions {
     margin-top: auto;
+    padding-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.doc-action {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-height: 42px;
-    padding: 9px 16px;
-    border-radius: 10px;
-    background: var(--primary);
-    color: var(--primary-contrast);
-    font-size: 14px;
-    font-weight: 700;
+    width: 42px;
+    height: 42px;
+    border: 1px solid var(--border);
+    border-radius: 11px;
+    background: var(--surface-2);
+    color: var(--text-soft);
     text-decoration: none;
-    transition: background-color 0.2s ease;
+    transition: background-color 0.2s ease, border-color 0.2s ease,
+        color 0.2s ease, transform 0.18s ease, box-shadow 0.2s ease;
 }
 
-.download-btn:hover {
-    background: var(--primary-strong);
+.doc-action svg {
+    width: 19px;
+    height: 19px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.9;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.doc-action:hover {
+    background: var(--primary-soft);
+    border-color: var(--primary);
+    color: var(--primary);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-soft);
+}
+
+.doc-action:active {
+    transform: translateY(0) scale(0.96);
+    box-shadow: none;
+}
+
+.doc-action:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
+/* The download action is the primary one on each card. */
+.doc-action.is-primary {
+    background: linear-gradient(135deg, var(--grad-from), var(--grad-to));
+    border-color: transparent;
     color: #ffffff;
+}
+
+.doc-action.is-primary:hover {
+    background: linear-gradient(135deg, var(--grad-from), var(--grad-to));
+    border-color: transparent;
+    color: #ffffff;
+    box-shadow: 0 12px 24px -12px rgba(31, 95, 196, 0.95);
 }
 
 /* ---------- Code editor frame ---------- */
@@ -1705,6 +1809,9 @@ html[data-view="auth"] .header-brand {
         position: fixed;
         left: 0;
         top: 0;
+        flex-basis: min(264px, 100vw);
+        width: min(264px, 100vw);
+        max-width: 100vw;
         transform: translateX(-100%);
         transition: transform 0.25s ease;
         z-index: 55;
@@ -1715,24 +1822,48 @@ html[data-view="auth"] .header-brand {
         transform: translateX(0);
     }
 
-    /* Leave room for the fixed menu button so it never covers the brand. */
+    .sidebar-head {
+        display: grid;
+        grid-template-columns: 42px minmax(0, 1fr) 42px;
+        align-items: center;
+        gap: 8px;
+        padding: max(8px, calc(env(safe-area-inset-top) + 8px))
+            max(12px, env(safe-area-inset-right)) 8px
+            max(12px, env(safe-area-inset-left));
+    }
+
     .sidebar-brand {
-        padding: 14px 20px 14px 62px;
+        grid-column: 2;
+        justify-self: center;
+        flex: 0 1 auto;
+        padding: 0;
+    }
+
+    .sidebar-theme-toggle {
+        grid-column: 3;
+        justify-self: end;
+        margin-right: 0;
     }
 
     .mobile-menu-toggle {
         display: inline-flex;
     }
 
+    /* The sidebar is a drawer at this width, so keep the site identity in
+       the top bar. Its text can shrink instead of pushing controls offscreen. */
+    .header-brand {
+        display: inline-flex;
+    }
+
     .app-topbar {
-        padding-left: 64px;
-        padding-right: 16px;
+        padding-left: max(62px, calc(env(safe-area-inset-left) + 52px));
+        padding-right: max(16px, env(safe-area-inset-right));
     }
 
     /* These pages have no menu button, so they need no gutter for one. */
     html[data-view="home"] .app-topbar,
     html[data-view="auth"] .app-topbar {
-        padding-left: 16px;
+        padding-left: max(16px, env(safe-area-inset-left));
     }
 
     .select {
@@ -1749,12 +1880,15 @@ html[data-view="auth"] .header-brand {
     }
 
     .app-topbar {
-        padding: 10px 14px 10px 62px;
+        padding-top: 10px;
+        padding-bottom: 10px;
+        padding-left: max(62px, calc(env(safe-area-inset-left) + 52px));
+        padding-right: max(14px, env(safe-area-inset-right));
     }
 
-    .topbar-back {
-        padding: 6px 10px;
-        font-size: 13px;
+    html[data-view="home"] .app-topbar,
+    html[data-view="auth"] .app-topbar {
+        padding-left: max(16px, env(safe-area-inset-left));
     }
 
     .home-view {
@@ -1895,22 +2029,6 @@ html[data-view="auth"] .header-brand {
         box-shadow: none;
     }
 }
-.view-btn {
-    background: #0ea5e9;
-    color: white;
-
-    padding: 10px 16px;
-    border-radius: 8px;
-
-    text-decoration: none;
-    margin-right: 10px;
-
-    display: inline-block;
-}
-
-.view-btn:hover {
-    background: #0284c7;
-}
 
 /* =========================================================
    ACCOUNTS, PROGRESS AND DASHBOARD
@@ -1918,56 +2036,106 @@ html[data-view="auth"] .header-brand {
    and the personalised learning dashboard.
 ========================================================= */
 
-/* ---------- Header account control ---------- */
+/* ---------- Top bar account control ---------- */
 
 .auth-area {
     display: flex;
     align-items: center;
     gap: 8px;
+    min-width: 0;
 }
 
-/* The home page keeps the theme switch alone in the top-right corner. */
+/* Guests keep the theme switch alone in the top-right corner. */
 .auth-area[hidden] {
     display: none;
 }
 
 .user-menu {
     position: relative;
+    min-width: 0;
 }
 
 .user-button {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    min-height: 38px;
-    padding: 3px 10px 3px 4px;
+    gap: 9px;
+    min-height: 42px;
+    padding: 4px 10px 4px 4px;
     border: 1px solid var(--border);
-    border-radius: 10px;
+    border-radius: 12px;
     background: var(--surface);
     color: var(--text-soft);
     font-size: 14px;
     font-weight: 600;
-    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    text-align: left;
+    transition: background-color 0.2s ease, border-color 0.2s ease,
+        color 0.2s ease, transform 0.18s ease, box-shadow 0.2s ease;
 }
 
 .user-button:hover {
     background: var(--surface-hover);
     border-color: var(--border-strong);
     color: var(--text);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-soft);
+}
+
+.user-button:active {
+    transform: translateY(0) scale(0.99);
+    box-shadow: none;
+}
+
+/* The avatar carries the online indicator in its bottom-right corner. */
+.user-avatar-wrap {
+    position: relative;
+    flex: 0 0 auto;
+    display: inline-flex;
 }
 
 .user-avatar {
-    width: 30px;
-    height: 30px;
-    flex: 0 0 auto;
+    width: 32px;
+    height: 32px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    background: linear-gradient(135deg, #5b6df0, #8b5cf6);
+    background: linear-gradient(135deg, var(--grad-from), var(--grad-to));
     color: #ffffff;
     font-size: 14px;
     font-weight: 700;
+    box-shadow: 0 4px 10px -4px rgba(31, 95, 196, 0.8);
+}
+
+.user-presence {
+    position: absolute;
+    right: -1px;
+    bottom: -1px;
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: #22c55e;
+    border: 2px solid var(--surface);
+    animation: presence-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes presence-pulse {
+    0%,
+    100% {
+        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.6);
+        opacity: 1;
+    }
+
+    50% {
+        box-shadow: 0 0 0 5px rgba(34, 197, 94, 0);
+        opacity: 0.6;
+    }
+}
+
+.user-details {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    line-height: 1.25;
 }
 
 .user-name {
@@ -1975,6 +2143,30 @@ html[data-view="auth"] .header-brand {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+.user-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    color: #22c55e;
+}
+
+.user-status::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    animation: presence-pulse 1.8s ease-in-out infinite;
+}
+
+/* Deep enough green to stay readable on the light surface. */
+:root[data-theme="light"] .user-status {
+    color: #15803d;
 }
 
 .user-chevron {
@@ -1986,7 +2178,7 @@ html[data-view="auth"] .header-brand {
     position: absolute;
     right: 0;
     top: calc(100% + 8px);
-    min-width: 190px;
+    min-width: 170px;
     display: flex;
     flex-direction: column;
     gap: 2px;
@@ -2010,6 +2202,7 @@ html[data-view="auth"] .header-brand {
     font-weight: 500;
     text-align: left;
     text-decoration: none;
+    transition: background-color 0.15s ease, color 0.15s ease;
 }
 
 .user-menu-item:hover {
@@ -2018,12 +2211,21 @@ html[data-view="auth"] .header-brand {
 }
 
 .user-menu-item.is-danger {
-    color: #fda4af;
+    color: #fb7185;
 }
 
 .user-menu-item.is-danger:hover {
     background: rgba(244, 63, 94, 0.12);
-    color: #fb7185;
+    color: #f43f5e;
+}
+
+:root[data-theme="light"] .user-menu-item.is-danger {
+    color: #b4233c;
+}
+
+:root[data-theme="light"] .user-menu-item.is-danger:hover {
+    background: rgba(244, 63, 94, 0.1);
+    color: #b4233c;
 }
 
 /* ---------- Sign in / Sign up ---------- */
@@ -2299,7 +2501,7 @@ html[data-view="auth"] .header-brand {
     height: 100%;
     width: 0;
     border-radius: 999px;
-    background: linear-gradient(90deg, #5b6df0, #8b5cf6);
+    background: linear-gradient(90deg, var(--grad-from), var(--grad-to));
     transition: width 0.35s ease;
 }
 
@@ -2341,6 +2543,15 @@ html[data-view="auth"] .header-brand {
     border-radius: 16px;
     background: var(--surface);
     box-shadow: var(--shadow-soft);
+    transition: border-color 0.2s ease, background-color 0.2s ease,
+        transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.dash-stat:hover {
+    transform: translateY(-3px);
+    border-color: var(--primary);
+    background: var(--surface-hover);
+    box-shadow: var(--shadow);
 }
 
 .dash-stat-value {
@@ -2368,6 +2579,15 @@ html[data-view="auth"] .header-brand {
     border-radius: 18px;
     background: var(--surface);
     box-shadow: var(--shadow-soft);
+    transition: border-color 0.2s ease, background-color 0.2s ease,
+        transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.dash-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--primary);
+    background: var(--surface-hover);
+    box-shadow: var(--shadow);
 }
 
 .dash-card h3 {
@@ -2455,7 +2675,7 @@ html[data-view="auth"] .header-brand {
     max-width: 42px;
     min-height: 6px;
     border-radius: 8px 8px 4px 4px;
-    background: linear-gradient(180deg, #8b5cf6, #5b6df0);
+    background: linear-gradient(180deg, var(--grad-to), var(--grad-from));
     transition: height 0.35s ease;
 }
 
@@ -2716,7 +2936,20 @@ html[data-view="auth"] .header-brand {
         border-radius: 16px;
     }
 
-    .user-name {
+    /* Phone bar: the site logo and the menu button are enough. The account
+       chip is dropped and the theme switch moves into the drawer. */
+    .topbar-account,
+    #theme-toggle {
+        display: none;
+    }
+
+    .sidebar-theme-toggle {
+        display: inline-flex;
+    }
+
+    /* The bar above already names the site, so the drawer keeps the mark
+       only and leaves room for the theme switch beside it. */
+    .sidebar-brand .brand-text {
         display: none;
     }
 

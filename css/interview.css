@@ -135,15 +135,19 @@
     background: var(--surface-2);
     border: 1px solid var(--border);
     border-radius: 14px;
-    transition: border-color 0.18s ease, background 0.18s ease, transform 0.18s ease;
+    transition: border-color 0.18s ease, background-color 0.18s ease,
+        transform 0.18s ease, box-shadow 0.18s ease;
 }
 
 .interview-choice:hover {
-    transform: translateY(-2px);
-    border-color: var(--border-strong);
+    transform: translateY(-3px);
+    border-color: var(--primary);
+    background: var(--surface-hover);
+    box-shadow: var(--shadow);
 }
 
-.interview-choice.is-active {
+.interview-choice.is-active,
+.interview-choice.is-active:hover {
     border-color: var(--primary);
     background: var(--primary-soft);
 }

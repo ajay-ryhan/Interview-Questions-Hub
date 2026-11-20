@@ -7,7 +7,7 @@
     <title>QA Interview Hub</title>
     <meta name="description" content="Your QA interview preparation hub.">
     <meta name="color-scheme" content="dark light">
-    <meta name="theme-color" id="theme-color-meta" content="#0b1020">
+    <meta name="theme-color" id="theme-color-meta" content="#060b16">
 
     <link rel="icon" type="image/png" sizes="64x64" href="assets/images/favicon.png">
     <link rel="icon" type="image/svg+xml" href="assets/images/favicon.svg">
@@ -54,22 +54,50 @@
 <!-- Sidebar -->
 <aside class="app-sidebar" id="app-sidebar" aria-label="Main navigation">
 
-    <a class="sidebar-brand" id="brand-link" href="#home" aria-label="QA Interview Hub home">
-        <span class="brand-mark" aria-hidden="true">QA</span>
-        <span class="brand-text">
-            <strong>QA Interview Hub</strong>
-        </span>
-    </a>
+    <div class="sidebar-head">
+
+        <a class="sidebar-brand" id="brand-link" href="#home" aria-label="QA Interview Hub home">
+            <span class="brand-mark" aria-hidden="true">QA</span>
+            <span class="brand-text">
+                <strong>QA Interview Hub</strong>
+            </span>
+        </a>
+
+        <!-- Phones keep only the logo in the top bar, so the theme switch
+             lives in the drawer here. Hidden from tablet width upwards. -->
+        <button id="sidebar-theme-toggle"
+                class="sidebar-theme-toggle"
+                type="button"
+                aria-label="Switch to dark theme"
+                title="Switch to dark theme">
+            <svg class="icon-sun" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+                <circle cx="12" cy="12" r="4.2" fill="currentColor"/>
+                <g stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <line x1="12" y1="2" x2="12" y2="4.5"/>
+                    <line x1="12" y1="19.5" x2="12" y2="22"/>
+                    <line x1="2" y1="12" x2="4.5" y2="12"/>
+                    <line x1="19.5" y1="12" x2="22" y2="12"/>
+                    <line x1="4.9" y1="4.9" x2="6.7" y2="6.7"/>
+                    <line x1="17.3" y1="17.3" x2="19.1" y2="19.1"/>
+                    <line x1="4.9" y1="19.1" x2="6.7" y2="17.3"/>
+                    <line x1="17.3" y1="6.7" x2="19.1" y2="4.9"/>
+                </g>
+            </svg>
+            <svg class="icon-moon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+                <path fill="currentColor"
+                      d="M20.5 14.2A8.5 8.5 0 0 1 9.8 3.5a.7.7 0 0 0-.9-.9A9.9 9.9 0 1 0 21.4 15.1a.7.7 0 0 0-.9-.9z"/>
+            </svg>
+        </button>
+
+    </div>
 
     <nav class="sidebar-nav" id="sidebar-nav" aria-label="Main">
         <p class="sidebar-label">Main menu</p>
         <ul class="sidebar-list" id="sidebar-list"></ul>
     </nav>
 
-    <div class="sidebar-footer">
-        <div class="sidebar-account auth-area" id="auth-area"></div>
-        <div id="sidebar-footer"></div>
-    </div>
+    <!-- Bottom of the sidebar: Log in for guests, Log out once signed in -->
+    <div class="sidebar-footer" id="sidebar-footer"></div>
 
 </aside>
 
@@ -88,13 +116,11 @@
                     <span class="brand-mark" aria-hidden="true">QA</span>
                     <strong>QA Interview Hub</strong>
                 </a>
-
-                <button id="home-button" class="topbar-back" type="button" hidden>
-                    <span aria-hidden="true">←</span> <span id="home-button-label">Home</span>
-                </button>
             </div>
 
             <div class="topbar-right">
+
+                <div class="topbar-account auth-area" id="auth-area"></div>
 
                 <button id="theme-toggle"
                         class="icon-button"

@@ -169,15 +169,35 @@
         trigger.className = "user-button";
         trigger.setAttribute("aria-haspopup", "true");
         trigger.setAttribute("aria-expanded", "false");
+        trigger.title = (user.name || "Account") + " · Online";
 
         var avatar = document.createElement("span");
-        avatar.className = "user-avatar";
+        avatar.className = "user-avatar-wrap";
         avatar.setAttribute("aria-hidden", "true");
-        avatar.textContent = (user.name || "?").trim().charAt(0).toUpperCase();
+
+        var initial = document.createElement("span");
+        initial.className = "user-avatar";
+        initial.textContent = (user.name || "?").trim().charAt(0).toUpperCase();
+
+        var presence = document.createElement("span");
+        presence.className = "user-presence";
+
+        avatar.appendChild(initial);
+        avatar.appendChild(presence);
+
+        var details = document.createElement("span");
+        details.className = "user-details";
 
         var name = document.createElement("span");
         name.className = "user-name";
         name.textContent = user.name;
+
+        var status = document.createElement("span");
+        status.className = "user-status";
+        status.textContent = "Online";
+
+        details.appendChild(name);
+        details.appendChild(status);
 
         var chevron = document.createElement("span");
         chevron.className = "user-chevron";
@@ -185,23 +205,15 @@
         chevron.textContent = "▾";
 
         trigger.appendChild(avatar);
-        trigger.appendChild(name);
+        trigger.appendChild(details);
         trigger.appendChild(chevron);
 
         var dropdown = document.createElement("div");
         dropdown.className = "user-dropdown";
         dropdown.hidden = true;
 
-        var dashboard = document.createElement("a");
-        dashboard.className = "user-menu-item";
-        dashboard.href = "#dashboard";
-        dashboard.textContent = "Dashboard";
-
-        var topics = document.createElement("a");
-        topics.className = "user-menu-item";
-        topics.href = "#topics";
-        topics.textContent = "Browse topics";
-
+        /* Navigation lives in the sidebar, so this menu only carries the
+           account action. */
         var logout = document.createElement("button");
         logout.type = "button";
         logout.className = "user-menu-item is-danger";
@@ -211,8 +223,6 @@
             doLogout();
         });
 
-        dropdown.appendChild(dashboard);
-        dropdown.appendChild(topics);
         dropdown.appendChild(logout);
 
         trigger.addEventListener("click", function (event) {

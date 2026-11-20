@@ -133,12 +133,31 @@
     const interviewView = document.getElementById("interview-view");
 
     const authArea = document.getElementById("auth-area");
-    const homeButton = document.getElementById("home-button");
-    const homeButtonLabel = document.getElementById("home-button-label");
     const brandLink = document.getElementById("brand-link");
     const themeToggle = document.getElementById("theme-toggle");
     const themeColorMeta = document.getElementById("theme-color-meta");
     const toTopButton = document.getElementById("to-top");
+
+    /* The top bar carries the theme switch on tablet and desktop. Phones keep
+       only the logo up there, so the drawer holds its own switch. */
+    const themeToggles = [
+        themeToggle,
+        document.getElementById("sidebar-theme-toggle")
+    ].filter(Boolean);
+
+    /* Inline icons for the document cards. */
+    const ICON_EYE =
+        '<svg viewBox="0 0 24 24" aria-hidden="true">' +
+        '<path d="M2.2 12S6 5.5 12 5.5 21.8 12 21.8 12 18 18.5 12 18.5 2.2 12 2.2 12z"/>' +
+        '<circle cx="12" cy="12" r="3.2"/>' +
+        "</svg>";
+
+    const ICON_DOWNLOAD =
+        '<svg viewBox="0 0 24 24" aria-hidden="true">' +
+        '<path d="M12 3v12"/>' +
+        '<polyline points="7 10.5 12 15.5 17 10.5"/>' +
+        '<path d="M4.5 19.5h15"/>' +
+        "</svg>";
 
     const topicGrid = document.getElementById("topic-grid");
     const topicChips = document.getElementById("topic-chips");
@@ -238,18 +257,20 @@
         root.setAttribute("data-theme", value);
         document.body.dataset.theme = value;
 
-        if (themeToggle) {
+        if (themeToggles.length) {
             const next = value === "dark" ? "light" : "dark";
             const label = "Switch to " + next + " theme";
 
-            themeToggle.title = label;
-            themeToggle.setAttribute("aria-label", label);
+            themeToggles.forEach(function (button) {
+                button.title = label;
+                button.setAttribute("aria-label", label);
+            });
         }
 
         if (themeColorMeta) {
             themeColorMeta.setAttribute(
                 "content",
-                value === "dark" ? "#0b1020" : "#ffffff"
+                value === "dark" ? "#060b16" : "#ffffff"
             );
         }
 
@@ -276,11 +297,11 @@
 
     applyTheme(currentTheme());
 
-    if (themeToggle) {
-        themeToggle.addEventListener("click", function () {
+    themeToggles.forEach(function (button) {
+        button.addEventListener("click", function () {
             applyTheme(currentTheme() === "dark" ? "light" : "dark");
         });
-    }
+    });
 
     /* ==========================
        Views and navigation
@@ -291,29 +312,15 @@
     let currentView = "home";
 
     /**
-     * The account block in the sidebar footer is only shown to signed-in
-     * users; guests get the Log in entry below it instead.
+     * The top bar shows who is signed in. Guests get nothing up there: the
+     * way into an account sits at the bottom of the sidebar instead.
      */
     function applyAuthArea() {
         if (!authArea) {
             return;
         }
 
-        const signedIn = Boolean(window.QAAuth && window.QAAuth.user);
-
-        authArea.hidden = !signedIn && (currentView === "home" || currentView === "auth");
-    }
-
-    /**
-     * The top bar carries a single navigation link back to the start of the
-     * app: the public landing page for guests, the dashboard once signed in.
-     */
-    function renderTopbarNav() {
-        const signedIn = Boolean(window.QAAuth && window.QAAuth.user);
-        const target = signedIn ? "dashboard" : "home";
-
-        homeButtonLabel.textContent = signedIn ? "Dashboard" : "Home";
-        homeButton.hidden = currentView === target;
+        authArea.hidden = !(window.QAAuth && window.QAAuth.user);
     }
 
     // auth.js announces every sign-in, sign-out and restored session.
@@ -344,7 +351,6 @@
         // Lets the stylesheet hide the sidebar on the standalone home page.
         root.dataset.view = name;
         applyAuthArea();
-        renderTopbarNav();
 
         updateSidebarActive();
         closeSidebar();
@@ -439,10 +445,6 @@
             showView("topics");
         }
     }
-
-    homeButton.addEventListener("click", function () {
-        goTo(window.QAAuth && window.QAAuth.user ? "dashboard" : "home");
-    });
 
     brandLink.addEventListener("click", function (event) {
         event.preventDefault();
@@ -576,8 +578,9 @@
     }
 
     /**
-     * The account block above the footer shows the signed-in user and their
-     * account actions, so only guests need an entry here.
+     * The bottom of the sidebar holds the single account action: Log in for
+     * guests, Log out once a user is signed in. Who is signed in is shown in
+     * the top bar, not here.
      */
     function renderSidebarFooter() {
         if (!sidebarFooter) {
@@ -586,29 +589,38 @@
 
         clearElement(sidebarFooter);
 
-        if (window.QAAuth && window.QAAuth.user) {
-            return;
-        }
+        const signedIn = Boolean(window.QAAuth && window.QAAuth.user);
 
-        const link = createElement("button", "sidebar-item");
-        link.type = "button";
+        const button = createElement(
+            "button",
+            "sidebar-item" + (signedIn ? " is-danger" : "")
+        );
+        button.type = "button";
 
         const icon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
         icon.setAttribute("viewBox", "0 0 24 24");
         icon.setAttribute("aria-hidden", "true");
-        icon.innerHTML =
-            '<path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>' +
-            '<polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/>';
+        icon.innerHTML = signedIn
+            ? '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>' +
+              '<polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>'
+            : '<path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>' +
+              '<polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/>';
 
-        link.appendChild(icon);
-        link.appendChild(createElement("span", null, "Log in"));
+        button.appendChild(icon);
+        button.appendChild(createElement("span", null, signedIn ? "Log out" : "Log in"));
 
-        link.addEventListener("click", function (event) {
+        button.addEventListener("click", function (event) {
             event.preventDefault();
+
+            if (signedIn && window.QAAuth && window.QAAuth.logout) {
+                window.QAAuth.logout();
+                return;
+            }
+
             goTo("login");
         });
 
-        sidebarFooter.appendChild(link);
+        sidebarFooter.appendChild(button);
     }
 
     function updateSidebarActive() {
@@ -687,7 +699,6 @@
     // The footer's Log in / Log out depends on the auth state.
     document.addEventListener("qahub:auth", function () {
         renderSidebarFooter();
-        renderTopbarNav();
     });
 
     window.addEventListener("resize", function () {
@@ -1750,26 +1761,25 @@
                     /* View */
 
                     const viewLink =
-                        createElement(
-                            "a",
-                            "view-btn",
-                            "👁 View"
-                        );
+                        createElement("a", "doc-action");
 
                     viewLink.href =
                         "./viewer.html?file=" +
                         encodeURIComponent(doc.file);
 
                     viewLink.target = "_blank";
+                    viewLink.rel = "noopener";
+                    viewLink.title = "View " + (doc.name || doc.file);
+                    viewLink.setAttribute(
+                        "aria-label",
+                        "View " + (doc.name || doc.file)
+                    );
+                    viewLink.innerHTML = ICON_EYE;
 
                     /* Download */
 
                     const downloadLink =
-                        createElement(
-                            "a",
-                            "download-btn",
-                            "↓ Download"
-                        );
+                        createElement("a", "doc-action is-primary");
 
                     downloadLink.href =
                         filePath;
@@ -1778,6 +1788,13 @@
                         doc.file
                             .split("/")
                             .pop();
+
+                    downloadLink.title = "Download " + (doc.name || doc.file);
+                    downloadLink.setAttribute(
+                        "aria-label",
+                        "Download " + (doc.name || doc.file)
+                    );
+                    downloadLink.innerHTML = ICON_DOWNLOAD;
 
                     /* Actions */
 
